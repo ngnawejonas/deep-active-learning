@@ -3,23 +3,29 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torchvision.models as models
+
 from torch.utils.data import DataLoader
+
 from tqdm import tqdm
+
 
 class Net:
     def __init__(self, net, params, device):
         self.net = net
         self.params = params
         self.device = device
-        
+
     def train(self, data):
         n_epoch = self.params['n_epoch']
         self.clf = self.net().to(self.device)
         self.clf.train()
-        optimizer = optim.SGD(self.clf.parameters(), **self.params['optimizer_args'])
+        optimizer = optim.SGD(
+            self.clf.parameters(),
+            **self.params['optimizer_args'])
 
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
-        for epoch in tqdm(range(1, n_epoch+1), ncols=100):
+        for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             for batch_idx, (x, y, idxs) in enumerate(loader):
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
@@ -39,7 +45,7 @@ class Net:
                 pred = out.max(1)[1]
                 preds[idxs] = pred.cpu()
         return preds
-    
+
     def predict_prob(self, data):
         self.clf.eval()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
@@ -51,7 +57,7 @@ class Net:
                 prob = F.softmax(out, dim=1)
                 probs[idxs] = prob.cpu()
         return probs
-    
+
     def predict_prob_dropout(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
@@ -65,7 +71,7 @@ class Net:
                     probs[idxs] += prob.cpu()
         probs /= n_drop
         return probs
-    
+
     def predict_prob_dropout_split(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([n_drop, len(data), len(np.unique(data.Y))])
@@ -78,7 +84,7 @@ class Net:
                     prob = F.softmax(out, dim=1)
                     probs[i][idxs] += F.softmax(out, dim=1).cpu()
         return probs
-    
+
     def get_embeddings(self, data):
         self.clf.eval()
         embeddings = torch.zeros([len(data), self.clf.get_embedding_dim()])
@@ -89,32 +95,40 @@ class Net:
                 out, e1 = self.clf(x)
                 embeddings[idxs] = e1.cpu()
         return embeddings
-        
 
-class MNIST_Net(nn.Module):
-    def __init__(self):
-        super(MNIST_Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 10, kernel_size=5)
-        self.conv2 = nn.Conv2d(10, 20, kernel_size=5)
-        self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(320, 50)
-        self.fc2 = nn.Linear(50, 10)
+
+class TORCHVISION_Net(nn.Module):
+    def __init__(self, torchv_model):
+        super().__init__()
+        layers = list(torchv_model.children())
+        self.embedding = torch.nn.Sequential(*(layers[:-1]))
+        self.fc_head = torch.nn.Sequential(*(layers[-1:]))
 
     def forward(self, x):
-        x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-        x = x.view(-1, 320)
-        e1 = F.relu(self.fc1(x))
-        x = F.dropout(e1, training=self.training)
-        x = self.fc2(x)
+        e1 = self.embedding(x)
+        x = self.fc_head(e1)
         return x, e1
 
     def get_embedding_dim(self):
-        return 50
+        return self.fc_head[0].in_features
+
+
+class MNIST_Net(TORCHVISION_Net):
+    def __init__(self):
+        n_classes = 10
+        # img_size = (1, 28, 28)  # CHW
+        model = models.resnet18(num_classes=n_classes)
+        model.conv1 = nn.Conv2d(
+            1, 64, kernel_size=(
+                7, 7), stride=(
+                2, 2), padding=(
+                3, 3), bias=False)
+        super().__init__(model)
+
 
 class SVHN_Net(nn.Module):
     def __init__(self):
-        super(SVHN_Net, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3)
         self.conv2 = nn.Conv2d(32, 32, kernel_size=3)
         self.conv3 = nn.Conv2d(32, 32, kernel_size=3)
@@ -134,12 +148,13 @@ class SVHN_Net(nn.Module):
         x = self.fc3(x)
         return x, e1
 
-    def get_embedding_dim(self):
+    def get_embedding_dim():
         return 50
+
 
 class CIFAR10_Net(nn.Module):
     def __init__(self):
-        super(CIFAR10_Net, self).__init__()
+        super().__init__()
         self.conv1 = nn.Conv2d(3, 32, kernel_size=5)
         self.conv2 = nn.Conv2d(32, 32, kernel_size=5)
         self.conv3 = nn.Conv2d(32, 64, kernel_size=5)
@@ -156,5 +171,5 @@ class CIFAR10_Net(nn.Module):
         x = self.fc2(x)
         return x, e1
 
-    def get_embedding_dim(self):
+    def get_embedding_dim():
         return 50
