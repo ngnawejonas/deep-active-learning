@@ -101,11 +101,12 @@ class TORCHVISION_Net(nn.Module):
     def __init__(self, torchv_model):
         super().__init__()
         layers = list(torchv_model.children())
-        self.embedding = torch.nn.Sequential(*(layers[:-1]))
+        self.embedding = torch.nn.Sequential(*(layers[:-1]))        
         self.fc_head = layers[-1:][0]
 
     def forward(self, x):
         e1 = self.embedding(x)
+        x = torch.reshape(e1, (self.get_embedding_dim(), -1))
         x = self.fc_head(e1)
         return x, e1
 
