@@ -107,7 +107,7 @@ class TORCHVISION_Net(nn.Module):
     def forward(self, x):
         e1 = self.embedding(x)
         x = torch.reshape(e1, (self.get_embedding_dim(), -1))
-        x = self.fc_head(e1)
+        x = self.fc_head(x)
         return x, e1
 
     def get_embedding_dim(self):
