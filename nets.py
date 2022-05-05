@@ -106,10 +106,7 @@ class TORCHVISION_Net(nn.Module):
 
     def forward(self, x):
         e1 = self.embedding(x)
-        x = torch.flatten(e1,1) # (-1,self.get_embedding_dim()))
-        print("shapes:",e1.shape, x.shape)
-        print(self.fc_head)
-        print(self.embedding)
+        x = torch.flatten(e1,1)
         x = self.fc_head(x)
         return x, e1
 
