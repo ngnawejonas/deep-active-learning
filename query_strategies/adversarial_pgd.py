@@ -1,7 +1,6 @@
 # import numpy as np
 # import torch
-from .strategy import Strategy
-from tqdm import tqdm
+from .adversarial_strategy import AdversarialStrategy
 
 class AdversarialBIM(AdversarialStrategy):
     def __init__(self, dataset, net,
@@ -16,7 +15,7 @@ class AdversarialBIM(AdversarialStrategy):
 
     def attack_fn(self, X, **kwargs):
         """PGD attack"""
-        return projected_gradient_descent(true_image, ,
-                                            eps=0.3, eps_iter=1e-2, nb_iter=10, norm=np.inf,
+        return projected_gradient_descent(true_image,
+                                            eps=0.3, eps_iter=1e-2, nb_iter=1, norm=np.inf,
                                             targeted=False, rand_init=True, rand_minmax=0.3, 
                                             sanity_checks=False)

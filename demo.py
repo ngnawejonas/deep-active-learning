@@ -1,14 +1,17 @@
 import argparse
+import time
 import yaml
 from pprint import pprint
 import numpy as np
 import torch
-from utils import get_dataset, get_net, get_strategy
+from utils import get_dataset, get_net, get_strategy, log_to_file
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+
+    parser.add_argument('--cfg_file', type=str, default=None, help="config file")
     parser.add_argument('--seed', type=int, default=1, help="random seed")
     parser.add_argument(
         '--n_init_labeled',
@@ -21,7 +24,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--n_final_labeled',
         type=int,
-        default=-1,
+        default=None,
         help="number of final labeled samples")
     parser.add_argument(
         '--dataset_name',
@@ -56,7 +59,40 @@ if __name__ == "__main__":
                                  "AdversarialBIM",
                                  "AdversarialDeepFool"], help="query strategy")
     args = parser.parse_args()
-    pprint(vars(args))
+
+    if args.cfg_file:
+        try:
+            with open(args.cfg_file, 'r') as config_file:
+                config = yaml.load(config_file, Loader=yaml.SafeLoader)
+        except yaml.YAMLError as exc:
+            print("Error in configuration file:", exc)
+        pprint(config)
+
+        seed =  config['seed']
+        n_init_labeled = config['n_init_labeled']
+        n_query = config['n_query']
+        n_final_labeled = config['n_final_labeled']
+        if args.n_final_labeled:
+            n_round = (n_final_labeled - n_init_labeled) // n_query
+        else:
+            n_round = config['n_round']
+
+        dataset_name = config['dataset_name']
+        strategy_name =  config['strategy_name']
+
+    else:
+        pprint(vars(args))
+        seed =  args.seed
+        n_init_labeled = args.n_init_labeled
+        n_query = args.n_query
+        n_final_labeled = args.n_final_labeled
+        if n_final_labeled:
+            n_round = (n_final_labeled - n_init_labeled) // n_query
+        else:
+            n_round = args.n_round
+        n_round = args.n_round
+        dataset_name = args.dataset_name
+        strategy_name =  args.strategy_name
     print()
     #
     try:
@@ -66,52 +102,47 @@ if __name__ == "__main__":
         print("Error in configuration file:", exc)
 
     # fix random seed
-    np.random.seed(args.seed)
-    torch.manual_seed(args.seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     torch.backends.cudnn.enabled = False
 
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    dataset = get_dataset(args.dataset_name)                   # load dataset
-    net = get_net(args.dataset_name, device)                   # load network
+    dataset = get_dataset(dataset_name)                   # load dataset
+    net = get_net(dataset_name, device)                   # load network
     params = {}
-    if strategy_config.get(args.strategy_name):
-        params = strategy_config[args.strategy_name]
-    strategy = get_strategy(args.strategy_name)(dataset, 
+    if strategy_config.get(strategy_name):
+        params = strategy_config[strategy_name]
+    strategy = get_strategy(strategy_name)(dataset, 
                             net, **params)                      # load strategy
 
     # start experiment
-    dataset.initialize_labels(args.n_init_labeled)
-    print(f"number of labeled pool: {args.n_init_labeled}")
-    print(f"number of unlabeled pool: {dataset.n_pool-args.n_init_labeled}")
+    dataset.initialize_labels(n_init_labeled)
+    print(f"number of labeled pool: {n_init_labeled}")
+    print(f"number of unlabeled pool: {dataset.n_pool-n_init_labeled}")
     print(f"number of testing pool: {dataset.n_test}")
     print()
-
+    start = time.time()
     # round 0 accuracy
     print("Round 0")
     strategy.train()
     preds = strategy.predict(dataset.get_test_data())
     print(f"Round 0 testing accuracy: {dataset.cal_test_acc(preds)}")
 
-    if args.n_final_labeled < 0:
-        n_round = args.n_round
-    else:
-        n_round = (args.n_final_labeled - args.n_init_labeled) // args.n_query
-
     for rd in range(1, n_round + 1):
         print(f"Round {rd}")
 
         if strategy.pseudo_labeling:
             # query
-            query_idxs, extra_data = strategy.query(args.n_query)
+            query_idxs, extra_data = strategy.query(n_query)
             # update labels
             strategy.update(query_idxs)    
             strategy.add_extra(extra_data)
         else:
             # query
-            query_idxs = strategy.query(args.n_query)
+            query_idxs = strategy.query(n_query)
             # update labels
             strategy.update(query_idxs)
 
@@ -120,3 +151,6 @@ if __name__ == "__main__":
         # calculate accuracy
         preds = strategy.predict(dataset.get_test_data())
         print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")
+    T = time.time() - start
+    print(f'Total time: {T} secs.')
+    log_to_file('time.txt', f'Total time: {T} secs.')

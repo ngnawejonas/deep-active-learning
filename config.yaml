@@ -1,0 +1,7 @@
+seed: 1
+n_init_labeled: 100
+n_query: 100
+n_round: 5
+n_final_labeled: null
+dataset_name: 'MNIST'
+strategy_name: 'RandomSampling'
