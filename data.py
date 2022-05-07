@@ -14,7 +14,9 @@ class Data:
         self.n_test = len(X_test)
         
         self.labeled_idxs = np.zeros(self.n_pool, dtype=bool)
-        
+        # To handle addition of adversarial dataset to labelled pool
+        self.X_train_extra = np.array([])
+
     def initialize_labels(self, num):
         # generate initial labeled pool
         tmp_idxs = np.arange(self.n_pool)
@@ -23,10 +25,13 @@ class Data:
     
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
+        X = ys = np.vstack([self.X_train[labeled_idxs], self.X_train_extra]) if self.X_train_extra.size else self.X_train[labeled_idxs]
         return labeled_idxs, self.handler(self.X_train[labeled_idxs], self.Y_train[labeled_idxs])
     
-    def get_unlabeled_data(self):
+    def get_unlabeled_data(self, n_subset=None):
         unlabeled_idxs = np.arange(self.n_pool)[~self.labeled_idxs]
+        if n_subset:
+            unlabeled_idxs = unlabeled_idxs[:n_subset]
         return unlabeled_idxs, self.handler(self.X_train[unlabeled_idxs], self.Y_train[unlabeled_idxs])
     
     def get_train_data(self):

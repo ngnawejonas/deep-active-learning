@@ -21,9 +21,11 @@ class AdversarialBIM(Strategy):
             loss = F.cross_entropy(out, ny)
             loss.backward()
 
-            eta += self.eps * torch.sign(nx.grad.data)
+            eta = self.eps * torch.sign(nx.grad.data)            
             nx.grad.data.zero_()
-
+            
+            eta = torch.clamp(eta, np.inf, eps)
+            eta = nx - torch.unsqueeze(x, 1)
             out, e1 = self.net.clf(nx+eta)
             py = out.max(1)[1]
 
@@ -43,5 +45,3 @@ class AdversarialBIM(Strategy):
         self.net.clf.cuda()
 
         return unlabeled_idxs[dis.argsort()[:n]]
-
-

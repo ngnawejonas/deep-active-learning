@@ -34,6 +34,15 @@ class Net:
                 loss.backward()
                 optimizer.step()
 
+    def predict_example(self, data):
+        self.clf.eval()
+        with torch.no_grad():
+            for x, y, idxs in loader:
+                x, y = x.to(self.device), y.to(self.device)
+                out, e1 = self.clf(x)
+                pred = out.max(1)[1]
+                preds[idxs] = pred.cpu()
+        return preds
     def predict(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)

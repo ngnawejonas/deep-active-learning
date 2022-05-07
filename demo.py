@@ -1,102 +1,122 @@
 import argparse
+import yaml
 from pprint import pprint
 import numpy as np
 import torch
 from utils import get_dataset, get_net, get_strategy
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--seed', type=int, default=1, help="random seed")
-parser.add_argument(
-    '--n_init_labeled',
-    type=int,
-    default=10000,
-    help="number of init labeled samples")
-parser.add_argument('--n_query', type=int, default=1000,
-                    help="number of queries per round")
-parser.add_argument('--n_round', type=int, default=10, help="number of rounds")
-parser.add_argument(
-    '--n_final_labeled',
-    type=int,
-    default=-1,
-    help="number of final labeled samples")
-parser.add_argument(
-    '--dataset_name',
-    type=str,
-    default="MNIST",
-    choices=[
-        "MNIST",
-        "FashionMNIST",
-        "SVHN",
-        "CIFAR10"],
-    help="dataset")
-parser.add_argument(
-    '--net_architect',
-    type=str,
-    default="None",
-    choices=[
-        "None",
-        "resnet18",
-        "vgg16"],
-    help="network architecture")
-parser.add_argument('--strategy_name', type=str, default="RandomSampling",
-                    choices=["RandomSampling",
-                             "LeastConfidence",
-                             "MarginSampling",
-                             "EntropySampling",
-                             "LeastConfidenceDropout",
-                             "MarginSamplingDropout",
-                             "EntropySamplingDropout",
-                             "KMeansSampling",
-                             "KCenterGreedy",
-                             "BALDDropout",
-                             "AdversarialBIM",
-                             "AdversarialDeepFool"], help="query strategy")
-args = parser.parse_args()
-pprint(vars(args))
-print()
+if __name__ == "__main__":
 
-# fix random seed
-np.random.seed(args.seed)
-torch.manual_seed(args.seed)
-torch.backends.cudnn.enabled = False
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', type=int, default=1, help="random seed")
+    parser.add_argument(
+        '--n_init_labeled',
+        type=int,
+        default=10000,
+        help="number of init labeled samples")
+    parser.add_argument('--n_query', type=int, default=1000,
+                        help="number of queries per round")
+    parser.add_argument('--n_round', type=int, default=10, help="number of rounds")
+    parser.add_argument(
+        '--n_final_labeled',
+        type=int,
+        default=-1,
+        help="number of final labeled samples")
+    parser.add_argument(
+        '--dataset_name',
+        type=str,
+        default="MNIST",
+        choices=[
+            "MNIST",
+            "FashionMNIST",
+            "SVHN",
+            "CIFAR10"],
+        help="dataset")
+    # parser.add_argument(
+    #     '--net_architect',
+    #     type=str,
+    #     default="None",
+    #     choices=[
+    #         "None",
+    #         "resnet18",
+    #         "vgg16"],
+    #     help="network architecture")
+    parser.add_argument('--strategy_name', type=str, default="RandomSampling",
+                        choices=["RandomSampling",
+                                 "LeastConfidence",
+                                 "MarginSampling",
+                                 "EntropySampling",
+                                 "LeastConfidenceDropout",
+                                 "MarginSamplingDropout",
+                                 "EntropySamplingDropout",
+                                 "KMeansSampling",
+                                 "KCenterGreedy",
+                                 "BALDDropout",
+                                 "AdversarialBIM",
+                                 "AdversarialDeepFool"], help="query strategy")
+    args = parser.parse_args()
+    pprint(vars(args))
+    print()
+    #
+    try:
+        with open('strategy_config.yaml', 'r') as config_file:
+            strategy_config = yaml.load(config_file, Loader=yaml.SafeLoader)
+    except yaml.YAMLError as exc:
+        print("Error in configuration file:", exc)
 
-# device
-use_cuda = torch.cuda.is_available()
-device = torch.device("cuda" if use_cuda else "cpu")
+    # fix random seed
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.backends.cudnn.enabled = False
 
-dataset = get_dataset(args.dataset_name)                   # load dataset
-net = get_net(args.dataset_name, device)                   # load network
-strategy = get_strategy(args.strategy_name)(dataset, net)  # load strategy
+    # device
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
 
-# start experiment
-dataset.initialize_labels(args.n_init_labeled)
-print(f"number of labeled pool: {args.n_init_labeled}")
-print(f"number of unlabeled pool: {dataset.n_pool-args.n_init_labeled}")
-print(f"number of testing pool: {dataset.n_test}")
-print()
+    dataset = get_dataset(args.dataset_name)                   # load dataset
+    net = get_net(args.dataset_name, device)                   # load network
+    params = {}
+    if strategy_config.get(args.strategy_name):
+        params = strategy_config[args.strategy_name]
+    strategy = get_strategy(args.strategy_name)(dataset, 
+                            net, **params)                      # load strategy
 
-# round 0 accuracy
-print("Round 0")
-strategy.train()
-preds = strategy.predict(dataset.get_test_data())
-print(f"Round 0 testing accuracy: {dataset.cal_test_acc(preds)}")
+    # start experiment
+    dataset.initialize_labels(args.n_init_labeled)
+    print(f"number of labeled pool: {args.n_init_labeled}")
+    print(f"number of unlabeled pool: {dataset.n_pool-args.n_init_labeled}")
+    print(f"number of testing pool: {dataset.n_test}")
+    print()
 
-if args.n_final_labeled < 0:
-    n_round = args.n_round
-else:
-    n_round = (args.n_final_labeled - args.n_init_labeled) // args.n_query
-
-for rd in range(1, n_round + 1):
-    print(f"Round {rd}")
-
-    # query
-    query_idxs = strategy.query(args.n_query)
-
-    # update labels
-    strategy.update(query_idxs)
+    # round 0 accuracy
+    print("Round 0")
     strategy.train()
-
-    # calculate accuracy
     preds = strategy.predict(dataset.get_test_data())
-    print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")
+    print(f"Round 0 testing accuracy: {dataset.cal_test_acc(preds)}")
+
+    if args.n_final_labeled < 0:
+        n_round = args.n_round
+    else:
+        n_round = (args.n_final_labeled - args.n_init_labeled) // args.n_query
+
+    for rd in range(1, n_round + 1):
+        print(f"Round {rd}")
+
+        if strategy.pseudo_labeling:
+            # query
+            query_idxs, extra_data = strategy.query(args.n_query)
+            # update labels
+            strategy.update(query_idxs)    
+            strategy.add_extra(extra_data)
+        else:
+            # query
+            query_idxs = strategy.query(args.n_query)
+            # update labels
+            strategy.update(query_idxs)
+
+        strategy.train()
+
+        # calculate accuracy
+        preds = strategy.predict(dataset.get_test_data())
+        print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")

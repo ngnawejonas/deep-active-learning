@@ -57,6 +57,9 @@ def get_dataset(name):
 
 
 def get_net(name, device):
+    if device == 'cpu':
+        params[name]['train_args']['num_workers'] = 0
+    print(params[name]['train_args']['num_workers'])
     if name == 'MNIST':
         return Net(MNIST_Net, params[name], device)
     elif name == 'FashionMNIST':
@@ -98,6 +101,8 @@ def get_strategy(name):
         strategy = AdversarialBIM
     elif name == "AdversarialDeepFool":
         strategy = AdversarialDeepFool
+    elif name == "AdversarialPGD":
+        strategy = AdversarialPGD
     else:
         raise NotImplementedError
     return strategy
@@ -105,3 +110,10 @@ def get_strategy(name):
 # albl_list = [MarginSampling(X_tr, Y_tr, idxs_lb, net, handler, args),
 #              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]
 # strategy = ActiveLearningByLearning(X_tr, Y_tr, idxs_lb, net, handler, args, strategy_list=albl_list, delta=0.1)
+
+def log_to_file(file_name, text):
+    file = open(file_name, 'a')
+    file.write(text)
+    if not text.endswith('\n'):
+        file.write('\n')
+    file.close()
