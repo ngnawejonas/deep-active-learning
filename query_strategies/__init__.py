@@ -9,4 +9,5 @@ from .kmeans_sampling import KMeansSampling
 from .kcenter_greedy import KCenterGreedy
 from .bayesian_active_learning_disagreement_dropout import BALDDropout
 from .adversarial_bim import AdversarialBIM
+from .adversarial_pgd import AdversarialPGD
 from .adversarial_deepfool import AdversarialDeepFool

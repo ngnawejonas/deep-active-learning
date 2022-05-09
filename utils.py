@@ -5,18 +5,19 @@ from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
     KMeansSampling, KCenterGreedy, BALDDropout, \
-    AdversarialBIM, AdversarialDeepFool
+    AdversarialBIM, AdversarialPGD, AdversarialDeepFool
 
 params = {'MNIST':
-          {'n_epoch': 10,
+          {'n_epoch': 50,
            'train_args': {'batch_size': 64, 'num_workers': 1},
            'test_args': {'batch_size': 1000, 'num_workers': 1},
-           'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
+           'optimizer': 'rmsprop',
+           'optimizer_args': {'lr': 0.005}},
           'FashionMNIST':
               {'n_epoch': 10,
                'train_args': {'batch_size': 64, 'num_workers': 1},
                'test_args': {'batch_size': 1000, 'num_workers': 1},
-               'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
+               'optimizer_args': {'lr': 0.005}},
           'SVHN':
               {'n_epoch': 20,
                'train_args': {'batch_size': 64, 'num_workers': 1},
@@ -56,18 +57,18 @@ def get_dataset(name):
         raise NotImplementedError
 
 
-def get_net(name, device):
-    if device == 'cpu':
-        params[name]['train_args']['num_workers'] = 0
-    print(params[name]['train_args']['num_workers'])
+def get_net(name, device, reset=True):
+    # if device == 'cpu':
+    #     params[name]['train_args']['num_workers'] = 0
+    # print(params[name]['train_args']['num_workers'])
     if name == 'MNIST':
-        return Net(MNIST_Net, params[name], device)
+        return Net(MNIST_Net, params[name], device, reset)
     elif name == 'FashionMNIST':
-        return Net(MNIST_Net, params[name], device)
+        return Net(MNIST_Net, params[name], device, reset)
     elif name == 'SVHN':
-        return Net(SVHN_Net, params[name], device)
+        return Net(SVHN_Net, params[name], device, reset)
     elif name == 'CIFAR10':
-        return Net(CIFAR10_Net, params[name], device)
+        return Net(CIFAR10_Net, params[name], device, reset)
     else:
         raise NotImplementedError
 
@@ -110,6 +111,7 @@ def get_strategy(name):
 # albl_list = [MarginSampling(X_tr, Y_tr, idxs_lb, net, handler, args),
 #              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]
 # strategy = ActiveLearningByLearning(X_tr, Y_tr, idxs_lb, net, handler, args, strategy_list=albl_list, delta=0.1)
+
 
 def log_to_file(file_name, text):
     file = open(file_name, 'a')

@@ -1,7 +1,7 @@
+from pprint import pprint
 import argparse
 import time
 import yaml
-from pprint import pprint
 import numpy as np
 import torch
 from utils import get_dataset, get_net, get_strategy, log_to_file
@@ -11,7 +11,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--cfg_file', type=str, default=None, help="config file")
+    parser.add_argument(
+        '--cfg_file',
+        type=str,
+        default=None,
+        help="config file")
     parser.add_argument('--seed', type=int, default=1, help="random seed")
     parser.add_argument(
         '--n_init_labeled',
@@ -20,7 +24,11 @@ if __name__ == "__main__":
         help="number of init labeled samples")
     parser.add_argument('--n_query', type=int, default=1000,
                         help="number of queries per round")
-    parser.add_argument('--n_round', type=int, default=10, help="number of rounds")
+    parser.add_argument(
+        '--n_round',
+        type=int,
+        default=10,
+        help="number of rounds")
     parser.add_argument(
         '--n_final_labeled',
         type=int,
@@ -45,6 +53,8 @@ if __name__ == "__main__":
     #         "resnet18",
     #         "vgg16"],
     #     help="network architecture")
+    parser.add_argument('--repeat', type=int, default=5,
+                        help="number of queries per round")
     parser.add_argument('--strategy_name', type=str, default="RandomSampling",
                         choices=["RandomSampling",
                                  "LeastConfidence",
@@ -58,6 +68,15 @@ if __name__ == "__main__":
                                  "BALDDropout",
                                  "AdversarialBIM",
                                  "AdversarialDeepFool"], help="query strategy")
+
+    parser.add_argument('--reset', dest="reset", action='store_true')
+    parser.add_argument('--no_reset', dest="reset", action='store_false')
+    parser.set_defaults(reset=True)
+
+    # parser.add_argument('--early_stopping', dest="early_stopping", action='store_true')
+    # parser.add_argument('--no_early_stopping', dest="early_stopping", action='store_false')
+    # parser.set_defaults(early_stopping=False)
+
     args = parser.parse_args()
 
     if args.cfg_file:
@@ -68,7 +87,7 @@ if __name__ == "__main__":
             print("Error in configuration file:", exc)
         pprint(config)
 
-        seed =  config['seed']
+        seed = config['seed']
         n_init_labeled = config['n_init_labeled']
         n_query = config['n_query']
         n_final_labeled = config['n_final_labeled']
@@ -78,11 +97,14 @@ if __name__ == "__main__":
             n_round = config['n_round']
 
         dataset_name = config['dataset_name']
-        strategy_name =  config['strategy_name']
+        strategy_name = config['strategy_name']
+        reset = config['reset']
+        repeat = config['repeat']
+        # early_stopping = config['early_stopping']
 
     else:
         pprint(vars(args))
-        seed =  args.seed
+        seed = args.seed
         n_init_labeled = args.n_init_labeled
         n_query = args.n_query
         n_final_labeled = args.n_final_labeled
@@ -92,7 +114,10 @@ if __name__ == "__main__":
             n_round = args.n_round
         n_round = args.n_round
         dataset_name = args.dataset_name
-        strategy_name =  args.strategy_name
+        strategy_name = args.strategy_name
+        reset = args.reset
+        repeat = args.repeat
+        # early_stopping = config['early_stopping']
     print()
     #
     try:
@@ -111,12 +136,12 @@ if __name__ == "__main__":
     device = torch.device("cuda" if use_cuda else "cpu")
 
     dataset = get_dataset(dataset_name)                   # load dataset
-    net = get_net(dataset_name, device)                   # load network
+    net = get_net(dataset_name, device, reset)            # load network
     params = {}
     if strategy_config.get(strategy_name):
         params = strategy_config[strategy_name]
-    strategy = get_strategy(strategy_name)(dataset, 
-                            net, **params)                      # load strategy
+    strategy = get_strategy(strategy_name)(
+        dataset, net, repeat, **params)  # load strategy
 
     # start experiment
     dataset.initialize_labels(n_init_labeled)
@@ -138,7 +163,7 @@ if __name__ == "__main__":
             # query
             query_idxs, extra_data = strategy.query(n_query)
             # update labels
-            strategy.update(query_idxs)    
+            strategy.update(query_idxs)
             strategy.add_extra(extra_data)
         else:
             # query

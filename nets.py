@@ -1,28 +1,39 @@
+import gc
+import copy
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
 import torchvision.models as models
-
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from tqdm import tqdm
 
+from train_utils import get_optimizer #, EarlyStopping
+
+
 
 class Net:
-    def __init__(self, net, params, device):
+    def __init__(self, net, params, device, reset=False):
         self.net = net
+        self.clf = None
         self.params = params
         self.device = device
+        self.reset = reset
 
     def train(self, data):
         n_epoch = self.params['n_epoch']
-        self.clf = self.net().to(self.device)
-        self.clf.train()
-        optimizer = optim.SGD(
+        if self.reset or not self.clf:
+            self.clf = self.net().to(self.device)
+        self.clf.train()  # set train mode
+        optimizer_ = get_optimizer(self.params['optimizer'])
+        optimizer = optimizer_(
             self.clf.parameters(),
             **self.params['optimizer_args'])
+
+        # Early Stopping
+        # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
+        # early_topping = EarlyStopping(patience=patience)
 
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
@@ -33,6 +44,60 @@ class Net:
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
+                # early_topping(validation_loss)
+                # if early_topping.early_stop:
+                #     break
+        # Clear GPU memory in preparation for next model training
+        gc.collect()
+        torch.cuda.empty_cache()
+
+    def train_xtimes(self, data, repeat=5):
+        """train x times."""
+
+        n_epoch = self.params['n_epoch']
+        n_train = (int)(len(data) * 0.8)
+
+        best_model = None
+        best_loss = np.inf
+        for _ in range(REPEAT):
+            # log(f'training No {i+1}')
+            # shuffle and split data into train and val
+            train_data, val_data = random_split(
+                data, [n_train, len(data) - n_train])
+
+            self.clf = self.net().to(self.device)
+            self.clf.train()  # set train mode
+            optimizer_ = get_optimizer(self.params['optimizer'])
+            optimizer = optimizer_(
+                self.clf.parameters(),
+                **self.params['optimizer_args'])
+
+            # Early Stopping
+            # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
+            # early_topping = EarlyStopping(patience=patience)
+
+            loader = DataLoader(
+                train_data,
+                shuffle=True,
+                **self.params['train_args'])
+            for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
+                for batch_idx, (x, y, idxs) in enumerate(loader):
+                    x, y = x.to(self.device), y.to(self.device)
+                    optimizer.zero_grad()
+                    out, e1 = self.clf(x)
+                    loss = F.cross_entropy(out, y)
+                    loss.backward()
+                    optimizer.step()
+
+            validation_loss = self.predict_loss(val_data)
+
+            if validation_loss < best_loss:
+                best_loss = loss
+                best_model = copy.deepcopy(self.clf)
+            # Clear GPU memory in preparation for next model training
+            gc.collect()
+            torch.cuda.empty_cache()
+        self.clf = best_model
 
     def predict_example(self, data):
         self.clf.eval()
@@ -43,6 +108,7 @@ class Net:
                 pred = out.max(1)[1]
                 preds[idxs] = pred.cpu()
         return preds
+
     def predict(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
@@ -105,22 +171,41 @@ class Net:
                 embeddings[idxs] = e1.cpu()
         return embeddings
 
+    def predict_loss(self, data):
+        self.clf.eval()
+        loss = 0.
+        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        num_batches = len(loader)
+        with torch.no_grad():
+            for x, y, idxs in loader:
+                x, y = x.to(self.device), y.to(self.device)
+                out, e1 = self.clf(x)
+                loss += F.cross_entropy(out, y)
+
+        return loss / num_batches
+
 
 class TORCHVISION_Net(nn.Module):
     def __init__(self, torchv_model):
         super().__init__()
         layers = list(torchv_model.children())
-        self.embedding = torch.nn.Sequential(*(layers[:-1]))        
+        self.embedding = torch.nn.Sequential(*(layers[:-1]))
         self.fc_head = torch.nn.Sequential(*(layers[-1:]))
 
     def forward(self, x):
         e1 = self.embedding(x)
-        x = torch.flatten(e1,1)
+        x = torch.flatten(e1, 1)
         x = self.fc_head(x)
         return x, e1
 
     def get_embedding_dim(self):
         return self.fc_head[0].in_features
+
+    # def reset_model_weights(self):
+    #     for m in (self.embedding, self.fc_head):
+    #         for layer in m.children():
+    #            if hasattr(layer, 'reset_parameters'):
+    #                layer.reset_parameters()
 
 
 class MNIST_Net(TORCHVISION_Net):

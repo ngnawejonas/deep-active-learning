@@ -2,7 +2,7 @@
 # import torch
 from .adversarial_strategy import AdversarialStrategy
 
-class AdversarialBIM(AdversarialStrategy):
+class AdversarialPGD(AdversarialStrategy):
     def __init__(self, dataset, net,
                     n_subset_ul=None,
                     pseudo_labeling=True,

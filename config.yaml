@@ -2,6 +2,9 @@ seed: 1
 n_init_labeled: 100
 n_query: 100
 n_round: 5
-n_final_labeled: null
+n_final_labeled: 600
 dataset_name: 'MNIST'
 strategy_name: 'RandomSampling'
+reset: True
+repeat: 1
+early_stopping: False
