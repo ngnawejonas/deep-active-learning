@@ -9,7 +9,7 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
 
 params = {'MNIST':
           {'n_epoch': 50,
-           'train_args': {'batch_size': 64, 'num_workers': 1},
+           'train_args': {'batch_size': 128, 'num_workers': 1},
            'test_args': {'batch_size': 1000, 'num_workers': 1},
            'optimizer': 'rmsprop',
            'optimizer_args': {'lr': 0.005}},
