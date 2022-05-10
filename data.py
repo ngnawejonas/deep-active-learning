@@ -55,17 +55,9 @@ class Data:
 
 
 def get_xMNIST(x_fn, handler, pool_size):
-    raw_train = x_fn(root='data', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='data', train=False, download=True, transform=ToTensor())
-    dtl = DataLoader(raw_train, batch_size=len(raw_train))
-    for X, Y in dtl:
-        X_train = X
-        Y_train = Y
-    dtl = DataLoader(raw_test, batch_size=len(raw_test))
-    for X, Y in dtl:
-        X_test = X
-        Y_test = Y
-    return Data(X_train[:pool_size], Y_train[:pool_size], X_test[:pool_size], Y_test[:pool_size], handler)
+    raw_train = x_fn(root='data', train=True, download=True)
+    raw_test = x_fn(root='data', train=False, download=True)
+    return Data(raw_train.data[:pool_size], raw_train.targets[:pool_size], raw_test.data[:pool_size], raw_test.targets[:pool_size], handler)
 
 
 def get_MNIST(handler, pool_size):

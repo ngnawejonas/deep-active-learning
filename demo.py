@@ -137,7 +137,7 @@ if __name__ == "__main__":
     # fix random seed
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.backends.cudnn.enabled = False
+    # torch.backends.cudnn.enabled = False
 
     # device
     use_cuda = torch.cuda.is_available()
