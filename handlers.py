@@ -6,20 +6,34 @@ from PIL import Image
 from typing import Tuple, Any
 
 
-class MNIST_Handler(Dataset):
-    def __init__(self, X, Y):
-        self.X = X
-        self.Y = Y
-        self.transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+class MNIST_Handler(datasets.VisionDataset):
+    def __init__(self, data, targets, root='data') -> None:
+        super().__init__(root)
+        self.data = data
+        self.targets= targets
 
-    def __getitem__(self, index):
-        x, y = self.X[index], self.Y[index]
-        x = Image.fromarray(x.numpy(), mode='L')
-        x = self.transform(x)
-        return x, y, index
+    @property
+    def X(self):
+        return self.data
 
-    def __len__(self):
-        return len(self.X)
+    @property
+    def Y(self):
+        return self.targets
+    
+    def __getitem__(self, index: int) -> Tuple[Any, Any, Any]:
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, target) where target is index of the target class.
+        """
+        img, target = self.data[index], self.targets[index]
+
+        return img, target, index
+
+    def __len__(self) -> int:
+        return len(self.data) 
 
 class SVHN_Handler(Dataset):
     def __init__(self, X, Y):
