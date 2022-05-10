@@ -1,5 +1,5 @@
 seed: 1
-n_init_labeled: 100
+n_init_labeled: 40000
 n_query: 100
 n_round: 5
 n_final_labeled: 600

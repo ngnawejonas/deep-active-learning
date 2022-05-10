@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 from torchvision import datasets
+from torchvision.transforms import ToTensor
+from torch.utils.data import DataLoader
 
 class Data:
     def __init__(self, X_train, Y_train, X_test, Y_test, handler):
@@ -50,22 +52,31 @@ class Data:
         return 1.0 * (self.Y_test==preds).sum().item() / self.n_test
 
     
+def get_xMNIST(x_fn, handler):
+    raw_train = x_fn(root='data', train=True, download=True, transform=ToTensor())
+    raw_test = x_fn(root='data', train=False, download=True, transform=ToTensor())
+    dtl = DataLoader(raw_train, batch_size=len(raw_train))
+    for X, Y in dtl:
+        X_train = X
+        Y_train = Y
+    dtl = DataLoader(raw_test, batch_size=len(raw_test))
+    for X, Y in dtl:
+        X_test = X
+        Y_test = Y
+    return Data(X_train[:50000], Y_train[:50000], X_test[:50000], Y_test[:50000], handler)
+
 def get_MNIST(handler):
-    raw_train = datasets.MNIST('./data/MNIST', train=True, download=True)
-    raw_test = datasets.MNIST('./data/MNIST', train=False, download=True)
-    return Data(raw_train.data[:40000], raw_train.targets[:40000], raw_test.data[:40000], raw_test.targets[:40000], handler)
+    return get_xMNIST(datasets.MNIST, handler)
 
 def get_FashionMNIST(handler):
-    raw_train = datasets.FashionMNIST('./data/FashionMNIST', train=True, download=True)
-    raw_test = datasets.FashionMNIST('./data/FashionMNIST', train=False, download=True)
-    return Data(raw_train.data[:40000], raw_train.targets[:40000], raw_test.data[:40000], raw_test.targets[:40000], handler)
+    return get_xMNIST(datasets.FashionMNIST, handler)
 
 def get_SVHN(handler):
-    data_train = datasets.SVHN('./data/SVHN', split='train', download=True)
-    data_test = datasets.SVHN('./data/SVHN', split='test', download=True)
-    return Data(data_train.data[:40000], torch.from_numpy(data_train.labels)[:40000], data_test.data[:40000], torch.from_numpy(data_test.labels)[:40000], handler)
+    data_train = datasets.SVHN('data', split='train', download=True)
+    data_test = datasets.SVHN('data', split='test', download=True)
+    return Data(data_train.data[:50000], torch.from_numpy(data_train.labels)[:50000], data_test.data[:50000], torch.from_numpy(data_test.labels)[:50000], handler)
 
 def get_CIFAR10(handler):
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
-    return Data(data_train.data[:40000], torch.LongTensor(data_train.targets)[:40000], data_test.data[:40000], torch.LongTensor(data_test.targets)[:40000], handler)
+    return Data(data_train.data[:50000], torch.LongTensor(data_train.targets)[:50000], data_test.data[:50000], torch.LongTensor(data_test.targets)[:50000], handler)

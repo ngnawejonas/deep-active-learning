@@ -37,16 +37,20 @@ class Net:
 
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-            for batch_idx, (x, y, idxs) in enumerate(loader):
+            # for batch_idx, (x, y, idxs) in enumerate(loader):
+            for x, y, idxs in loader:
+            # a = 2
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
                 out, e1 = self.clf(x)
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
+                # break
                 # early_topping(validation_loss)
                 # if early_topping.early_stop:
                 #     break
+                # print(f"epoch {epoch}, batch_idx {batch_idx}")
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
@@ -115,6 +119,7 @@ class Net:
         loader = DataLoader(data, shuffle=False, **self.params['test_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
+            # for x, y in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 out, e1 = self.clf(x)
                 pred = out.max(1)[1]

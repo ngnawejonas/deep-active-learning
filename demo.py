@@ -135,7 +135,9 @@ if __name__ == "__main__":
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
+    print('getting dataset...')
     dataset = get_dataset(dataset_name)                   # load dataset
+    print('dataset loaded')
     net = get_net(dataset_name, device, reset)            # load network
     params = {}
     if strategy_config.get(strategy_name):
@@ -152,30 +154,32 @@ if __name__ == "__main__":
     start = time.time()
     # round 0 accuracy
     print("Round 0")
+    t = time.time()
     strategy.train()
+    print("train time: {:.2f} s".format(time.time() - t))
     preds = strategy.predict(dataset.get_test_data())
     print(f"Round 0 testing accuracy: {dataset.cal_test_acc(preds)}")
+    print("round 0 time: {:.2f} s".format(time.time() - t))
+    # for rd in range(1, -n_round + 1):
+    #     print(f"Round {rd}")
 
-    for rd in range(1, n_round + 1):
-        print(f"Round {rd}")
+    #     if strategy.pseudo_labeling:
+    #         # query
+    #         query_idxs, extra_data = strategy.query(n_query)
+    #         # update labels
+    #         strategy.update(query_idxs)
+    #         strategy.add_extra(extra_data)
+    #     else:
+    #         # query
+    #         query_idxs = strategy.query(n_query)
+    #         # update labels
+    #         strategy.update(query_idxs)
 
-        if strategy.pseudo_labeling:
-            # query
-            query_idxs, extra_data = strategy.query(n_query)
-            # update labels
-            strategy.update(query_idxs)
-            strategy.add_extra(extra_data)
-        else:
-            # query
-            query_idxs = strategy.query(n_query)
-            # update labels
-            strategy.update(query_idxs)
+    #     strategy.train()
 
-        strategy.train()
-
-        # calculate accuracy
-        preds = strategy.predict(dataset.get_test_data())
-        print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")
-    T = time.time() - start
-    print(f'Total time: {T} secs.')
-    log_to_file('time.txt', f'Total time: {T} secs.')
+    #     # calculate accuracy
+    #     preds = strategy.predict(dataset.get_test_data())
+    #     print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")
+    # T = time.time() - start
+    # print(f'Total time: {T} secs.')
+    # log_to_file('time.txt', f'Total time: {T} secs.')
