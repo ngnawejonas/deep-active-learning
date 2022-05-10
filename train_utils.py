@@ -1,12 +1,8 @@
 import torch.optim as optim
 
-# Edit from
-# https://github.com/Bjarten/early-stopping-pytorch/blob/master/pytorchtools.py
-
-
+# Edit from https://github.com/Bjarten/early-stopping-pytorch/blob/master/pytorchtools.py
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
-
     def __init__(self, patience=7, delta=0):
         """
         Args:
@@ -25,7 +21,7 @@ class EarlyStopping:
         if self.best_score is None:
             self.best_score = current_score
 
-        elif self.best_score < current_score + self.delta:  # there is no improvement
+        elif self.best_score < current_score + self.delta: # there is no improvement
             self.counter += 1
             # log("best {:.2f}, current {:.2f}".format(self.best_score, current_score))
             # log(f'EarlyStopping counter: {self.counter} out of {self.patience}')
@@ -34,7 +30,6 @@ class EarlyStopping:
         else:
             self.best_score = current_score
             self.counter = 0
-
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':

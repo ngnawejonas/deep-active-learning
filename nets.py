@@ -39,7 +39,6 @@ class Net:
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # for batch_idx, (x, y, idxs) in enumerate(loader):
             for x, y, idxs in loader:
-            # a = 2
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
                 out, e1 = self.clf(x)

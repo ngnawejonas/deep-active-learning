@@ -1,9 +1,10 @@
 seed: 1
-n_init_labeled: 40000
+n_init_labeled: 100
 n_query: 100
 n_round: 5
 n_final_labeled: 600
 dataset_name: 'MNIST'
+pool_size: 50000
 strategy_name: 'RandomSampling'
 reset: True
 repeat: 1

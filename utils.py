@@ -1,5 +1,5 @@
 # from torchvision import transforms
-from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler, eHandler
+from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
 from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
 from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
@@ -9,24 +9,24 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
 
 params = {'MNIST':
           {'n_epoch': 50,
-           'train_args': {'batch_size': 128, 'num_workers': 1},
-           'test_args': {'batch_size': 1000, 'num_workers': 1},
+           'train_args': {'batch_size': 64, 'num_workers': 0},
+           'test_args': {'batch_size': 1000, 'num_workers': 0},
            'optimizer': 'rmsprop',
            'optimizer_args': {'lr': 0.005}},
           'FashionMNIST':
               {'n_epoch': 10,
-               'train_args': {'batch_size': 64, 'num_workers': 1},
-               'test_args': {'batch_size': 1000, 'num_workers': 1},
+               'train_args': {'batch_size': 64, 'num_workers': 0},
+               'test_args': {'batch_size': 1000, 'num_workers': 0},
                'optimizer_args': {'lr': 0.005}},
           'SVHN':
               {'n_epoch': 20,
-               'train_args': {'batch_size': 64, 'num_workers': 1},
-               'test_args': {'batch_size': 1000, 'num_workers': 1},
+               'train_args': {'batch_size': 64, 'num_workers': 0},
+               'test_args': {'batch_size': 1000, 'num_workers': 0},
                'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
           'CIFAR10':
               {'n_epoch': 20,
-               'train_args': {'batch_size': 64, 'num_workers': 1},
-               'test_args': {'batch_size': 1000, 'num_workers': 1},
+               'train_args': {'batch_size': 64, 'num_workers': 0},
+               'test_args': {'batch_size': 1000, 'num_workers': 0},
                'optimizer_args': {'lr': 0.05, 'momentum': 0.3}}
           }
 
@@ -44,22 +44,22 @@ def get_handler(name):
         raise NotImplementedError('Unhandled dataset')
 
 
-def get_dataset(name):
+def get_dataset(name, pool_size):
     if name == 'MNIST':
-        return get_MNIST(get_handler(name))
+        return get_MNIST(get_handler(name), pool_size)
     elif name == 'FashionMNIST':
-        return get_FashionMNIST(get_handler(name))
+        return get_FashionMNIST(get_handler(name), pool_size)
     elif name == 'SVHN':
-        return get_SVHN(get_handler(name))
+        return get_SVHN(get_handler(name), pool_size)
     elif name == 'CIFAR10':
-        return get_CIFAR10(get_handler(name))
+        return get_CIFAR10(get_handler(name), pool_size)
     else:
         raise NotImplementedError
 
 
 def get_net(name, device, reset=True):
-    # if device == 'cpu':
-    #     params[name]['train_args']['num_workers'] = 0
+#     if device == 'cpu':
+#         params[name]['train_args']['num_workers'] = 0
     # print(params[name]['train_args']['num_workers'])
     if name == 'MNIST':
         return Net(MNIST_Net, params[name], device, reset)
