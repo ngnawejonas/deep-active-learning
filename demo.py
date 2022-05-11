@@ -11,11 +11,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument(
-        '--cfg_file',
-        type=str,
-        default=None,
-        help="config file")
+    # parser.add_argument(
+    #     '--cfg_file',
+    #     type=str,
+    #     default=None,
+    #     help="config file")
+    parser.add_argument('--cfg', dest="cfg", action='store_true')
+    parser.set_defaults(cfg=False)
+
     parser.add_argument('--seed', type=int, default=1, help="random seed")
     parser.add_argument(
         '--n_init_labeled',
@@ -77,7 +80,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--reset', dest="reset", action='store_true')
     parser.add_argument('--no_reset', dest="reset", action='store_false')
-    parser.set_defaults(reset=True)
+    parser.set_defaults(reset=False)
 
     # parser.add_argument('--early_stopping', dest="early_stopping", action='store_true')
     # parser.add_argument('--no_early_stopping', dest="early_stopping", action='store_false')
@@ -85,9 +88,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if args.cfg_file:
+    if args.cfg:
         try:
-            with open(args.cfg_file, 'r') as config_file:
+            with open('config.yaml', 'r') as config_file:
                 config = yaml.load(config_file, Loader=yaml.SafeLoader)
         except yaml.YAMLError as exc:
             print("Error in configuration file:", exc)
