@@ -11,11 +11,13 @@ class AdversarialStrategy(Strategy):
                     repeat = 1,
                     pseudo_labeling=True,
                     n_subset_ul=None,
-                    diversity=False, **kwargs):
+                    diversity=False,
+                    dist_file_name=None, **kwargs):
         super().__init__(dataset, net, repeat, pseudo_labeling)
         self.diversity = diversity
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
         self.params = kwargs
+        self.dist_file_name = dist_file_name
 
     def cal_dis(self, x):
         x_i = x.clone()
@@ -37,7 +39,7 @@ class AdversarialStrategy(Strategy):
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, idx = iter_loader.next()
             dis, x_adv = self.cal_dis(x)
-            log_to_file('distance.txt', f'{i}, {dis.numpy()}')
+            log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
             distances[i] = dis
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
         selected_idxs = distances.argsort()[:n]

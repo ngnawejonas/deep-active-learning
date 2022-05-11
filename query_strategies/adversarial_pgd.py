@@ -10,12 +10,13 @@ class AdversarialPGD(AdversarialStrategy):
                     repeat= 1,
                     pseudo_labeling=True,
                     n_subset_ul=None,
-                    diversity=False, **kwargs):
+                    diversity=False,
+                    dist_file_name=None, **kwargs):
         super().__init__(dataset, net,
                         repeat,
                         pseudo_labeling,
                         n_subset_ul,
-                        diversity, **kwargs)
+                        diversity, dist_file_name, **kwargs)
 
 
     def attack_fn(self, X):
