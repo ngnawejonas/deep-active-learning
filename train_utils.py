@@ -38,3 +38,10 @@ def get_optimizer(name):
         return optim.SGD
     else:
         raise NotImplementedError
+
+def log_to_file(file_name, line):
+    file = open(file_name, 'a')
+    file.write(line)
+    if not line.endswith('\n'):
+        file.write('\n')
+    file.close()

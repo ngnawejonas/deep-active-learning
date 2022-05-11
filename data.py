@@ -18,8 +18,8 @@ class Data:
 
         self.labeled_idxs = np.zeros(self.n_pool, dtype=bool)
         # To handle addition of adversarial dataset to labelled pool
-        self.X_train_extra = np.array([])
-        self.Y_train_extra = np.array([])
+        self.X_train_extra = torch.Tensor([])
+        self.Y_train_extra = torch.Tensor([])
 
     def initialize_labels(self, num):
         # generate initial labeled pool
@@ -29,9 +29,9 @@ class Data:
 
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
-        if self.X_train_extra.size:
-            X = np.vstack([self.X_train[labeled_idxs], self.X_train_extra])
-            Y = np.vstack([self.Y_train[labeled_idxs], self.Y_train_extra])
+        if len(self.X_train_extra) > 0:
+            X = torch.vstack([self.X_train[labeled_idxs], self.X_train_extra])
+            Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
             X = self.X_train[labeled_idxs]
             Y = self.Y_train[labeled_idxs]
@@ -57,14 +57,18 @@ class Data:
 def get_xMNIST(x_fn, handler, pool_size):
     raw_train = x_fn(root='data', train=True, download=True)
     raw_test = x_fn(root='data', train=False, download=True)
-    return Data(raw_train.data[:pool_size], raw_train.targets[:pool_size], raw_test.data[:pool_size], raw_test.targets[:pool_size], handler)
+    X_train = raw_train.data[:pool_size]
+    Y_train = raw_train.targets[:pool_size]
+    X_test =  raw_test.data[:pool_size]
+    Y_test = raw_test.targets[:pool_size]
+    return Data(X_train, Y_train, X_test, Y_test, handler)
 
 
 def get_MNIST(handler, pool_size):
     return get_xMNIST(datasets.MNIST, handler, pool_size)
 
 
-def get_FashionMNIST(handler):
+def get_FashionMNIST(handler, pool_size):
     return get_xMNIST(datasets.FashionMNIST, handler, pool_size)
 
 

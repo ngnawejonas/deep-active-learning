@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 class AdversarialBIM(Strategy):
     def __init__(self, dataset, net, eps=0.05):
-        super(AdversarialBIM, self).__init__(dataset, net)
+        super().__init__(dataset, net)
         self.eps = eps
 
     def cal_dis(self, x):
@@ -24,7 +24,7 @@ class AdversarialBIM(Strategy):
             eta = self.eps * torch.sign(nx.grad.data)            
             nx.grad.data.zero_()
             
-            eta = torch.clamp(eta, np.inf, eps)
+            eta = torch.clamp(eta, np.inf, self.eps)
             eta = nx - torch.unsqueeze(x, 1)
             out, e1 = self.net.clf(nx+eta)
             py = out.max(1)[1]

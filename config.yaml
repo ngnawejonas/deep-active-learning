@@ -1,11 +1,11 @@
 seed: 1
 n_init_labeled: 100
 n_query: 100
-n_round: 5
-n_final_labeled: 600
-dataset_name: 'MNIST'
+n_round: 1
+n_final_labeled: 4000
+dataset_name: 'FashionMNIST'
 pool_size: 50000
-strategy_name: 'RandomSampling'
+strategy_name: 'AdversarialPGD'
 reset: True
 repeat: 1
 early_stopping: False

@@ -1,28 +1,29 @@
 #strategy parameters
-AdvesarialBIM: 
-  n_subset_ul: null
+AdversarialBIM: 
+  n_subset_ul: 300
   pseudo_labeling: True
   diversity: False
   eps: 0.3
-  eps_iter: 1e-2
-  nb_iter: 1
+  eps_iter: 0.01
+  nb_iter: 10
   norm: np.inf
   targeted: False
   rand_init: False
+  rand_minmax: 0.3
 
-AdvesarialPGD: 
-  n_subset_ul: null
+AdversarialPGD: 
+  n_subset_ul: 300
   pseudo_labeling: True
   diversity: False
   eps: 0.3
-  eps_iter: 1e-2
-  nb_iter: 1
+  eps_iter: 0.01
+  nb_iter: 10
   norm: np.inf
   targeted: False
   rand_init: True
   rand_minmax: 0.3
 
-AdvesarialDeepFool: 
+AdversarialDeepFool: 
   max_iter: 10
   eps: 0.3
   n_subset_ul: null

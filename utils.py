@@ -14,19 +14,22 @@ params = {'MNIST':
            'optimizer': 'rmsprop',
            'optimizer_args': {'lr': 0.005}},
           'FashionMNIST':
-              {'n_epoch': 10,
+              {'n_epoch': 50,
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
+               'optimizer': 'rmsprop',
                'optimizer_args': {'lr': 0.005}},
           'SVHN':
               {'n_epoch': 20,
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
+               'optimizer': 'rmsprop',
                'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
           'CIFAR10':
               {'n_epoch': 20,
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
+               'optimizer': 'rmsprop',
                'optimizer_args': {'lr': 0.05, 'momentum': 0.3}}
           }
 
@@ -111,11 +114,9 @@ def get_strategy(name):
 # albl_list = [MarginSampling(X_tr, Y_tr, idxs_lb, net, handler, args),
 #              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]
 # strategy = ActiveLearningByLearning(X_tr, Y_tr, idxs_lb, net, handler, args, strategy_list=albl_list, delta=0.1)
-
-
-def log_to_file(file_name, text):
+def log_to_file(file_name, line):
     file = open(file_name, 'a')
-    file.write(text)
-    if not text.endswith('\n'):
+    file.write(line)
+    if not line.endswith('\n'):
         file.write('\n')
     file.close()

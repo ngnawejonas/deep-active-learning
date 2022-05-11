@@ -34,14 +34,13 @@ class Net:
         # Early Stopping
         # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
         # early_topping = EarlyStopping(patience=patience)
-
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # for batch_idx, (x, y, idxs) in enumerate(loader):
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
-                out, e1 = self.clf(x)
+                out = self.clf(x)
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
@@ -87,7 +86,7 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    out, e1 = self.clf(x)
+                    out = self.clf(x)
                     loss = F.cross_entropy(out, y)
                     loss.backward()
                     optimizer.step()
@@ -102,15 +101,13 @@ class Net:
             torch.cuda.empty_cache()
         self.clf = best_model
 
-    def predict_example(self, data):
+    def predict_example(self, x):
         self.clf.eval()
         with torch.no_grad():
-            for x, y, idxs in loader:
-                x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
-                pred = out.max(1)[1]
-                preds[idxs] = pred.cpu()
-        return preds
+            x = x.to(self.device)
+            out = self.clf(x)
+            pred = out.max(1)[1]
+        return pred.cpu()
 
     def predict(self, data):
         self.clf.eval()
@@ -120,7 +117,7 @@ class Net:
             for x, y, idxs in loader:
             # for x, y in loader:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
+                out = self.clf(x)
                 pred = out.max(1)[1]
                 preds[idxs] = pred.cpu()
         return preds
@@ -132,7 +129,7 @@ class Net:
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
+                out = self.clf(x)
                 prob = F.softmax(out, dim=1)
                 probs[idxs] = prob.cpu()
         return probs
@@ -145,7 +142,7 @@ class Net:
             with torch.no_grad():
                 for x, y, idxs in loader:
                     x, y = x.to(self.device), y.to(self.device)
-                    out, e1 = self.clf(x)
+                    out = self.clf(x)
                     prob = F.softmax(out, dim=1)
                     probs[idxs] += prob.cpu()
         probs /= n_drop
@@ -159,7 +156,7 @@ class Net:
             with torch.no_grad():
                 for x, y, idxs in loader:
                     x, y = x.to(self.device), y.to(self.device)
-                    out, e1 = self.clf(x)
+                    out = self.clf(x)
                     prob = F.softmax(out, dim=1)
                     probs[i][idxs] += F.softmax(out, dim=1).cpu()
         return probs
@@ -171,8 +168,8 @@ class Net:
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
-                embeddings[idxs] = e1.cpu()
+                out = self.clf(x)
+                embeddings[idxs] = self.e1.cpu()
         return embeddings
 
     def predict_loss(self, data):
@@ -183,7 +180,7 @@ class Net:
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
-                out, e1 = self.clf(x)
+                out = self.clf(x)
                 loss += F.cross_entropy(out, y)
 
         return loss / num_batches
@@ -195,12 +192,17 @@ class TORCHVISION_Net(nn.Module):
         layers = list(torchv_model.children())
         self.embedding = torch.nn.Sequential(*(layers[:-1]))
         self.fc_head = torch.nn.Sequential(*(layers[-1:]))
+        self.e1 = None
 
     def forward(self, x):
         e1 = self.embedding(x)
+        self.e1 = e1
         x = torch.flatten(e1, 1)
         x = self.fc_head(x)
-        return x, e1
+        return x
+
+    def get_embedding():
+        return self.e1
 
     def get_embedding_dim(self):
         return self.fc_head[0].in_features

@@ -128,6 +128,10 @@ if __name__ == "__main__":
         # early_stopping = config['early_stopping']
     print()
     #
+    final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
+    ACC_FILENAME = '{}_{}_{}_{}.txt'.format(
+        dataset_name, 'resnet18',strategy_name, final)
+    #
     try:
         with open('strategy_config.yaml', 'r') as config_file:
             strategy_config = yaml.load(config_file, Loader=yaml.SafeLoader)
@@ -150,6 +154,9 @@ if __name__ == "__main__":
     params = {}
     if strategy_config.get(strategy_name):
         params = strategy_config[strategy_name]
+        if params.get('norm') and params.get('norm') == 'np.inf':
+            params['norm'] = np.inf
+    pprint(params)
     strategy = get_strategy(strategy_name)(
         dataset, net, repeat, **params)                    # load strategy
 
@@ -165,29 +172,40 @@ if __name__ == "__main__":
     t = time.time()
     strategy.train()
     print("train time: {:.2f} s".format(time.time() - t))
+    print('testing...')
     preds = strategy.predict(dataset.get_test_data())
-    print(f"Round 0 testing accuracy: {dataset.cal_test_acc(preds)}")
+    acc = dataset.cal_test_acc(preds)
+    print(f"Round 0 testing accuracy: {acc}")
+    log_to_file(ACC_FILENAME, f'0, {acc}')
     print("round 0 time: {:.2f} s".format(time.time() - t))
     for rd in range(1, n_round + 1):
         print(f"Round {rd}")
 
         if strategy.pseudo_labeling:
             # query
+            print('querying...')
             query_idxs, extra_data = strategy.query(n_query)
             # update labels
+            print('updating...')
             strategy.update(query_idxs)
-            strategy.add_extra(extra_data)
+            strategy.add_extra(query_idxs, extra_data)
         else:
             # query
+            print('querying...')
             query_idxs = strategy.query(n_query)
             # update labels
+            print('updating...')
             strategy.update(query_idxs)
 
+        print('training...')
         strategy.train()
 
         # calculate accuracy
+        print('evaluation...')
         preds = strategy.predict(dataset.get_test_data())
-        print(f"Round {rd} testing accuracy: {dataset.cal_test_acc(preds)}")
+        acc = dataset.cal_test_acc(preds)
+        print(f"Round {rd} testing accuracy: {acc}")
+        log_to_file(ACC_FILENAME, f'0, {acc}')
     T = time.time() - start
     print(f'Total time: {T} secs.')
     log_to_file('time.txt', f'Total time: {T} secs.')
