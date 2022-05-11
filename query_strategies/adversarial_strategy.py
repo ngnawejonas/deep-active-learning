@@ -23,7 +23,7 @@ class AdversarialStrategy(Strategy):
         # print('dist cal')
         while self.net.predict_example(x_i) == initial_label:
             # print('...attack...')
-            x_i = self.attack_fn(x_i)
+            x_i = self.attack_fn(x_i.to(self.net.device))
         dis = torch.norm(x_i - x)
         return dis.detach().cpu(), x_i.detach().squeeze(0).cpu()
 
