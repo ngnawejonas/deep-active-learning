@@ -100,7 +100,7 @@ if __name__ == "__main__":
         n_init_labeled = config['n_init_labeled']
         n_query = config['n_query']
         n_final_labeled = config['n_final_labeled']
-        if args.n_final_labeled:
+        if n_final_labeled:
             n_round = (n_final_labeled - n_init_labeled) // n_query
         else:
             n_round = config['n_round']
@@ -181,6 +181,7 @@ if __name__ == "__main__":
     print(f"Round 0 testing accuracy: {acc}")
     log_to_file(ACC_FILENAME, f'0, {acc}')
     print("round 0 time: {:.2f} s".format(time.time() - t))
+
     for rd in range(1, n_round + 1):
         print(f"Round {rd}")
 
