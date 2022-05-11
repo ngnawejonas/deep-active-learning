@@ -24,8 +24,9 @@ class AdversarialStrategy(Strategy):
         while self.net.predict_example(x_i) == initial_label:
             # print('...attack...')
             x_i = self.attack_fn(x_i.to(self.net.device))
-        dis = torch.norm(x_i.cpu() - x)
-        return dis.detach(), x_i.detach().squeeze(0).cpu()
+        x_i = x_i.cpu()
+        dis = torch.norm(x_i - x)
+        return dis.detach(), x_i.detach().squeeze(0)
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul)  
