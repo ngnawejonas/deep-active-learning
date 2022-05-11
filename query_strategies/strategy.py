@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 class Strategy:
-    def __init__(self, dataset, net, repeat=1, pseudo_labeling=False):
+    def __init__(self, dataset, net, repeat=1, pseudo_labeling=False, **kwargs):
         self.dataset = dataset
         self.net = net
         self.pseudo_labeling = pseudo_labeling
