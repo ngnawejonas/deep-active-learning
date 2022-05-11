@@ -159,9 +159,10 @@ if __name__ == "__main__":
         params = strategy_config[strategy_name]
         if params.get('norm') and params.get('norm') == 'np.inf':
             params['norm'] = np.inf
+    params['dist_file_name'] = 'dist_'+ACC_FILENAME
     pprint(params)
     strategy = get_strategy(strategy_name)(
-        dataset, net, repeat, dist_file_name= 'dist_'+ACC_FILENAME,  **params)                    # load strategy
+        dataset, net, repeat,  **params)                    # load strategy
 
     # start experiment
     dataset.initialize_labels(n_init_labeled)
