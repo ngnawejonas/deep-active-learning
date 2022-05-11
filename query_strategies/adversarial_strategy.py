@@ -25,7 +25,7 @@ class AdversarialStrategy(Strategy):
             # print('...attack...')
             x_i = self.attack_fn(x_i.to(self.net.device))
         dis = torch.norm(x_i.cpu() - x)
-        return dis.detach(), x_i.detach().squeeze(0)
+        return dis.detach(), x_i.detach().squeeze(0).cpu()
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul)  
