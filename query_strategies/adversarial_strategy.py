@@ -10,11 +10,13 @@ class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
                     repeat = 1,
                     pseudo_labeling=True,
+                    max_iter=10,
                     n_subset_ul=None,
                     diversity=False,
                     dist_file_name=None, **kwargs):
         super().__init__(dataset, net, repeat, pseudo_labeling)
         self.diversity = diversity
+        self.max_iter = max_iter
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
         self.params = kwargs
         self.dist_file_name = dist_file_name
@@ -22,16 +24,18 @@ class AdversarialStrategy(Strategy):
     def cal_dis(self, x):
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
-        # print('dist cal')
-        while self.net.predict_example(x_i) == initial_label:
+        i_iter = 0
+        while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
             # print('...attack...')
             x_i = self.attack_fn(x_i.to(self.net.device))
+            i_iter += 1
+
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
         return dis.detach(), x_i.detach().squeeze(0)
 
     def query(self, n):
-        unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul)  
+        unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
         self.net.clf.eval()
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
@@ -57,6 +61,6 @@ class AdversarialStrategy(Strategy):
             self.dataset.X_train_extra = extra_data 
             self.dataset.Y_train_extra = self.dataset.Y_train[pos_idxs]
 
-    def attack_fn(self, X):
+    def attack_fn(self, x):
         """attack_fn to be implemented by child classes"""
         pass

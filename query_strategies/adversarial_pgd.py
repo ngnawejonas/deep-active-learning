@@ -9,12 +9,14 @@ class AdversarialPGD(AdversarialStrategy):
     def __init__(self, dataset, net,
                     repeat= 1,
                     pseudo_labeling=True,
+                    max_iter=10,
                     n_subset_ul=None,
                     diversity=False,
                     dist_file_name=None, **kwargs):
         super().__init__(dataset, net,
                         repeat,
                         pseudo_labeling,
+                        max_iter,
                         n_subset_ul,
                         diversity, dist_file_name, **kwargs)
 
