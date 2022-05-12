@@ -133,7 +133,7 @@ if __name__ == "__main__":
     #
     final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
     ACC_FILENAME = '{}_{}_{}_{}.txt'.format(
-        dataset_name, 'resnet18',strategy_name, final)
+        strategy_name, dataset_name, 'resnet18', final)
     #
     try:
         with open('strategy_config.yaml', 'r') as config_file:
