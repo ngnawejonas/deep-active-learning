@@ -5,11 +5,10 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 class Strategy:
-    def __init__(self, dataset, net, repeat=1, pseudo_labeling=False):
+    def __init__(self, dataset, net, pseudo_labeling=False):
         self.dataset = dataset
         self.net = net
         self.pseudo_labeling = pseudo_labeling
-        self.repeat = 1
 
     def query(self, n):
         pass
@@ -19,12 +18,10 @@ class Strategy:
         if neg_idxs:
             self.dataset.labeled_idxs[neg_idxs] = False
 
+
     def train(self):
         labeled_idxs, labeled_data = self.dataset.get_labeled_data()
-        if self.repeat > 1:
-            self.net.train_xtimes(labeled_data)
-        else:
-            self.net.train(labeled_data)
+        self.net.train(labeled_data)
 
     def predict(self, data):
         preds = self.net.predict(data)

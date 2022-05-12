@@ -8,13 +8,13 @@ from train_utils import log_to_file
 
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
-                    repeat = 1,
                     pseudo_labeling=True,
                     max_iter=10,
                     n_subset_ul=None,
                     diversity=False,
-                    dist_file_name=None, **kwargs):
-        super().__init__(dataset, net, repeat, pseudo_labeling)
+                    dist_file_name=None,
+                    id_exp=0, **kwargs):
+        super().__init__(dataset, net, pseudo_labeling)
         self.diversity = diversity
         self.max_iter = max_iter
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack

@@ -14,14 +14,22 @@ from train_utils import get_optimizer #, EarlyStopping
 
 
 class Net:
-    def __init__(self, net, params, device, reset=False):
+    def __init__(self, net, params, device, repeat=1, reset=True):
         self.net = net
         self.clf = None
         self.params = params
         self.device = device
         self.reset = reset
+        self.repeat = repeat
+
 
     def train(self, data):
+        if self.repeat > 1:
+            self._train_xtimes(data)
+        else:
+            self._train_once(data)
+
+    def _train_once(self, data):
         n_epoch = self.params['n_epoch']
         if self.reset or not self.clf:
             self.clf = self.net().to(self.device)
@@ -53,7 +61,7 @@ class Net:
         gc.collect()
         torch.cuda.empty_cache()
 
-    def train_xtimes(self, data, repeat=5):
+    def _train_xtimes(self, data):
         """train x times."""
 
         n_epoch = self.params['n_epoch']
@@ -61,8 +69,8 @@ class Net:
 
         best_model = None
         best_loss = np.inf
-        for _ in range(REPEAT):
-            # log(f'training No {i+1}')
+        for i in range(self.repeat):
+            print(f'training No {i+1}')
             # shuffle and split data into train and val
             train_data, val_data = random_split(
                 data, [n_train, len(data) - n_train])
@@ -169,7 +177,7 @@ class Net:
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 out = self.clf(x)
-                embeddings[idxs] = self.e1.cpu()
+                embeddings[idxs] = self.clf.get_embedding().cpu()
         return embeddings
 
     def predict_loss(self, data):
@@ -201,8 +209,11 @@ class TORCHVISION_Net(nn.Module):
         x = self.fc_head(x)
         return x
 
-    def get_embedding():
-        return self.e1
+    def get_embedding(self):
+        if self.e1 is not None:
+            return self.e1.squeeze()
+        else:
+            raise ValueError('Forward should be executed first')
 
     def get_embedding_dim(self):
         return self.fc_head[0].in_features

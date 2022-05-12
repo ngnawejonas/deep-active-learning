@@ -3,8 +3,8 @@ from .strategy import Strategy
 from sklearn.cluster import KMeans
 
 class KMeansSampling(Strategy):
-    def __init__(self, dataset, net):
-        super(KMeansSampling, self).__init__(dataset, net)
+    def __init__(self, dataset, net, **kwargs):
+        super().__init__(dataset, net)
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data()

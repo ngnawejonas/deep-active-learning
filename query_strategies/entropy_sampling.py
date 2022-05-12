@@ -3,8 +3,8 @@ import torch
 from .strategy import Strategy
 
 class EntropySampling(Strategy):
-    def __init__(self, dataset, net):
-        super(EntropySampling, self).__init__(dataset, net)
+    def __init__(self, dataset, net, **kwargs):
+        super().__init__(dataset, net)
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data()
