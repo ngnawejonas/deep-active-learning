@@ -41,7 +41,7 @@ class AdversarialDeepFool(AdversarialStrategy):
 
             wi = grad_i - grad_np
             fi = out[0, i] - out[0, py]
-            value_i = torch.abs(fi.item()) / torch.norm(wi.flatten())
+            value_i = torch.abs(fi) / torch.norm(wi.flatten())
 
             if value_i < value_l:
                 ri = value_i/torch.norm(wi.flatten()) * wi
