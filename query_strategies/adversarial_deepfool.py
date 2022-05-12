@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 class AdversarialDeepFool(Strategy):
     def __init__(self, dataset, net, repeat, pseudo_labeling,
-                max_iter=50):
-        super().__init__(dataset, net, re)
+                max_iter=50, **kwargs):
+        super().__init__(dataset, net, repeat)
         self.max_iter = max_iter
 
     def cal_dis(self, x):
