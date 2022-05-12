@@ -4,10 +4,14 @@ import torch.nn.functional as F
 from .strategy import Strategy
 from tqdm import tqdm
 
-class AdversarialDeepFool(Strategy):
-    def __init__(self, dataset, net, repeat, pseudo_labeling,
-                max_iter=50, **kwargs):
-        super().__init__(dataset, net, repeat)
+class AdversarialDeepFool(AdversarialStrategy):
+    def __init__(self, dataset, net,
+                repeat, pseudo_labeling,
+                max_iter=50,
+                n_subset_ul=None,
+                diversity=False,
+                dist_file_name=None, **kwargs)
+        super().__init__(dataset, net, repeat, pseudo_labeling)
         self.max_iter = max_iter
 
     def cal_dis(self, x):
