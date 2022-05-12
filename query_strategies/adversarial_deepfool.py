@@ -26,8 +26,10 @@ class AdversarialDeepFool(AdversarialStrategy):
         nx =  x.clone()
         nx.requires_grad_()
         out = self.net.clf(nx)
+
         n_class = out.shape[1]
         py = out.max(1)[1].item()
+       
         out[0, py].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
@@ -41,7 +43,7 @@ class AdversarialDeepFool(AdversarialStrategy):
 
             wi = grad_i - grad_np
             fi = out[0, i] - out[0, py]
-            value_i = torch.abs(fi) / torch.norm(wi.flatten())
+            value_i = np.abs(fi.item()) / torch.norm(wi.flatten())
 
             if value_i < value_l:
                 ri = value_i/torch.norm(wi.flatten()) * wi
