@@ -15,7 +15,7 @@ class AdversarialDeepFool(Strategy):
         nx.requires_grad_()
         eta = torch.zeros(nx.shape)
 
-        out, e1 = self.net.clf(nx+eta)
+        out = self.net.clf(nx+eta)
         n_class = out.shape[1]
         py = out.max(1)[1].item()
         ny = out.max(1)[1].item()
@@ -45,7 +45,7 @@ class AdversarialDeepFool(Strategy):
 
             eta += ri.clone()
             nx.grad.data.zero_()
-            out, e1 = self.net.clf(nx+eta)
+            out = self.net.clf(nx+eta)
             py = out.max(1)[1].item()
             i_iter += 1
 
