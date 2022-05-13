@@ -122,7 +122,7 @@ if __name__ == "__main__":
         #     n_round = (n_final_labeled - n_init_labeled) // n_query
         # else:
         #     n_round = args.n_round
-        n_round = args.n_round
+        # n_round = args.n_round
         dataset_name = args.dataset_name
         pool_size = args.pool_size
         strategy_name = args.strategy_name
@@ -131,9 +131,9 @@ if __name__ == "__main__":
         # early_stopping = config['early_stopping']
     print()
     #
-    final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
+    # final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
     ACC_FILENAME = '{}_{}_{}_{}_{}.txt'.format(
-        strategy_name, dataset_name, 'resnet18', final, 'r'+str(repeat))
+        strategy_name, dataset_name, 'resnet18', n_final_labeled, 'r'+str(repeat))
     #
     try:
         repo = 'deep-active-learning/'
