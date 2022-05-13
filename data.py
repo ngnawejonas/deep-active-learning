@@ -37,6 +37,9 @@ class Data:
             Y = self.Y_train[labeled_idxs]
         return labeled_idxs, self.handler(X, Y)
 
+    def n_labeled(self):
+        return sum(self.labeled_idxs) + len(self.X_train_extra)
+
     def get_unlabeled_data(self, n_subset=None):
         unlabeled_idxs = np.arange(self.n_pool)[~self.labeled_idxs]
         if n_subset:
