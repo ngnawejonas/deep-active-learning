@@ -73,6 +73,7 @@ if __name__ == "__main__":
                                  "KCenterGreedy",
                                  "BALDDropout",
                                  "AdversarialBIM",
+                                 "AdversarialPGD",
                                  "AdversarialDeepFool"], help="query strategy")
 
     parser.add_argument('--reset', dest="reset", action='store_true')
@@ -135,7 +136,8 @@ if __name__ == "__main__":
         strategy_name, dataset_name, 'resnet18', final, 'r'+str(repeat))
     #
     try:
-        with open('strategy_config.yaml', 'r') as config_file:
+        repo = 'deep-active-learning/'
+        with open(repo+'strategy_config.yaml', 'r') as config_file:
             strategy_config = yaml.load(config_file, Loader=yaml.SafeLoader)
     except yaml.YAMLError as exc:
         print("Error in configuration file:", exc)
