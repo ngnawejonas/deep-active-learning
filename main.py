@@ -24,11 +24,11 @@ if __name__ == "__main__":
         help="number of init labeled samples")
     parser.add_argument('--n_query', type=int, default=100,
                         help="number of queries per round")
-    parser.add_argument(
-        '--n_round',
-        type=int,
-        default=5,
-        help="number of rounds")
+    # parser.add_argument(
+    #     '--n_round',
+    #     type=int,
+    #     default=5,
+    #     help="number of rounds")
     parser.add_argument(
         '--n_final_labeled',
         type=int,
@@ -99,10 +99,10 @@ if __name__ == "__main__":
         n_init_labeled = config['n_init_labeled']
         n_query = config['n_query']
         n_final_labeled = config['n_final_labeled']
-        if n_final_labeled:
-            n_round = (n_final_labeled - n_init_labeled) // n_query
-        else:
-            n_round = config['n_round']
+        # if n_final_labeled:
+        #     n_round = (n_final_labeled - n_init_labeled) // n_query
+        # else:
+        #     n_round = config['n_round']
 
         dataset_name = config['dataset_name']
         pool_size = config['pool_size']
@@ -118,10 +118,10 @@ if __name__ == "__main__":
         n_init_labeled = args.n_init_labeled
         n_query = args.n_query
         n_final_labeled = args.n_final_labeled
-        if n_final_labeled:
-            n_round = (n_final_labeled - n_init_labeled) // n_query
-        else:
-            n_round = args.n_round
+        # if n_final_labeled:
+        #     n_round = (n_final_labeled - n_init_labeled) // n_query
+        # else:
+        #     n_round = args.n_round
         n_round = args.n_round
         dataset_name = args.dataset_name
         pool_size = args.pool_size
@@ -186,7 +186,8 @@ if __name__ == "__main__":
     log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
     print("round 0 time: {:.2f} s".format(time.time() - t))
 
-    for rd in range(1, n_round + 1):
+    rd = 1
+    while n_labeled < n_final_labeled:
         print(f"Round {rd}")
 
         if strategy.pseudo_labeling:
@@ -215,6 +216,7 @@ if __name__ == "__main__":
         print(f"Round {rd} testing accuracy: {acc}")
         n_labeled = strategy.dataset.n_labeled()
         log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
+        rd += 1 
     T = time.time() - start
     print(f'Total time: {T} secs.')
     log_to_file('time.txt', f'Total time: {T} secs.')
