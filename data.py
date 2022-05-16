@@ -42,6 +42,7 @@ class Data:
 
     def get_unlabeled_data(self, n_subset=None):
         unlabeled_idxs = np.arange(self.n_pool)[~self.labeled_idxs]
+        unlabeled_idxs = np.random.shuffle(unlabeled_idxs)
         if n_subset:
             unlabeled_idxs = unlabeled_idxs[:n_subset]
         return unlabeled_idxs, self.handler(

@@ -227,5 +227,5 @@ if __name__ == "__main__":
             tf.summary.scalar('accuracy', acc, step=n_labeled)
         rd += 1 
     T = time.time() - start
-    print(f'Total time: {T} secs.')
-    log_to_file('time.txt', f'Total time: {T} secs.')
+    print(f'Total time: {T/60:.2f} secs.')
+    log_to_file('time.txt', f'Total time: {T/60:.2f} secs.')
