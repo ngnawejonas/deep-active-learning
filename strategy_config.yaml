@@ -10,20 +10,20 @@ AdversarialBIM:
   targeted: False
   rand_init: False
   rand_minmax: 0.3
-  max_iter: 10
+  max_iter: 0
 
 AdversarialPGD: 
   n_subset_ul: 300
   pseudo_labeling: True
   diversity: False
-  eps: 0.3
+  eps: 0.2
   eps_iter: 0.01
   nb_iter: 10
   norm: np.inf
   targeted: False
   rand_init: True
   rand_minmax: 0.3
-  max_iter: 10
+  max_iter: 0
 
 AdversarialDeepFool: 
   max_iter: 10
