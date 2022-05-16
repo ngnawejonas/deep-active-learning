@@ -33,7 +33,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '--n_final_labeled',
         type=int,
-        default=None,
+        default=600,
         help="number of final labeled samples")
     parser.add_argument(
         '--dataset_name',
