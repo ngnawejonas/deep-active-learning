@@ -185,7 +185,7 @@ if __name__ == "__main__":
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
     log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
-    tf_summary_writer = tf.summary.create_file_writer('tf/logdir')
+    tf_summary_writer = tf.summary.create_file_writer('tfboard')
     with tf_summary_writer.as_default():
         tf.summary.scalar('accuracy', acc, step=n_labeled)
     print("round 0 time: {:.2f} s".format(time.time() - t))
