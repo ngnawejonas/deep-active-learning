@@ -4,6 +4,7 @@ import time
 import yaml
 import numpy as np
 import torch
+import tensorflow as tf
 from utils import get_dataset, get_net, get_strategy, log_to_file
 
 
@@ -136,7 +137,7 @@ if __name__ == "__main__":
         strategy_name, dataset_name, 'resnet18', n_final_labeled, 'r'+str(repeat))
     #
     try:
-        repo = 'deep-active-learning/'
+        repo = './'
         with open(repo+'strategy_config.yaml', 'r') as config_file:
             strategy_config = yaml.load(config_file, Loader=yaml.SafeLoader)
     except yaml.YAMLError as exc:
@@ -184,6 +185,9 @@ if __name__ == "__main__":
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
     log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
+    tf_summary_writer = tf.summary.create_file_writer('tf/logdir')
+    with tf_summary_writer.as_default():
+        tf.summary.scalar('accuracy', acc, step=n_labeled)
     print("round 0 time: {:.2f} s".format(time.time() - t))
 
     rd = 1
@@ -216,6 +220,8 @@ if __name__ == "__main__":
         print(f"Round {rd} testing accuracy: {acc}")
         n_labeled = strategy.dataset.n_labeled()
         log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
+        with tf_summary_writer.as_default():
+            tf.summary.scalar('accuracy', acc, step=n_labeled)
         rd += 1 
     T = time.time() - start
     print(f'Total time: {T} secs.')

@@ -2,10 +2,10 @@ id_exp: 0
 seed: 1
 n_init_labeled: 100
 n_query: 100
-n_final_labeled: 4000
+n_final_labeled: 1000
 dataset_name: 'MNIST'
 pool_size: 50000
 strategy_name: 'AdversarialDeepFool'
 reset: True
-repeat: 1
+repeat: 3
 early_stopping: False
