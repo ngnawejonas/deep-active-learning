@@ -84,8 +84,8 @@ if __name__ == "__main__":
     parser.add_argument('--no_reset', dest="reset", action='store_false')
     parser.set_defaults(reset=True)
 
-    parser.add_argument('--nops', dest="pseudo_labeling", action='store_true')
-    parser.set_defaults(pseudo_labeling=False)
+    parser.add_argument('--nops', dest="pseudo_labeling", action='store_false')
+    parser.set_defaults(pseudo_labeling=True)
 
 
     # parser.add_argument('--early_stopping', dest="early_stopping", action='store_true')
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         params = strategy_config[strategy_name]
         if params.get('norm') and params.get('norm') == 'np.inf':
             params['norm'] = np.inf
-        params['pseudo_labeling'] = ~args.pseudo_labeling
+        params['pseudo_labeling'] = ~args.
     params['dist_file_name'] = 'dist_'+ACC_FILENAME
     params['id_exp'] = id_exp
     pprint(params)
