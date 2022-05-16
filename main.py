@@ -168,7 +168,7 @@ if __name__ == "__main__":
         params = strategy_config[strategy_name]
         if params.get('norm') and params.get('norm') == 'np.inf':
             params['norm'] = np.inf
-        params['pseudo_labeling'] = ~args.
+        params['pseudo_labeling'] = args.pseudo_labeling
     params['dist_file_name'] = 'dist_'+ACC_FILENAME
     params['id_exp'] = id_exp
     pprint(params)
