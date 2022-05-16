@@ -188,9 +188,9 @@ if __name__ == "__main__":
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
     log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
-    tf_summary_writer = tf.summary.create_file_writer('tfboard')
-    with tf_summary_writer.as_default():
-        tf.summary.scalar('accuracy', acc, step=n_labeled)
+    # tf_summary_writer = tf.summary.create_file_writer('tfboard')
+    # with tf_summary_writer.as_default():
+    #     tf.summary.scalar('accuracy', acc, step=n_labeled)
     print("round 0 time: {:.2f} s".format(time.time() - t))
 
     rd = 1
@@ -219,13 +219,13 @@ if __name__ == "__main__":
         # calculate accuracy
         print('evaluation...')
         preds = strategy.predict(dataset.get_test_data())
-        acc = dataset.cal_test_acc(preds)
-        print(f"Round {rd} testing accuracy: {acc}")
         n_labeled = strategy.dataset.n_labeled()
+        acc = dataset.cal_test_acc(preds)
+        print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")
         log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
-        with tf_summary_writer.as_default():
-            tf.summary.scalar('accuracy', acc, step=n_labeled)
+        # with tf_summary_writer.as_default():
+        #     tf.summary.scalar('accuracy', acc, step=n_labeled)
         rd += 1 
     T = time.time() - start
-    print(f'Total time: {T/60:.2f} secs.')
-    log_to_file('time.txt', f'Total time: {T/60:.2f} secs.')
+    print(f'Total time: {T/60:.2f} mins.')
+    log_to_file('time.txt', f'Total time: {T/60:.2f} mins.')
