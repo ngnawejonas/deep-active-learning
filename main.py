@@ -204,10 +204,10 @@ if __name__ == "__main__":
 
         if strategy.pseudo_labeling:
             # query
-            print('querying...')
+            print('>querying...')
             query_idxs, extra_data = strategy.query(n_query)
             # update labels
-            print('updating...')
+            print('>updating...')
             strategy.update(query_idxs)
             strategy.add_extra(query_idxs, extra_data)
         else:
