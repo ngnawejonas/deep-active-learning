@@ -1,4 +1,5 @@
 from pprint import pprint
+import os
 import argparse
 import time
 import yaml
@@ -9,6 +10,8 @@ from utils import get_dataset, get_net, get_strategy, log_to_file
 
 
 if __name__ == "__main__":
+
+    os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
 
     parser = argparse.ArgumentParser()
 
