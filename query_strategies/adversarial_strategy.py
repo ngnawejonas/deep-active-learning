@@ -31,7 +31,7 @@ class AdversarialStrategy(Strategy):
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
         print()
-        print(f'>>> {i_iter} attacks, distance: {dis}')
+        # print(f'>>> {i_iter} attacks, distance: {dis}')
         print()
         return dis.detach(), x_i.detach().squeeze(0)
 
@@ -50,7 +50,7 @@ class AdversarialStrategy(Strategy):
         selected_idxs = distances.argsort()[:n]
         if self.pseudo_labeling:
             extra_data = torch.stack(adv_images)[selected_idxs]
-            print(len(extra_data), np.round(extra_data[0], 2))
+            # print(len(extra_data), np.round(extra_data[0], 2))
             return unlabeled_idxs[selected_idxs], extra_data
 
         return unlabeled_idxs[selected_idxs]
