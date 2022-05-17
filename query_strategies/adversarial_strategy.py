@@ -26,12 +26,11 @@ class AdversarialStrategy(Strategy):
         initial_label = self.net.predict_example(x_i)
         i_iter = 0
         while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
-            print(f'...attack {i_iter}')
             x_i = self.attack_fn(x_i.to(self.net.device))
             i_iter += 1
-
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
+        print(f' > {i_iter}, {dis}')
         return dis.detach(), x_i.detach().squeeze(0)
 
     def query(self, n):
