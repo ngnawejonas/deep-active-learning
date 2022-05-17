@@ -50,7 +50,7 @@ class AdversarialStrategy(Strategy):
         selected_idxs = distances.argsort()[:n]
         if self.pseudo_labeling:
             extra_data = torch.stack(adv_images)[selected_idxs]
-            print(len(extra_data), extra_data[0])
+            print(len(extra_data), np.round(extra_data[0], 2))
             return unlabeled_idxs[selected_idxs], extra_data
 
         return unlabeled_idxs[selected_idxs]
