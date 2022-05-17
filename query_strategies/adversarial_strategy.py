@@ -30,9 +30,9 @@ class AdversarialStrategy(Strategy):
             i_iter += 1
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
-        print()
-        # print(f'>>> {i_iter} attacks, distance: {dis}')
-        print()
+        # print()
+        print(f'>>> {i_iter} attacks, distance: {dis}')
+        # print()
         return dis.detach(), x_i.detach().squeeze(0)
 
     def query(self, n):
