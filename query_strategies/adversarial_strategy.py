@@ -48,8 +48,8 @@ class AdversarialStrategy(Strategy):
             dis, x_adv = self.cal_dis(x)
             log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
             distances[i] = dis
-            if dis != 0:
-                adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
+            # if dis != 0:
+            adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
         selected_idxs = distances.argsort()[:n]
         if self.pseudo_labeling:
             extra_data = []
