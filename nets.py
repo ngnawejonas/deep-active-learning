@@ -110,6 +110,8 @@ class Net:
         self.clf = best_model
 
     def predict_example(self, x):
+        if len(x.shape) < 4:
+            x = x.unsqueeze(0)
         self.clf.eval()
         with torch.no_grad():
             x = x.to(self.device)
