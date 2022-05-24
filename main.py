@@ -209,6 +209,7 @@ if __name__ == "__main__":
             # update labels
             print('>updating...')
             strategy.update(query_idxs)
+            print(f'...adding {len(extra_data)} points')
             strategy.add_extra(query_idxs, extra_data)
         else:
             # query

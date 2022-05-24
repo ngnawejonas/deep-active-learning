@@ -52,13 +52,16 @@ class AdversarialStrategy(Strategy):
                 adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
         selected_idxs = distances.argsort()[:n]
         if self.pseudo_labeling:
-            extra_data = torch.stack(adv_images)[selected_idxs]
-            # print(len(extra_data), np.round(extra_data[0], 2))
+            extra_data = []
+            if len(adv_images)>0:
+                extra_data = torch.stack(adv_images)[selected_idxs]
             return unlabeled_idxs[selected_idxs], extra_data
 
         return unlabeled_idxs[selected_idxs]
 
     def add_extra(self, pos_idxs, extra_data):
+        if len(extra_data) == 0:
+            return
         if len(self.dataset.X_train_extra) > 0:
             self.dataset.X_train_extra = torch.vstack([self.dataset.X_train_extra, extra_data]) 
             self.dataset.Y_train_extra = torch.hstack([self.dataset.Y_train_extra, self.dataset.Y_train[pos_idxs]])
