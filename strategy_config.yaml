@@ -23,7 +23,7 @@ AdversarialPGD:
   targeted: False
   rand_init: True
   rand_minmax: 0.3
-  max_iter: 100
+  max_iter: 0
 
 AdversarialDeepFool: 
   max_iter: 10
