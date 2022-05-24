@@ -31,7 +31,9 @@ class AdversarialStrategy(Strategy):
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
         # print()
-        print(f'>>> {i_iter} attacks, distance: {dis}')
+        # print(f'>>> {i_iter} attacks, distance: {dis}')
+        if not torch.equal(x_i, x):
+            raise ValueError('xi should be equal to x')
         # print()
         return dis.detach(), x_i.detach().squeeze(0)
 
