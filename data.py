@@ -41,8 +41,12 @@ class Data:
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
         if len(self.X_train_extra) > 0:
-            print('data.py:44',self.X_train[labeled_idxs].shape, self.X_train_extra.shape)
-            X = torch.vstack([self.X_train[labeled_idxs], self.X_train_extra])
+            # print('data.py:44',self.X_train[labeled_idxs].shape, self.X_train_extra.shape)
+            if len(self.X_train_extra.shape) == 3:
+                X_train_extra = self.X_train_extra.unsqueeze(1) 
+            else:
+                X_train_extra = self.X_train_extra
+            X = torch.vstack([self.X_train[labeled_idxs], X_train_extra])
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
             X = self.X_train[labeled_idxs]
