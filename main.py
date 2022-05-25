@@ -201,24 +201,14 @@ if __name__ == "__main__":
     rd = 1
     while n_labeled < n_final_labeled:
         print(f"Round {rd}")
+    
+        # query
+        print('>querying...')
+        query_idxs, extra_data = strategy.query(n_query)
 
-        if strategy.pseudo_labeling:
-            # query
-            print('>querying...')
-            query_idxs, extra_data = strategy.query(n_query)
-            # update labels
-            print('>updating...')
-            print('query idx ', query_idxs)
-            strategy.update(query_idxs)
-            # print(f'...adding {len(extra_data)} points')
-            strategy.add_extra(query_idxs, extra_data)
-        else:
-            # query
-            print('querying...')
-            query_idxs = strategy.query(n_query)
-            # update labels
-            print('updating...')
-            strategy.update(query_idxs)
+        # update
+        print('>updating...')
+        strategy.update(query_idxs, extra_data)
 
         print('training...')
         strategy.train()
