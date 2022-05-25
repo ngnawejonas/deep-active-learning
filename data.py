@@ -30,7 +30,7 @@ class Data:
     def add_extra_data(self, pos_idxs, extra_data):
         # print('Y_train_extra', self.Y_train[pos_idxs])
         if len(self.X_train_extra) > 0:
-            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data.unsqueeze(0)]) 
+            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data]) 
             self.Y_train_extra = torch.hstack([self.Y_train_extra, self.Y_train[pos_idxs]])
         else:
             self.X_train_extra = extra_data
@@ -41,7 +41,8 @@ class Data:
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
         if len(self.X_train_extra) > 0:
-            X = torch.vstack([self.X_train[labeled_idxs], self.X_train_extra.unsqueeze(0)])
+            print('data.py:44',self.X_train[labeled_idxs].shape, self.X_train_extra.shape)
+            X = torch.vstack([self.X_train[labeled_idxs], self.X_train_extra])
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
             X = self.X_train[labeled_idxs]
