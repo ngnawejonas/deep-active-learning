@@ -67,7 +67,7 @@ class Data:
         return self.handler(self.X_test, self.Y_test)
 
     def cal_test_acc(self, preds):
-        print('test',self.Y_test, 'preds', preds)
+        print('test',torch.unique(self.Y_test), 'preds', torch.unique(preds))
         return 1.0 * (self.Y_test == preds).sum().item() / self.n_test
 
 
