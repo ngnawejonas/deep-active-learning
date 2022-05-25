@@ -39,6 +39,7 @@ class AdversarialStrategy(Strategy):
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
+        print(f'!!! {len(unlabeled_idxs)} & {len(unlabeled_data)}')
         self.net.clf.eval()
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []

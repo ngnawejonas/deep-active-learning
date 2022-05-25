@@ -35,7 +35,6 @@ class Strategy:
 
     def train(self):
         labeled_idxs, labeled_data = self.dataset.get_labeled_data()
-        print(f'!!! {len(labeled_idxs)} & {len(labeled_data)}')
         self.net.train(labeled_data)
 
     def predict(self, data):
