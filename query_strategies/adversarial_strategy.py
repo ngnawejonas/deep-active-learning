@@ -49,27 +49,16 @@ class AdversarialStrategy(Strategy):
             log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
             distances[i] = dis
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
-            k = 0 if len(adv_images)==1 else -2
-            disprev =  torch.norm(adv_images[-1] - adv_images[k])
-            print('adv added', dis.numpy(), disprev.cpu().numpy(), adv_images[-1].shape, adv_images[-1].min().cpu().numpy(), adv_images[-1].max().cpu().numpy())
+            # k = 0 if len(adv_images)==1 else -2
+            # disprev =  torch.norm(adv_images[-1] - adv_images[k])
+            # print('adv added', dis.numpy(), disprev.cpu().numpy(), adv_images[-1].shape, adv_images[-1].min().cpu().numpy(), adv_images[-1].max().cpu().numpy())
         selected_idxs = distances.argsort()[:n]
+        extra_data = None
         if self.pseudo_labeling:
-            extra_data = []
             if len(adv_images)>0:
                 extra_data = torch.stack(adv_images)[selected_idxs]
-            return unlabeled_idxs[selected_idxs], extra_data
 
-        return unlabeled_idxs[selected_idxs]
-
-    def add_extra(self, pos_idxs, extra_data):
-        if len(extra_data) == 0:
-            return
-        if len(self.dataset.X_train_extra) > 0:
-            self.dataset.X_train_extra = torch.vstack([self.dataset.X_train_extra, extra_data]) 
-            self.dataset.Y_train_extra = torch.hstack([self.dataset.Y_train_extra, self.dataset.Y_train[pos_idxs]])
-        else:
-            self.dataset.X_train_extra = extra_data 
-            self.dataset.Y_train_extra = self.dataset.Y_train[pos_idxs]
+        return unlabeled_idxs[selected_idxs], extra_data
 
     def attack_fn(self, x):
         """attack_fn to be implemented by child classes"""

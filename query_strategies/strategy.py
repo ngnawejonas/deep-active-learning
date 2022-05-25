@@ -13,10 +13,24 @@ class Strategy:
     def query(self, n):
         pass
 
-    def update(self, pos_idxs, neg_idxs=None):
+    def update(self, pos_idxs, extra_data=None):
+        print('pos idxs', pos_idxs)
         self.dataset.labeled_idxs[pos_idxs] = True
-        if neg_idxs:
-            self.dataset.labeled_idxs[neg_idxs] = False
+        if extra_data and self.pseudo_labeling:
+            self.add_extra_data(pos_idxs, extra_data)
+
+    def add_extra_data(self, pos_idxs, extra_data):
+        if len(extra_data) == 0:
+            return
+        print('Y_train_extra', self.dataset.Y_train[pos_idxs])
+        if len(self.dataset.X_train_extra) > 0:
+            self.dataset.X_train_extra = torch.vstack([self.dataset.X_train_extra, extra_data]) 
+            self.dataset.Y_train_extra = torch.hstack([self.dataset.Y_train_extra, self.dataset.Y_train[pos_idxs]])
+        else:
+            self.dataset.X_train_extra = extra_data 
+            self.dataset.Y_train_extra = self.dataset.Y_train[pos_idxs]
+
+        print('New Y_train_extra', self.dataset.Y_train_extra)
 
 
     def train(self):
