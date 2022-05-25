@@ -48,8 +48,10 @@ class AdversarialStrategy(Strategy):
             dis, x_adv = self.cal_dis(x)
             log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
             distances[i] = dis
-            if dis != 0:
-                adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
+            adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
+            k = 0 if len(adv_images)==1 else -2
+            disprev =  torch.norm(adv_images[-1] - adv_images[k])
+            print('adv added', dis.numpy(), disprev.cpu().numpy(), adv_images[-1].shape, adv_images[-1].min().cpu().numpy(), adv_attacks[-1].max().cpu().numpy())
         selected_idxs = distances.argsort()[:n]
         if self.pseudo_labeling:
             extra_data = []
