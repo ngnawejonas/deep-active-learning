@@ -30,7 +30,7 @@ class Strategy:
             self.dataset.X_train_extra = extra_data 
             self.dataset.Y_train_extra = self.dataset.Y_train[pos_idxs]
         assert len(self.dataset.X_train_extra) == len(self.dataset.Y_train_extra)
-        print('New Y_train_extra', self.dataset.Y_train_extra)
+        # print('New Y_train_extra', self.dataset.Y_train_extra)
 
 
     def train(self):
