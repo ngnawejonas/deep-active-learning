@@ -27,6 +27,17 @@ class Data:
         np.random.shuffle(tmp_idxs)
         self.labeled_idxs[tmp_idxs[:num]] = True
 
+    def add_extra_data(self, pos_idxs, extra_data):
+        # print('Y_train_extra', self.Y_train[pos_idxs])
+        if len(self.X_train_extra) > 0:
+            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data]) 
+            self.Y_train_extra = torch.hstack([self.Y_train_extra, self.Y_train[pos_idxs]])
+        else:
+            self.X_train_extra = extra_data
+            self.Y_train_extra = self.Y_train[pos_idxs]
+        # assert len(self.X_train_extra) == len(self.Y_train_extra)
+        # print('New Y_train_extra', self.Y_train_extra)
+
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
         if len(self.X_train_extra) > 0:
@@ -45,8 +56,9 @@ class Data:
         np.random.shuffle(unlabeled_idxs)
         if n_subset:
             unlabeled_idxs = unlabeled_idxs[:n_subset]
-        return unlabeled_idxs, self.handler(
-            self.X_train[unlabeled_idxs], self.Y_train[unlabeled_idxs])
+        X = self.X_train[unlabeled_idxs]
+        Y = self.Y_train[unlabeled_idxs]
+        return unlabeled_idxs, self.handler(X, Y)
 
     def get_train_data(self):
         return self.labeled_idxs.copy(), self.handler(self.X_train, self.Y_train)
@@ -55,6 +67,7 @@ class Data:
         return self.handler(self.X_test, self.Y_test)
 
     def cal_test_acc(self, preds):
+        print('test',self.Y_test, 'preds', preds)
         return 1.0 * (self.Y_test == preds).sum().item() / self.n_test
 
 
