@@ -30,7 +30,7 @@ class Data:
     def add_extra_data(self, pos_idxs, extra_data):
         # print('Y_train_extra', self.Y_train[pos_idxs])
         if len(self.X_train_extra) > 0:
-            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data]) 
+            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data.unsqueeze(0)]) 
             self.Y_train_extra = torch.hstack([self.Y_train_extra, self.Y_train[pos_idxs]])
         else:
             self.X_train_extra = extra_data
