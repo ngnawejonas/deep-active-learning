@@ -42,7 +42,7 @@ class Net:
         # Early Stopping
         # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
         # early_topping = EarlyStopping(patience=patience)
-        loader = DataLoader(data, shuffle=True, **self.params['train_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # for batch_idx, (x, y, idxs) in enumerate(loader):
             for x, y, idxs in loader:
