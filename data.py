@@ -26,6 +26,7 @@ class Data:
         tmp_idxs = np.arange(self.n_pool)
         np.random.seed(1)
         np.random.shuffle(tmp_idxs)
+        print(tmp_idxs[:5], tmp_idxs[-5:])
         self.labeled_idxs[tmp_idxs[:num]] = True
 
     def add_extra_data(self, pos_idxs, extra_data):
