@@ -216,8 +216,9 @@ if __name__ == "__main__":
         # calculate accuracy
         print('evaluation...')
         preds = strategy.predict(dataset.get_test_data())
-        n_labeled = strategy.dataset.n_labeled()
         acc = dataset.cal_test_acc(preds)
+
+        n_labeled = strategy.dataset.n_labeled()
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")
         log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
         # with tf_summary_writer.as_default():

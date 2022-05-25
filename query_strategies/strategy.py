@@ -17,21 +17,7 @@ class Strategy:
         # print('query/pos idxs', pos_idxs)
         self.dataset.labeled_idxs[pos_idxs] = True
         if extra_data is not None and self.pseudo_labeling:
-            self.add_extra_data(pos_idxs, extra_data)
-
-    def add_extra_data(self, pos_idxs, extra_data):
-        if len(extra_data) == 0:
-            return
-        # print('Y_train_extra', self.dataset.Y_train[pos_idxs])
-        if len(self.dataset.X_train_extra) > 0:
-            self.dataset.X_train_extra = torch.vstack([self.dataset.X_train_extra, extra_data]) 
-            self.dataset.Y_train_extra = torch.hstack([self.dataset.Y_train_extra, self.dataset.Y_train[pos_idxs]])
-        else:
-            self.dataset.X_train_extra = extra_data 
-            self.dataset.Y_train_extra = self.dataset.Y_train[pos_idxs]
-        assert len(self.dataset.X_train_extra) == len(self.dataset.Y_train_extra)
-        # print('New Y_train_extra', self.dataset.Y_train_extra)
-
+            self.dataset.add_extra_data(pos_idxs, extra_data)
 
     def train(self):
         labeled_idxs, labeled_data = self.dataset.get_labeled_data()

@@ -39,13 +39,13 @@ class AdversarialStrategy(Strategy):
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
-        print(f'!!! {len(unlabeled_idxs)} & {len(unlabeled_data)}')
+        # print(f'!!! {len(unlabeled_idxs)} & {len(unlabeled_data)}')
         self.net.clf.eval()
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
-            x, y, idx = iter_loader.next()
+            x, y, _ = iter_loader.next()
             dis, x_adv = self.cal_dis(x)
             log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
             distances[i] = dis

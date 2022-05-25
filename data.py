@@ -67,17 +67,28 @@ class Data:
         return self.handler(self.X_test, self.Y_test)
 
     def cal_test_acc(self, preds):
-        print('test',torch.unique(self.Y_test, return_counts=True), 'preds', torch.unique(preds, return_counts=True))
+        # print('test',torch.unique(self.Y_test, return_counts=True), 'preds', torch.unique(preds, return_counts=True))
         return 1.0 * (self.Y_test == preds).sum().item() / self.n_test
 
 
 def get_xMNIST(x_fn, handler, pool_size):
-    raw_train = x_fn(root='data', train=True, download=True)
-    raw_test = x_fn(root='data', train=False, download=True)
-    X_train = raw_train.data[:pool_size]
-    Y_train = raw_train.targets[:pool_size]
-    X_test =  raw_test.data[:pool_size]
-    Y_test = raw_test.targets[:pool_size]
+    raw_train = x_fn(root='data', train=True, download=True, transform=ToTensor())
+    raw_test = x_fn(root='data', train=False, download=True, transform=ToTensor())
+
+    dtl = DataLoader(raw_train, batch_size=len(raw_train))
+    for X,y in dtl:
+        X_train = X
+        Y_train = y
+
+    dtl = DataLoader(raw_test, batch_size=len(raw_test))
+    for X,y in dtl:
+        X_test = X
+        Y_test = y
+
+    # X_train = raw_train.data[:pool_size]
+    # Y_train = raw_train.targets[:pool_size]
+    # X_test =  raw_test.data[:pool_size]
+    # Y_test = raw_test.targets[:pool_size]
     return Data(X_train, Y_train, X_test, Y_test, handler)
 
 
