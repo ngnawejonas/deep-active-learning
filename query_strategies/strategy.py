@@ -16,7 +16,7 @@ class Strategy:
     def update(self, pos_idxs, extra_data=None):
         print('query/pos idxs', pos_idxs)
         self.dataset.labeled_idxs[pos_idxs] = True
-        if extra_data and self.pseudo_labeling:
+        if extra_data is not None and self.pseudo_labeling:
             self.add_extra_data(pos_idxs, extra_data)
 
     def add_extra_data(self, pos_idxs, extra_data):
