@@ -24,7 +24,7 @@ class Strategy:
             self.dataset.add_extra_data(pos_idxs, extra_data)
         
         N2 = self.dataset.n_labeled()
-        print(f'{n}+{len(pos_idxs)}={Nx} added! Now {N2} vs {N1}')
+        print(f'{nx}+{len(pos_idxs)}={Nx} added! Now {N2} vs {N1}')
 
     def train(self):
         labeled_idxs, labeled_data = self.dataset.get_labeled_data()
