@@ -111,22 +111,27 @@ def get_SVHN(handler, pool_size):
         # transforms.RandomCrop(32, padding=4),
         # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
     ])
     transform_test = transforms.Compose([
-        # transforms.RandomCrop(32, padding=4),
-        # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
     ])
     data_train = datasets.SVHN('data', split='train', download=True, transform=transform_train)
     data_test = datasets.SVHN('data', split='test', download=True, transform=transform_test)
-    return Data(data_train.data[:pool_size],
-                torch.from_numpy(data_train.labels)[:pool_size],
-                data_test.data[:pool_size],
-                torch.from_numpy(data_test.labels)[:pool_size],
-                handler)
 
+    dtl = DataLoader(data_train, batch_size=len(data_train))
+    for X,y in dtl:
+        X_train = X
+        Y_train = y
+
+    dtl = DataLoader(data_test, batch_size=len(data_test))
+    for X,y in dtl:
+        X_test = X
+        Y_test = y
+
+    # print('data.py:146 ', X_train.data.shape, X_train.dtype, type(X_train))
+    return Data(X_train, Y_train, X_test, Y_test, handler)
 
 # def get_CIFAR10(handler, pool_size):
 #     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
