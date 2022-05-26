@@ -174,14 +174,17 @@ if __name__ == "__main__":
     pprint(params)
 
     strategy = get_strategy(strategy_name)(dataset, net, **params)       # load strategy
-    strategy.check_querying(n_query)
-    
+
+    if hasattr(strategy, 'n_subset_ul'):
+        strategy.check_querying(n_query)
+
     # start experiment
     dataset.initialize_labels(n_init_labeled)
     print(f"size of labeled pool: {n_init_labeled}")
     print(f"size of unlabeled pool: {dataset.n_pool-n_init_labeled}")
     print(f"size of testing pool: {dataset.n_test}")
     print()
+    # exit()
     start = time.time()
     # round 0 accuracy
     print("Round 0")

@@ -23,7 +23,7 @@ class AdversarialStrategy(Strategy):
 
     def check_querying(self, n_query):
         if self.n_subset_ul < n_query:
-            raise ValueError(f"Impossible to query more than {self.n_subset_ul}")
+            raise ValueError(f"Impossible to query more than {self.n_subset_ul}. n_query = {n_query}!")
 
     def cal_dis(self, x):
         x_i = x.clone()

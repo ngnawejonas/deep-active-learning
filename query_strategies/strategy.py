@@ -14,17 +14,9 @@ class Strategy:
         pass
 
     def update(self, pos_idxs, extra_data=None):
-        # print('query/pos idxs', pos_idxs)
-        nx = len(extra_data) if extra_data is not None else 0
-        Nx = nx + len(pos_idxs)
-        N1 = Nx + self.dataset.n_labeled()
-        
         self.dataset.labeled_idxs[pos_idxs] = True
         if extra_data is not None and self.pseudo_labeling:
             self.dataset.add_extra_data(pos_idxs, extra_data)
-        
-        N2 = self.dataset.n_labeled()
-        print(f'{nx}+{len(pos_idxs)}={Nx} added! Now {N2} vs {N1}')
 
     def train(self):
         labeled_idxs, labeled_data = self.dataset.get_labeled_data()

@@ -128,6 +128,16 @@ def get_SVHN(handler, pool_size):
                 handler)
 
 
+# def get_CIFAR10(handler, pool_size):
+#     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
+#     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
+#     print('data.py:146 ', data_train.data.shape)
+#     return Data(data_train.data[:pool_size],
+#                 torch.LongTensor(data_train.targets)[:pool_size],
+#                 data_test.data[:pool_size],
+#                 torch.LongTensor(data_test.targets)[:pool_size],
+#                 handler)
+
 def get_CIFAR10(handler, pool_size):
     transform_train = transforms.Compose([
         # transforms.RandomCrop(32, padding=4),
@@ -143,8 +153,16 @@ def get_CIFAR10(handler, pool_size):
     ])
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
-    return Data(data_train.data[:pool_size],
-                torch.LongTensor(data_train.targets)[:pool_size],
-                data_test.data[:pool_size],
-                torch.LongTensor(data_test.targets)[:pool_size],
-                handler)
+
+    dtl = DataLoader(data_train, batch_size=len(data_train))
+    for X,y in dtl:
+        X_train = X
+        Y_train = y
+
+    dtl = DataLoader(data_test, batch_size=len(data_test))
+    for X,y in dtl:
+        X_test = X
+        Y_test = y
+
+    # print('data.py:146 ', X_train.data.shape, X_train.dtype, type(X_train))
+    return Data(X_train, Y_train, X_test, Y_test, handler)
