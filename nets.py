@@ -42,7 +42,7 @@ class Net:
         # Early Stopping
         # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
         # early_topping = EarlyStopping(patience=patience)
-        loader = DataLoader(data, shuffle=False, **self.params['train_args'])
+        loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # for batch_idx, (x, y, idxs) in enumerate(loader):
             for x, y, idxs in loader:
@@ -239,51 +239,15 @@ class MNIST_Net(TORCHVISION_Net):
                 3, 3), bias=False)
         super().__init__(model)
 
-
-class SVHN_Net(nn.Module):
+class SVHN_Net(TORCHVISION_Net):
     def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3)
-        self.conv2 = nn.Conv2d(32, 32, kernel_size=3)
-        self.conv3 = nn.Conv2d(32, 32, kernel_size=3)
-        self.conv3_drop = nn.Dropout2d()
-        self.fc1 = nn.Linear(1152, 400)
-        self.fc2 = nn.Linear(400, 50)
-        self.fc3 = nn.Linear(50, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(F.max_pool2d(self.conv2(x), 2))
-        x = F.relu(F.max_pool2d(self.conv3_drop(self.conv3(x)), 2))
-        x = x.view(-1, 1152)
-        x = F.relu(self.fc1(x))
-        e1 = F.relu(self.fc2(x))
-        x = F.dropout(e1, training=self.training)
-        x = self.fc3(x)
-        return x, e1
-
-    def get_embedding_dim():
-        return 50
+        n_classes = 10
+        model = models.resnet18(num_classes=n_classes)
+        super().__init__(model)
 
 
-class CIFAR10_Net(nn.Module):
+class CIFAR10_Net(TORCHVISION_Net):
     def __init__(self):
-        super().__init__()
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=5)
-        self.conv2 = nn.Conv2d(32, 32, kernel_size=5)
-        self.conv3 = nn.Conv2d(32, 64, kernel_size=5)
-        self.fc1 = nn.Linear(1024, 50)
-        self.fc2 = nn.Linear(50, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(F.max_pool2d(self.conv2(x), 2))
-        x = F.relu(F.max_pool2d(self.conv3(x), 2))
-        x = x.view(-1, 1024)
-        e1 = F.relu(self.fc1(x))
-        x = F.dropout(e1, training=self.training)
-        x = self.fc2(x)
-        return x, e1
-
-    def get_embedding_dim():
-        return 50
+        n_classes = 10
+        model = models.resnet18(num_classes=n_classes)
+        super().__init__(model)
