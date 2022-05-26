@@ -15,7 +15,7 @@ class Strategy:
 
     def update(self, pos_idxs, extra_data=None):
         # print('query/pos idxs', pos_idxs)
-        nx = len(extra_data) if extra_data else 0
+        nx = len(extra_data) if extra_data is not None else 0
         Nx = nx + len(pos_idxs)
         N1 = Nx + self.dataset.n_labeled()
         
