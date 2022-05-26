@@ -174,7 +174,8 @@ if __name__ == "__main__":
     pprint(params)
 
     strategy = get_strategy(strategy_name)(dataset, net, **params)       # load strategy
-
+    strategy.check_querying(n_query)
+    
     # start experiment
     dataset.initialize_labels(n_init_labeled)
     print(f"size of labeled pool: {n_init_labeled}")

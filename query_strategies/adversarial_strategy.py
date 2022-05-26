@@ -21,6 +21,10 @@ class AdversarialStrategy(Strategy):
         self.params = kwargs
         self.dist_file_name = dist_file_name
 
+    def check_querying(self, nquery):
+        if self.n_subset_ul < n_query:
+            raise ValueError(f"Impossible to query more than {self.n_subset_ul}")
+
     def cal_dis(self, x):
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
