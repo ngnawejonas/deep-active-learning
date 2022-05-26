@@ -205,7 +205,7 @@ if __name__ == "__main__":
         # query
         print('>querying...')
         extra_data = None
-        if self.pseudo_labeling:
+        if strategy.pseudo_labeling:
             query_idxs, extra_data = strategy.query(n_query)
         else:
             query_idxs = strategy.query(n_query)
