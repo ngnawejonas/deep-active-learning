@@ -107,8 +107,20 @@ def get_FashionMNIST(handler, pool_size):
 
 
 def get_SVHN(handler, pool_size):
-    data_train = datasets.SVHN('data', split='train', download=True)
-    data_test = datasets.SVHN('data', split='test', download=True)
+    transform_train = transforms.Compose([
+        # transforms.RandomCrop(32, padding=4),
+        # transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+    ])
+    transform_test = transforms.Compose([
+        # transforms.RandomCrop(32, padding=4),
+        # transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+    ])
+    data_train = datasets.SVHN('data', split='train', download=True, transform=transform_train)
+    data_test = datasets.SVHN('data', split='test', download=True, transform=transform_test)
     return Data(data_train.data[:pool_size],
                 torch.from_numpy(data_train.labels)[:pool_size],
                 data_test.data[:pool_size],
@@ -117,8 +129,20 @@ def get_SVHN(handler, pool_size):
 
 
 def get_CIFAR10(handler, pool_size):
-    data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
-    data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
+    transform_train = transforms.Compose([
+        # transforms.RandomCrop(32, padding=4),
+        # transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+    ])
+    transform_test = transforms.Compose([
+        transforms.ToTensor(),
+        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+    ])
+    data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
+    data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
     return Data(data_train.data[:pool_size],
                 torch.LongTensor(data_train.targets)[:pool_size],
                 data_test.data[:pool_size],

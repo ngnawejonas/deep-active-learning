@@ -33,6 +33,8 @@ class Net:
         n_epoch = self.params['n_epoch']
         if self.reset or not self.clf:
             self.clf = self.net().to(self.device)
+            if self.device.type=='cuda':
+                self.clf = nn.DataParallel(self.clf)
         self.clf.train()  # set train mode
         optimizer_ = get_optimizer(self.params['optimizer'])
         optimizer = optimizer_(
@@ -49,7 +51,7 @@ class Net:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
                 out = self.clf(x)
-                print('nets.py:52: out/y', out.shape, y.shape)
+                # print('nets.py:52: out/y', out.shape, y.shape)
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
@@ -77,6 +79,9 @@ class Net:
                 data, [n_train, len(data) - n_train])
 
             self.clf = self.net().to(self.device)
+            if self.device.type=='cuda':
+                self.clf = nn.DataParallel(self.clf)
+
             self.clf.train()  # set train mode
             optimizer_ = get_optimizer(self.params['optimizer'])
             optimizer = optimizer_(
@@ -197,7 +202,7 @@ class Net:
         return loss / num_batches
 
 
-class TORCHVISION_Net(nn.Module):
+class TORCHVISION_Net(.Module):
     def __init__(self, torchv_model):
         super().__init__()
         layers = list(torchv_model.children())

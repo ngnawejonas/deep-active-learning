@@ -177,9 +177,9 @@ if __name__ == "__main__":
 
     # start experiment
     dataset.initialize_labels(n_init_labeled)
-    print(f"number of labeled pool: {n_init_labeled}")
-    print(f"number of unlabeled pool: {dataset.n_pool-n_init_labeled}")
-    print(f"number of testing pool: {dataset.n_test}")
+    print(f"size of labeled pool: {n_init_labeled}")
+    print(f"size of unlabeled pool: {dataset.n_pool-n_init_labeled}")
+    print(f"size of testing pool: {dataset.n_test}")
     print()
     start = time.time()
     # round 0 accuracy
