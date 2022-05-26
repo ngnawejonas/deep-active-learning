@@ -29,8 +29,8 @@ params = {'MNIST':
               {'n_epoch': 20,
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
-               'optimizer': 'rmsprop',
-               'optimizer_args': {'lr': 0.05, 'momentum': 0.3}}
+               'optimizer': 'SGD',
+               'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weigth_decay':5e-4}}
           }
 
 
