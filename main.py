@@ -175,8 +175,8 @@ if __name__ == "__main__":
 
     strategy = get_strategy(strategy_name)(dataset, net, **params)       # load strategy
 
-    if hasattr(strategy, 'n_subset_ul'):
-        strategy.check_querying(n_query)
+    # if hasattr(strategy, 'n_subset_ul'):
+    #     strategy.check_querying(n_query)
 
     # start experiment
     dataset.initialize_labels(n_init_labeled)
