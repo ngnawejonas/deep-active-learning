@@ -202,7 +202,7 @@ class Net:
         return loss / num_batches
 
 
-class TORCHVISION_Net(.Module):
+class TORCHVISION_Net(nn.Module):
     def __init__(self, torchv_model):
         super().__init__()
         layers = list(torchv_model.children())
