@@ -49,6 +49,7 @@ class Net:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
                 out = self.clf(x)
+                print('nets.py:52: out/y', out.shape, y.shape)
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
