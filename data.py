@@ -144,12 +144,12 @@ def get_CIFAR10(handler, pool_size):
         # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
     ])
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-        # transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)),
     ])
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
