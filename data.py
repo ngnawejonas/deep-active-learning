@@ -108,8 +108,6 @@ def get_FashionMNIST(handler, pool_size):
 
 def get_SVHN(handler, pool_size):
     transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
     ])
