@@ -204,8 +204,11 @@ if __name__ == "__main__":
     
         # query
         print('>querying...')
-        query_idxs, extra_data = strategy.query(n_query)
-
+        extra_data = None
+        if self.pseudo_labeling:
+            query_idxs, extra_data = strategy.query(n_query)
+        else:
+            query_idxs = strategy.query(n_query)
         # update
         print('>updating...')
         strategy.update(query_idxs, extra_data)
