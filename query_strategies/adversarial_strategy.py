@@ -21,7 +21,7 @@ class AdversarialStrategy(Strategy):
         self.params = kwargs
         self.dist_file_name = dist_file_name
 
-    def check_querying(self, nquery):
+    def check_querying(self, n_query):
         if self.n_subset_ul < n_query:
             raise ValueError(f"Impossible to query more than {self.n_subset_ul}")
 
