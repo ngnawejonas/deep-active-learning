@@ -111,11 +111,11 @@ def get_SVHN(handler, pool_size):
         # transforms.RandomCrop(32, padding=4),
         # transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
     ])
     transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        # transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
     ])
     data_train = datasets.SVHN('data', split='train', download=True, transform=transform_train)
     data_test = datasets.SVHN('data', split='test', download=True, transform=transform_test)
