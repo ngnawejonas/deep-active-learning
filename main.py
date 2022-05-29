@@ -241,4 +241,4 @@ if __name__ == "__main__":
         rd += 1 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
-    log_to_file('time.txt', f'Total time: {T/60:.2f} mins.')
+    log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
