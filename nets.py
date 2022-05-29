@@ -14,7 +14,7 @@ from train_utils import get_optimizer #, EarlyStopping
 
 
 class Net:
-    def __init__(self, net, params, device, repeat=1, reset=True):
+    def __init__(self, net, params, device, repeat=0, reset=True):
         self.net = net
         self.clf = None
         self.params = params
@@ -24,7 +24,7 @@ class Net:
 
 
     def train(self, data):
-        if self.repeat > 1:
+        if self.repeat > 0:
             self._train_xtimes(data)
         else:
             self._train_once(data)

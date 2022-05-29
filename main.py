@@ -87,6 +87,9 @@ if __name__ == "__main__":
     parser.add_argument('--nops', dest="pseudo_labeling", action='store_false')
     parser.set_defaults(pseudo_labeling=True)
 
+    # parser.add_argument('--with_diversity', dest="diversity", action='store_true')
+    # parser.set_defaults(diversity=False)    
+
 
     # parser.add_argument('--early_stopping', dest="early_stopping", action='store_true')
     # parser.add_argument('--no_early_stopping', dest="early_stopping", action='store_false')
@@ -143,9 +146,14 @@ if __name__ == "__main__":
     ACC_FILENAME = '{}_{}_{}_{}_{}.txt'.format(
         strategy_name, dataset_name, 'resnet18', n_final_labeled, 'r'+str(repeat))
     #
+    resultsDirName = 'results'
     try:
-        repo = './'
-        with open(repo+'strategy_config.yaml', 'r') as config_file:
+        os.mkdir(resultsDirName)
+        print("Results directory ", resultsDirName ,  " Created ") 
+    except FileExistsError:
+        print("Results directory " , resultsDirName ,  " already exists")
+    try:
+        with open('./strategy_config.yaml', 'r') as config_file:
             strategy_config = yaml.load(config_file, Loader=yaml.SafeLoader)
     except yaml.YAMLError as exc:
         print("Error in configuration file:", exc)

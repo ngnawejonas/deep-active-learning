@@ -40,7 +40,8 @@ def get_optimizer(name):
         raise NotImplementedError
 
 def log_to_file(file_name, line):
-    file = open(file_name, 'a')
+    filepath = 'results/'+file_name
+    file = open(filepath, 'a')
     file.write(line)
     if not line.endswith('\n'):
         file.write('\n')

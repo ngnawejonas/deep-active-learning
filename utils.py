@@ -7,6 +7,7 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
     KMeansSampling, KCenterGreedy, BALDDropout, \
     AdversarialBIM, AdversarialPGD, AdversarialDeepFool
 
+
 params = {'MNIST':
           {'n_epoch': 50,
            'train_args': {'batch_size': 64, 'num_workers': 0},
@@ -115,7 +116,8 @@ def get_strategy(name):
 #              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]
 # strategy = ActiveLearningByLearning(X_tr, Y_tr, idxs_lb, net, handler, args, strategy_list=albl_list, delta=0.1)
 def log_to_file(file_name, line):
-    file = open(file_name, 'a')
+    filepath = 'results/'+file_name
+    file = open(filepath, 'a')
     file.write(line)
     if not line.endswith('\n'):
         file.write('\n')
