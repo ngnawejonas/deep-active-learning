@@ -50,7 +50,7 @@ class AdversarialStrategy(Strategy):
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, _ = iter_loader.next()
             dis, x_adv = self.cal_dis(x)
-            log_to_file(self.dist_file_name, f'{i}, {dis.numpy()}')
+            log_to_file(self.dist_file_name, f'{id_exp}, {i}, {dis.numpy()}')
             distances[i] = dis
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
             # k = 0 if len(adv_images)==1 else -2
