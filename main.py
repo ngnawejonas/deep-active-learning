@@ -6,13 +6,13 @@ import yaml
 import random
 import numpy as np
 import torch
-import tensorflow as tf
+# import tensorflow as tf
 from utils import get_dataset, get_net, get_strategy, log_to_file
 
 
 if __name__ == "__main__":
 
-    os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
+    # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
 
     parser = argparse.ArgumentParser()
 
