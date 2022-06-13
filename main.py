@@ -64,7 +64,7 @@ if __name__ == "__main__":
     #         "resnet18",
     #         "vgg16"],
     #     help="network architecture")
-    parser.add_argument('--repeat', type=int, default=1,
+    parser.add_argument('--repeat', type=int, default=0,
                         help="number of queries per round")
     parser.add_argument('--strategy_name', type=str, default="RandomSampling",
                         choices=["RandomSampling",
