@@ -9,3 +9,4 @@ strategy_name: AdversarialPGD
 reset: True
 repeat: 3
 early_stopping: False
+max_iter: 10

@@ -208,6 +208,8 @@ if __name__ == "__main__":
     print('testing...')
     acc = strategy.eval_acc()
     adv_acc = strategy.eval_adv_acc()
+    strategy.eval_dis()
+
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
     log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
@@ -238,6 +240,7 @@ if __name__ == "__main__":
         print('evaluation...')
         acc = strategy.eval_acc()
         adv_acc = strategy.eval_adv_acc()
+        strategy.eval_dis()
 
         n_labeled = strategy.dataset.n_labeled()
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")

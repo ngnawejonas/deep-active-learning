@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 class KCenterGreedy(Strategy):
     def __init__(self, dataset, net, **kwargs):
-        super().__init__(dataset, net)
+        super().__init__(dataset, net, **kwargs)
 
     def query(self, n):
         labeled_idxs, train_data = self.dataset.get_train_data()

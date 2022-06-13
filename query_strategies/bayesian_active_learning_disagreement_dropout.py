@@ -4,7 +4,7 @@ from .strategy import Strategy
 
 class BALDDropout(Strategy):
     def __init__(self, dataset, net, n_drop=10, **kwargs):
-        super().__init__(dataset, net)
+        super().__init__(dataset, net, **kwargs)
         self.n_drop = n_drop
 
     def query(self, n):
