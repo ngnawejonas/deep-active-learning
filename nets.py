@@ -50,7 +50,7 @@ class Net:
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
-                if self.adv_mode:
+                if self.adv_train_mode:
                     attack_name = adv_params['train_attack']['name']
                     attack_params = adv_params['train_attack']['args']
                     attack_fn = get_attack_fn(attack_name)
