@@ -20,6 +20,9 @@ class Data:
         # To handle addition of adversarial dataset to labelled pool
         self.X_train_extra = torch.Tensor([])
         self.Y_train_extra = torch.Tensor([])
+        # adv test data
+        self.n_adv_test = 300
+        self.adv_test_idxs = np.random.choice(np.arange(self.n_test), self.n_adv_test, replace=False)
 
     def initialize_labels(self, num):
         # generate initial labeled pool
@@ -72,9 +75,14 @@ class Data:
     def get_test_data(self):
         return self.handler(self.X_test, self.Y_test)
 
+    def get_adv_test_data(self):
+        return self.handler(self.X_test[self.adv_test_idxs], self.Y_test[self.adv_test_idxs])
+
     def cal_test_acc(self, preds):
-        # print('test',torch.unique(self.Y_test, return_counts=True), 'preds', torch.unique(preds, return_counts=True))
-        return 1.0 * (self.Y_test == preds).sum().item() / self.n_test
+        return 100.0 * (self.Y_test == preds).sum().item() / self.n_test
+
+    def cal_adv_test_acc(self, preds):
+        return 100.0 * (self.Y_test[self.adv_test_idxs] == preds).sum().item() / self.n_adv_test
 
 
 def get_xMNIST(x_fn, handler, pool_size):

@@ -26,6 +26,10 @@ class Strategy:
         preds = self.net.predict(data)
         return preds
 
+    def predict_adv(self, data):
+        preds = self.net.predict_adv(data)
+        return preds
+
     def predict_prob(self, data):
         probs = self.net.predict_prob(data)
         return probs
@@ -42,3 +46,12 @@ class Strategy:
         embeddings = self.net.get_embeddings(data)
         return embeddings
 
+    def eval_acc(self):
+        preds = self.predict(self.dataset.get_test_data())
+        acc = self.dataset.cal_test_acc(preds)
+        return acc
+
+    def eval_adv_acc(self):
+        preds = self.predict_adv(self.dataset.get_adv_test_data())
+        acc = self.dataset.cal_adv_test_acc(preds)
+        return acc

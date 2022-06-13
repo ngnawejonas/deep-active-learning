@@ -30,9 +30,9 @@ if __name__ == "__main__":
     parser.add_argument('--n_query', type=int, default=100,
                         help="number of queries per round")
     # parser.add_argument(
-    #     '--n_round',
+    #     '--n_test_adv',
     #     type=int,
-    #     default=5,
+    #     default=300,
     #     help="number of rounds")
     parser.add_argument(
         '--n_final_labeled',
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     #         "resnet18",
     #         "vgg16"],
     #     help="network architecture")
-    parser.add_argument('--repeat', type=int, default=3,
+    parser.add_argument('--repeat', type=int, default=1,
                         help="number of queries per round")
     parser.add_argument('--strategy_name', type=str, default="RandomSampling",
                         choices=["RandomSampling",
@@ -206,11 +206,11 @@ if __name__ == "__main__":
     strategy.train()
     print("train time: {:.2f} s".format(time.time() - t))
     print('testing...')
-    preds = strategy.predict(dataset.get_test_data())
-    acc = dataset.cal_test_acc(preds)
+    acc = strategy.eval_acc()
+    adv_acc = strategy.eval_adv_acc()
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
-    log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
+    log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
     # tf_summary_writer = tf.summary.create_file_writer('tfboard')
     # with tf_summary_writer.as_default():
     #     tf.summary.scalar('accuracy', acc, step=n_labeled)
@@ -236,12 +236,12 @@ if __name__ == "__main__":
 
         # calculate accuracy
         print('evaluation...')
-        preds = strategy.predict(dataset.get_test_data())
-        acc = dataset.cal_test_acc(preds)
+        acc = strategy.eval_acc()
+        adv_acc = strategy.eval_adv_acc()
 
         n_labeled = strategy.dataset.n_labeled()
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")
-        log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {acc}')
+        log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
         # with tf_summary_writer.as_default():
         #     tf.summary.scalar('accuracy', acc, step=n_labeled)
         rd += 1 

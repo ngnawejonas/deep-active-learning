@@ -35,11 +35,6 @@ class AdversarialStrategy(Strategy):
             i_iter += 1
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
-        # print()
-        # print(f'>>> {i_iter} attacks, distance: {dis}')
-        # if torch.equal(x_i, x):
-        #     return dis.detach(), x.detach().squeeze(0)
-        # print()
         return dis.detach(), x_i.detach().squeeze(0)
 
     def query(self, n):
@@ -54,9 +49,6 @@ class AdversarialStrategy(Strategy):
             log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy()}')
             distances[i] = dis
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
-            # k = 0 if len(adv_images)==1 else -2
-            # disprev =  torch.norm(adv_images[-1] - adv_images[k])
-            # print('adv added', dis.numpy(), disprev.cpu().numpy(), adv_images[-1].shape, adv_images[-1].min().cpu().numpy(), adv_images[-1].max().cpu().numpy())
         selected_idxs = distances.argsort()[:n]
         extra_data = None
         if self.pseudo_labeling:

@@ -1,7 +1,6 @@
 import numpy as np
 # import torch
-from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method        
-from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent
+from attacks import pgd_attack
 
 from .adversarial_strategy import AdversarialStrategy
 
@@ -22,4 +21,4 @@ class AdversarialPGD(AdversarialStrategy):
 
     def attack_fn(self, X):
         """PGD attack"""
-        return projected_gradient_descent(self.net.clf, X, **self.params)
+        return pgd_attack(self.net.clf, X, **self.params)

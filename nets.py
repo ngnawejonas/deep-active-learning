@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, random_split
 
 from tqdm import tqdm
 
-from train_utils import get_optimizer #, EarlyStopping
+from train_utils import get_optimizer , EarlyStopping, get_attack_fn, adv_params
 
 
 
@@ -21,6 +21,7 @@ class Net:
         self.device = device
         self.reset = reset
         self.repeat = repeat
+        self.adv_train_mode = False
 
 
     def train(self, data):
@@ -42,23 +43,26 @@ class Net:
             **self.params['optimizer_args'])
 
         # Early Stopping
-        # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
-        # early_topping = EarlyStopping(patience=patience)
+        patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
+        early_topping = EarlyStopping(patience=patience)
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-            # for batch_idx, (x, y, idxs) in enumerate(loader):
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
+                if self.adv_mode:
+                    attack_name = adv_params['train_attack']['name']
+                    attack_params = adv_params['train_attack']['args']
+                    attack_fn = get_attack_fn(attack_name)
+                    x = attack_fn(self.clf, x, **attack_params)
                 out = self.clf(x)
-                # print('nets.py:52: out/y', out.shape, y.shape)
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
-                # break
-                # early_topping(validation_loss)
-                # if early_topping.early_stop:
-                #     break
+                break
+                early_topping(validation_loss)
+                if early_topping.early_stop:
+                    break
                 # print(f"epoch {epoch}, batch_idx {batch_idx}")
         # Clear GPU memory in preparation for next model training
         gc.collect()
@@ -136,6 +140,22 @@ class Net:
                 out = self.clf(x)
                 pred = out.max(1)[1]
                 preds[idxs] = pred.cpu()
+        return preds
+
+    def predict_adv(self, data):
+        self.clf.eval()
+        preds = torch.zeros(len(data), dtype=data.Y.dtype)
+        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        for x, y, idxs in loader:
+        # for x, y in loader:
+            x, y = x.to(self.device), y.to(self.device)
+            attack_name = adv_params['test_attack']['name']
+            attack_params = adv_params['test_attack']['args']
+            attack_fn = get_attack_fn(attack_name)
+            x = attack_fn(self.clf, x, **attack_params)
+            out = self.clf(x)
+            pred = out.max(1)[1]
+            preds[idxs] = pred.cpu()
         return preds
 
     def predict_prob(self, data):

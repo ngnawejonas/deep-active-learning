@@ -3,9 +3,9 @@ seed: 1
 n_init_labeled: 100
 n_query: 100
 n_final_labeled: 4000
-dataset_name: 'MNIST'
+dataset_name: MNIST
 pool_size: 50000
-strategy_name: 'AdversarialPGD'
+strategy_name: AdversarialPGD
 reset: True
 repeat: 3
 early_stopping: False
