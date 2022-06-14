@@ -82,5 +82,4 @@ class Strategy:
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
             dis, x_adv = self.cal_dis_test(x, attack_fn, **attack_params)
-            dis = np.round(dis.numpy(), 3)
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis}')
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy()}')
