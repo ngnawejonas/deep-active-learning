@@ -59,7 +59,6 @@ class Net:
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
-                break
                 early_topping(validation_loss)
                 if early_topping.early_stop:
                     break
