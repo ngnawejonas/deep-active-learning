@@ -59,9 +59,10 @@ class Net:
                 loss = F.cross_entropy(out, y)
                 loss.backward()
                 optimizer.step()
-                early_topping(validation_loss)
-                if early_topping.early_stop:
-                    break
+                # early_topping(validation_loss)
+                # if early_topping.early_stop:
+                #     print('early stopping')
+                #     break
                 # print(f"epoch {epoch}, batch_idx {batch_idx}")
         # Clear GPU memory in preparation for next model training
         gc.collect()
