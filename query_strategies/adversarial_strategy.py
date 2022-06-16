@@ -48,7 +48,35 @@ class AdversarialStrategy(Strategy):
             distances[i] = dis
             log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
-        selected_idxs = distances.argsort()[:n]
+
+        ##
+        if self.diversity:
+            print('diversity selection')
+            perturbations = torch.Tensor(distances)
+            index_perturbation = perturbations.argsort()    
+            adv = torch.stack(adv_images)
+            sortedAdv = adv[index_perturbation]
+
+            dist = []
+            for i in range(self.n_subset_ul):
+                for j in range(self.n_subset_ul):
+                    adv_dist = torch.norm(sortedAdv[i]-sortedAdv[j])
+                    dist.append(adv_dist.cpu().numpy())
+
+            median_dist = np.median(np.unique(dist))
+            selected_idxs = []
+
+            for i in range(self.n_subset_ul):
+                index_max = np.argmax(dist[self.n_subset_ul*i:self.n_subset_ul*(i+1)])
+                max_dist = dist[(self.n_subset_ul*i)+index_max]
+                if max_dist > median_dist:
+                    selected_idxs.append(index_perturbation[i])
+            selected_idxs = selected_idxs[:n]
+        ##
+        else:
+            selected_idxs = distances.argsort()[:n]
+
+        breakpoint()
         extra_data = None
         if self.pseudo_labeling:
             if len(adv_images)>0:

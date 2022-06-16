@@ -14,7 +14,7 @@ AdversarialBIM:
 AdversarialPGD: 
   n_subset_ul: 300
   pseudo_labeling: True
-  diversity: False
+  diversity: True
   eps: 0.3
   eps_iter: 0.01
   nb_iter: 10
