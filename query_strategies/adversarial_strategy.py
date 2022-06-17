@@ -18,8 +18,7 @@ class AdversarialStrategy(Strategy):
         self.diversity = diversity
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
         self.params = kwargs
-        # self.dist_file_name = dist_file_name
-        # self.id_exp = id_exp
+        self.adv_dist_file_name = "train_"+dist_file_name
 
     def check_querying(self, n_query):
         if self.n_subset_ul < n_query:
@@ -46,7 +45,7 @@ class AdversarialStrategy(Strategy):
             x, y, _ = iter_loader.next()
             dis, x_adv = self.cal_dis(x)
             distances[i] = dis
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
+            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
 
         ##

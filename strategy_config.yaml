@@ -28,4 +28,4 @@ AdversarialDeepFool:
   eps: 0.3
   n_subset_ul: 300
   pseudo_labeling: True
-  diversity: False
+  diversity: True
