@@ -75,7 +75,7 @@ class AdversarialStrategy(Strategy):
         else:
             selected_idxs = distances.argsort()[:n]
 
-        breakpoint()
+        # breakpoint()
         extra_data = None
         if self.pseudo_labeling:
             if len(adv_images)>0:
