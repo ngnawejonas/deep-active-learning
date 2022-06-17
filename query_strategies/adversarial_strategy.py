@@ -45,7 +45,7 @@ class AdversarialStrategy(Strategy):
             x, y, _ = iter_loader.next()
             dis, x_adv = self.cal_dis(x)
             distances[i] = dis
-            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
+            # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
 
         ##
