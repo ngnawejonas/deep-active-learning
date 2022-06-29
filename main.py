@@ -88,6 +88,9 @@ if __name__ == "__main__":
     parser.add_argument('--nops', dest="pseudo_labeling", action='store_false')
     parser.set_defaults(pseudo_labeling=True)
 
+    parser.add_argument('--advtrain', dest="adv_train_mode", action='store_true')
+    parser.set_defaults(adv_train_mode=False)
+
     # parser.add_argument('--with_diversity', dest="diversity", action='store_true')
     # parser.set_defaults(diversity=False)    
 
@@ -141,6 +144,7 @@ if __name__ == "__main__":
         reset = args.reset
         repeat = args.repeat
         # early_stopping = config['early_stopping']
+        adv_train_mode = args.adv_train_mode
     print()
     #
     # final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
@@ -176,7 +180,7 @@ if __name__ == "__main__":
     # print('getting dataset...')
     dataset = get_dataset(dataset_name, pool_size)        # load dataset
     # print('dataset loaded')
-    net = get_net(dataset_name, device, repeat, reset)            # load network
+    net = get_net(dataset_name, device, repeat, reset, adv_train_mode)           # load network
     params = {}
     if strategy_config.get(strategy_name):
         params = strategy_config[strategy_name]

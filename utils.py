@@ -61,18 +61,18 @@ def get_dataset(name, pool_size):
         raise NotImplementedError
 
 
-def get_net(name, device, repeat=1, reset=True):
+def get_net(name, device, repeat=1, reset=True, adv_train_mode=False):
 #     if device == 'cpu':
 #         params[name]['train_args']['num_workers'] = 0
     # print(params[name]['train_args']['num_workers'])
     if name == 'MNIST':
-        return Net(MNIST_Net, params[name], device, repeat, reset)
+        return Net(MNIST_Net, params[name], device, repeat, reset, adv_train_mode)
     elif name == 'FashionMNIST':
-        return Net(MNIST_Net, params[name], device, repeat, reset)
+        return Net(MNIST_Net, params[name], device, repeat, reset, adv_train_mode)
     elif name == 'SVHN':
-        return Net(SVHN_Net, params[name], device, repeat, reset)
+        return Net(SVHN_Net, params[name], device, repeat, reset, adv_train_mode)
     elif name == 'CIFAR10':
-        return Net(CIFAR10_Net, params[name], device, repeat, reset)
+        return Net(CIFAR10_Net, params[name], device, repeat, reset, adv_train_mode)
     else:
         raise NotImplementedError
 

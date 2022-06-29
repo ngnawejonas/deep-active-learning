@@ -14,14 +14,14 @@ from train_utils import get_optimizer , EarlyStopping, get_attack_fn, adv_params
 
 
 class Net:
-    def __init__(self, net, params, device, repeat=0, reset=True):
+    def __init__(self, net, params, device, repeat=0, reset=True, adv_train_mode=False):
         self.net = net
         self.clf = None
         self.params = params
         self.device = device
         self.reset = reset
         self.repeat = repeat
-        self.adv_train_mode = False
+        self.adv_train_mode = adv_train_mode
 
 
     def train(self, data):
@@ -104,6 +104,11 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
+                    if self.adv_train_mode:
+                        attack_name = adv_params['train_attack']['name']
+                        attack_params = adv_params['train_attack']['args']
+                        attack_fn = get_attack_fn(attack_name)
+                        x = attack_fn(self.clf, x, **attack_params)
                     out = self.clf(x)
                     loss = F.cross_entropy(out, y)
                     loss.backward()
