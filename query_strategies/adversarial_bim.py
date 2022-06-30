@@ -19,9 +19,4 @@ class AdversarialBIM(AdversarialStrategy):
                         n_subset_ul,
                         diversity, dist_file_name, id_exp, **kwargs)
 
-
-    def attack_fn(self, X):
-        """BIM attack 
-           cleverhans implementation of BIM (pgd with rand_init=False)
-        """
-        return projected_gradient_descent(self.net.clf, X, **self.params)
+        self.attack_name = 'bim'

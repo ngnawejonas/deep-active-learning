@@ -17,35 +17,26 @@ class AdversarialStrategy(Strategy):
         super().__init__(dataset, net, pseudo_labeling, max_iter, dist_file_name, id_exp)
         self.diversity = diversity
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
-        self.params = kwargs
+        self.attack_params = kwargs
         self.adv_dist_file_name = "train_"+dist_file_name
+        self.attack_name = None
 
     def check_querying(self, n_query):
         if self.n_subset_ul < n_query:
             raise ValueError(f"Impossible to query more than {self.n_subset_ul}. n_query = {n_query}!")
 
-    def cal_dis(self, x):
-        x_i = x.clone()
-        initial_label = self.net.predict_example(x_i)
-        i_iter = 0
-        while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
-            x_i = self.attack_fn(x_i.to(self.net.device))
-            i_iter += 1
-        x_i = x_i.cpu()
-        dis = torch.norm(x_i - x)
-        return dis.detach(), x_i.detach().squeeze(0)
-
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
         self.net.clf.eval()
+        attack_fn = get_attack_fn(self.attack_name)
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, _ = iter_loader.next()
-            dis, x_adv = self.cal_dis(x)
+            nb_iter, dis, x_adv = self.cal_dis(x, attack_fn, **self.attack_params)
             distances[i] = dis
-            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
+            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
 
         ##

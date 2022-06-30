@@ -213,7 +213,7 @@ if __name__ == "__main__":
     print('testing...')
     acc = strategy.eval_acc()
     adv_acc = strategy.eval_adv_acc()
-    strategy.eval_dis()
+    strategy.eval_test_dis()
 
     print(f"Round 0 testing accuracy: {acc}")
     n_labeled = strategy.dataset.n_labeled()
@@ -245,7 +245,7 @@ if __name__ == "__main__":
         print('evaluation...')
         acc = strategy.eval_acc()
         adv_acc = strategy.eval_adv_acc()
-        strategy.eval_dis()
+        strategy.eval_test_dis()
 
         n_labeled = strategy.dataset.n_labeled()
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")

@@ -61,7 +61,7 @@ class Strategy:
         acc = self.dataset.cal_adv_test_acc(preds)
         return acc
 
-    def cal_dis_test(self, x, attack_fn, **attack_params):
+    def cal_dis(self, x, attack_fn, **attack_params):
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
         i_iter = 0
@@ -70,10 +70,10 @@ class Strategy:
             i_iter += 1
         x_i = x_i.cpu()
         dis = torch.norm(x_i - x)
-        return dis.detach(), x_i.detach().squeeze(0)
+        return i_iter, dis.detach(), x_i.detach().squeeze(0)
 
 
-    def eval_dis(self):
+    def eval_test_dis(self):
         self.net.clf.eval()
         attack_name = adv_params['test_attack']['name']
         attack_params = adv_params['test_attack']['args']
@@ -81,5 +81,5 @@ class Strategy:
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
-            dis, x_adv = self.cal_dis_test(x, attack_fn, **attack_params)
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}')
+            nb_iter, dis, x_adv = self.cal_dis(x, attack_fn, **attack_params)
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')

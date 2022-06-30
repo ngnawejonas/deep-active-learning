@@ -22,6 +22,4 @@ class AdversarialDeepFool(AdversarialStrategy):
                         n_subset_ul,
                         diversity, dist_file_name,id_exp, **kwargs)
 
-    def attack_fn(self, x):
-        """DeepFool attack"""
-        return deepfool_attack(self.net.clf, x)
+        self.attack_name = 'deepfool'
