@@ -148,8 +148,7 @@ if __name__ == "__main__":
     print()
     #
     # final = n_final_labeled if n_final_labeled else n_round*n_query+n_init_labeled
-    if adv_train_mode:
-        strategy_name_on_file = strategy_name+"AdvTrain" 
+    strategy_name_on_file = strategy_name+"AdvTrain" if adv_train_mode else strategy_name
     ACC_FILENAME = '{}_{}_{}_{}_{}.txt'.format(
         strategy_name_on_file, dataset_name, 'resnet18', n_final_labeled, 'r'+str(repeat))
     #
