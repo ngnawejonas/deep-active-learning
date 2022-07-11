@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from train_utils import adv_params, get_attack_fn, log_to_file
 
 class Strategy:
-    def __init__(self, dataset, net, pseudo_labeling=False, max_iter=10, dist_file_name=None, id_exp=0):
+    def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
         self.dataset = dataset
         self.net = net
         self.pseudo_labeling = pseudo_labeling
