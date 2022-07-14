@@ -4,7 +4,7 @@ from .strategy import Strategy
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from train_utils import log_to_file
+from train_utils import log_to_file, get_attack_fn
 
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
@@ -73,7 +73,3 @@ class AdversarialStrategy(Strategy):
                 extra_data = torch.stack(adv_images)[selected_idxs]
 
         return unlabeled_idxs[selected_idxs], extra_data
-
-    def attack_fn(self, x):
-        """attack_fn to be implemented by child classes"""
-        pass
