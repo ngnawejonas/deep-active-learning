@@ -64,7 +64,7 @@ def get_optimizer(name):
     elif name.lower() == 'sgd':
         return optim.SGD
     elif name.lower() == 'adam':
-        return optim.ADAM
+        return optim.Adam
     else:
         raise NotImplementedError
 
