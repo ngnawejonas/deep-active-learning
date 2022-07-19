@@ -261,10 +261,10 @@ class TORCHVISION_Net(nn.Module):
 class LeNet5(nn.Module):
 
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
         
         n_classes = 10
-        
+
         self.embedding = nn.Sequential(            
             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
             nn.Tanh(),
