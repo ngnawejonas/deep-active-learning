@@ -12,8 +12,8 @@ params = {'MNIST':
           {'n_epoch': 50,
            'train_args': {'batch_size': 64, 'num_workers': 0},
            'test_args': {'batch_size': 1000, 'num_workers': 0},
-           'optimizer': 'rmsprop',
-           'optimizer_args': {'lr': 0.005}},
+           'optimizer': 'adam', # rmsprop lr 0.005
+           'optimizer_args': {'lr': 0.001}},
           'FashionMNIST':
               {'n_epoch': 50,
                'train_args': {'batch_size': 64, 'num_workers': 0},
