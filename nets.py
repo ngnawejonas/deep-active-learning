@@ -68,7 +68,7 @@ class Net:
         gc.collect()
         torch.cuda.empty_cache()
 
-    def _train_xtimes2(self, data):
+    def _train_xtimes(self, data):
         """train x times with full data."""
 
         n_epoch = self.params['n_epoch']
@@ -89,12 +89,8 @@ class Net:
                 self.clf.parameters(),
                 **self.params['optimizer_args'])
 
-            # Early Stopping
-            # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
-            # early_topping = EarlyStopping(patience=patience)
-
             loader = DataLoader(
-                train_data,
+                data,
                 shuffle=True,
                 **self.params['train_args'])
             for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
@@ -111,9 +107,9 @@ class Net:
                     loss.backward()
                     optimizer.step()
 
-            validation_loss = self.predict_loss(val_data)
+            train_loss = self.predict_loss(data)
 
-            if validation_loss < best_loss:
+            if train_loss < best_loss:
                 best_loss = loss
                 best_model = copy.deepcopy(self.clf)
             # Clear GPU memory in preparation for next model training
@@ -122,7 +118,7 @@ class Net:
         self.clf = best_model
 
 
-    def _train_xtimes(self, data):
+    def _train_xtimes2(self, data):
         """train x times."""
 
         n_epoch = self.params['n_epoch']
