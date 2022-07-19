@@ -232,7 +232,7 @@ class TORCHVISION_Net(nn.Module):
         super().__init__()
         layers = list(torchv_model.children())
         self.embedding = torch.nn.Sequential(*(layers[:-1]))
-        self.fc_head = torch.nn.Sequential(*(layers[-1:]))
+        self.fc_head = torch.nn.Sequential(*(layers[-1:]))  
         self.e1 = None
 
     def forward(self, x):
@@ -256,6 +256,36 @@ class TORCHVISION_Net(nn.Module):
     #         for layer in m.children():
     #            if hasattr(layer, 'reset_parameters'):
     #                layer.reset_parameters()
+
+# https://towardsdatascience.com/implementing-yann-lecuns-lenet-5-in-pytorch-5e05a0911320
+class LeNet5(nn.Module):
+
+    def __init__(self, n_classes):
+        super().__init__(self, n_classes)
+        
+        self.embedding = nn.Sequential(            
+            nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(in_channels=16, out_channels=120, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.Linear(in_features=120, out_features=84),
+            nn.Tanh()
+        )
+        self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
+
+    def forward(self, x):
+        e1 = self.embedding(x)
+        self.e1 = e1
+        x = torch.flatten(e1, 1)
+        x = self.fc_head(x)
+        return x
+
+    def get_embedding_dim(self):
+        return self.fc_head[0].in_features
 
 
 class MNIST_Net(TORCHVISION_Net):
@@ -281,4 +311,10 @@ class CIFAR10_Net(TORCHVISION_Net):
     def __init__(self):
         n_classes = 10
         model = models.resnet18(num_classes=n_classes)
+        super().__init__(model)
+
+class CIFAR10_Net2(TORCHVISION_Net):
+    def __init__(self):
+        n_classes = 10
+        model = models.vgg16(num_classes=n_classes)
         super().__init__(model)
