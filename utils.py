@@ -1,7 +1,7 @@
 # from torchvision import transforms
 from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
 from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
-from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net
+from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net, oMNIST_Net
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
     KMeansSampling, KCenterGreedy, BALDDropout, \
@@ -66,7 +66,7 @@ def get_net(name, device, repeat=1, reset=True, adv_train_mode=False):
 #         params[name]['train_args']['num_workers'] = 0
     # print(params[name]['train_args']['num_workers'])
     if name == 'MNIST':
-        return Net(MNIST_Net, params[name], device, repeat, reset, adv_train_mode)
+        return Net(oMNIST_Net, params[name], device, repeat, reset, adv_train_mode)
     elif name == 'FashionMNIST':
         return Net(MNIST_Net, params[name], device, repeat, reset, adv_train_mode)
     elif name == 'SVHN':
