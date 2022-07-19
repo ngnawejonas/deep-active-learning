@@ -289,7 +289,7 @@ class LeNet5(nn.Module):
         return out
 
     def forward(self, x):
-        self.e1 = self.relu1(x)
+        self.e1 = self.embedding(x)
         out = self.fc_head(self.e1)
         return out
 
