@@ -260,8 +260,10 @@ class TORCHVISION_Net(nn.Module):
 # https://towardsdatascience.com/implementing-yann-lecuns-lenet-5-in-pytorch-5e05a0911320
 class LeNet5(nn.Module):
 
-    def __init__(self, n_classes):
-        super().__init__(self, n_classes)
+    def __init__(self):
+        super().__init__(self)
+        
+        n_classes = 10
         
         self.embedding = nn.Sequential(            
             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
