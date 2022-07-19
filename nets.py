@@ -68,6 +68,60 @@ class Net:
         gc.collect()
         torch.cuda.empty_cache()
 
+    def _train_xtimes2(self, data):
+        """train x times with full data."""
+
+        n_epoch = self.params['n_epoch']
+        n_train = (int)(len(data) * 0.8)
+
+        best_model = None
+        best_loss = np.inf
+        for i in range(self.repeat):
+            print(f'training No {i+1}')
+
+            self.clf = self.net().to(self.device)
+            # if self.device.type=='cuda':
+            #     self.clf = nn.DataParallel(self.clf)
+
+            self.clf.train()  # set train mode
+            optimizer_ = get_optimizer(self.params['optimizer'])
+            optimizer = optimizer_(
+                self.clf.parameters(),
+                **self.params['optimizer_args'])
+
+            # Early Stopping
+            # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
+            # early_topping = EarlyStopping(patience=patience)
+
+            loader = DataLoader(
+                train_data,
+                shuffle=True,
+                **self.params['train_args'])
+            for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
+                for batch_idx, (x, y, idxs) in enumerate(loader):
+                    x, y = x.to(self.device), y.to(self.device)
+                    optimizer.zero_grad()
+                    if self.adv_train_mode:
+                        attack_name = adv_params['train_attack']['name']
+                        attack_params = adv_params['train_attack']['args']
+                        attack_fn = get_attack_fn(attack_name)
+                        x = attack_fn(self.clf, x, **attack_params)
+                    out = self.clf(x)
+                    loss = F.cross_entropy(out, y)
+                    loss.backward()
+                    optimizer.step()
+
+            validation_loss = self.predict_loss(val_data)
+
+            if validation_loss < best_loss:
+                best_loss = loss
+                best_model = copy.deepcopy(self.clf)
+            # Clear GPU memory in preparation for next model training
+            gc.collect()
+            torch.cuda.empty_cache()
+        self.clf = best_model
+
+
     def _train_xtimes(self, data):
         """train x times."""
 
