@@ -68,7 +68,7 @@ class Net:
                 #     print('early stopping')
                 #     break
                 # print(f"epoch {epoch}, batch_idx {batch_idx}")
-            scheduler.step()
+            scheduler.step(loss)
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
