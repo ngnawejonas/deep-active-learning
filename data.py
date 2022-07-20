@@ -85,9 +85,9 @@ class Data:
         return 100.0 * (self.Y_test[self.adv_test_idxs] == preds).sum().item() / self.n_adv_test
 
 
-def get_xMNIST(x_fn, handler, pool_size):
-    raw_train = x_fn(root='data', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='data', train=False, download=True, transform=ToTensor())
+def get_xMNIST(x_fn, handler, pool_size, pref = ''):
+    raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
+    raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
 
     dtl = DataLoader(raw_train, batch_size=len(raw_train))
     for X,y in dtl:
@@ -111,7 +111,7 @@ def get_MNIST(handler, pool_size):
 
 
 def get_FashionMNIST(handler, pool_size):
-    return get_xMNIST(datasets.FashionMNIST, handler, pool_size)
+    return get_xMNIST(datasets.FashionMNIST, handler, pool_size, 'Fashion')
 
 
 def get_SVHN(handler, pool_size):

@@ -31,7 +31,7 @@ params = {'MNIST':
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
                'optimizer': 'SGD',
-               'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay':5e-4}},
+               'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay':0.0005}},
                # 'optimizer': 'adam', # rmsprop lr 0.005
                # 'optimizer_args': {'lr': 0.001}},
 

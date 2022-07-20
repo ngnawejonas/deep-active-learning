@@ -41,14 +41,16 @@ class Net:
         optimizer = optimizer_(
             self.clf.parameters(),
             **self.params['optimizer_args'])
-        scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01,
-                                              step_size_up=5, step_size_down=20, max_lr=0.4)
+        # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01,
+        #                                       step_size_up=5, step_size_down=20, max_lr=0.4)
+        optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.1, patience=10)
+
         # Early Stopping
         patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
         early_topping = EarlyStopping(patience=patience)
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-            print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
+            # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
