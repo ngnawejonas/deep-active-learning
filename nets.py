@@ -43,7 +43,7 @@ class Net:
             **self.params['optimizer_args'])
         # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01,
         #                                       step_size_up=5, step_size_down=20, max_lr=0.4)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.1, patience=10)
+        # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.1, patience=10)
 
         # Early Stopping
         patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
@@ -68,7 +68,7 @@ class Net:
                 #     print('early stopping')
                 #     break
                 # print(f"epoch {epoch}, batch_idx {batch_idx}")
-            scheduler.step(loss)
+            # scheduler.step(loss)
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
