@@ -27,7 +27,7 @@ params = {'MNIST':
                'optimizer': 'rmsprop',
                'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
           'CIFAR10':
-              {'n_epoch': 50,
+              {'n_epoch': 200,
                'train_args': {'batch_size': 64, 'num_workers': 0},
                'test_args': {'batch_size': 1000, 'num_workers': 0},
                'optimizer': 'SGD',

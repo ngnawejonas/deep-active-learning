@@ -150,16 +150,24 @@ def get_SVHN(handler, pool_size):
 #                 handler)
 
 def get_CIFAR10(handler, pool_size):
-    transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
+    transforms_train = transforms.Compose(
+            [
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                    (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+                ),
+            ]
+        )
+    transforms_test = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(
+                (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+            ),
+        ]
+    )
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
 
