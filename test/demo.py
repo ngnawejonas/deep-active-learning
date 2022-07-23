@@ -106,13 +106,11 @@ def test(clf, data, device):
     preds = torch.zeros(len(data))#, dtype=data.targets[0].dtype)
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        idx = 0
-        for x, y in loader:
+        for idx, (x, y) in enumerate(loader):
             x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
             preds[idx] = pred.cpu()
-            idx = idx + 1
         acc = 100.0 * (data.targets == preds).sum().item() / len(data)
     return acc
 
