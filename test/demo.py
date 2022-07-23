@@ -102,15 +102,17 @@ def train(clf, data, device):
 
 def test(clf, data, device):
     clf.eval()
-    preds = torch.zeros(len(data))
+    preds = torch.zeros(len(data), dtype=data.targets.dtype)
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        for idx, x, y in enumerate(loader):
+        idx = 0
+        for x, y in loader:
             x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
             preds[idx] = pred.cpu()
-        acc = 100.0 * (self.Y_test == preds).sum().item() / self.n_test
+            idx = idx + 1
+        acc = 100.0 * (data.targets == preds).sum().item() / len(data)
     return acc
 
 
@@ -174,7 +176,7 @@ if __name__ == "__main__":
     train(net, train_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
-    acc = test(net, train_data, device)
+    acc = test(net, test_data, device)
     print(f"Test accuracy: {acc}")
 
     T = time.time() - start
