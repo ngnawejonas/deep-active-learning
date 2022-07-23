@@ -1,8 +1,5 @@
-from pprint import pprint
-import os
-import argparse
-import time
-import yaml
+import time 
+
 import random
 import numpy as np
 import torch
@@ -11,7 +8,6 @@ import torch.nn.functional as F
 import torchvision.models as models
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 
 from tqdm import tqdm
@@ -29,14 +25,14 @@ PARAMS = {'n_epoch': 200,
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
-        return optim.RMSprop
+        opt= optim.RMSprop
     elif name.lower() == 'sgd':
-        return optim.SGD
+        opt= optim.SGD
     elif name.lower() == 'adam':
-        return optim.Adam
+        opt= optim.Adam
     else:
         raise NotImplementedError
-
+    return opt
 def get_CIFAR10():
     transform_train = transforms.Compose(
             [
@@ -95,11 +91,11 @@ def test(clf, data, device):
     preds = torch.zeros(len(data))
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        for x, y in loader:
+        for idx, x, y in enumerate(loader):
             x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
-            preds[idxs] = pred.cpu()
+            preds[idx] = pred.cpu()
         acc = 100.0 * (self.Y_test == preds).sum().item() / self.n_test
     return acc
 
@@ -154,15 +150,15 @@ if __name__ == "__main__":
     # print('getting dataset...')
     train_data, test_data = get_CIFAR10()        # load dataset
     # print('dataset loaded')
-    clf = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
+    net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
 
     # start experiment
     print()
     start = time.time()
-    train(clf, train_data, device)
+    train(net, train_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
-    acc = test()
+    acc = test(net, train_data, device)
     print(f"Test accuracy: {acc}")
 
     T = time.time() - start
