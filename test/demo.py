@@ -85,7 +85,7 @@ def train(clf, data, device):
             loss.backward()
             optimizer.step()
             with tf_summary_writer.as_default():
-                tf.summary.scalar('loss', loss, step=step)
+                tf.summary.scalar('loss', loss.detach().numpy(), step=step)
                 step = step + 1
         scheduler.step()
 
@@ -134,7 +134,7 @@ class CIFAR10_Net(TORCHVISION_Net):
 
 
 if __name__ == "__main__":
-    os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
+    # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
     
     # fix random seed
     seed = 16301
