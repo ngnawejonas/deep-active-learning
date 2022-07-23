@@ -101,6 +101,7 @@ def train(clf, data, device):
 
 
 def test(clf, data, device):
+    clf = clf.to(device)
     clf.eval()
     preds = torch.zeros(len(data))#, dtype=data.targets[0].dtype)
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
