@@ -1,4 +1,4 @@
-import time 
+import time
 
 import random
 import numpy as np
@@ -14,36 +14,38 @@ from tqdm import tqdm
 
 import tensorflow as tf
 
- 
+
 PARAMS = {'n_epoch': 200,
-           'train_args': {'batch_size': 64, 'num_workers': 0},
-           'test_args': {'batch_size': 1000, 'num_workers': 0},
-           'optimizer': 'SGD',
-           'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay':0.0005}
-        }
+          'train_args': {'batch_size': 64, 'num_workers': 0},
+          'test_args': {'batch_size': 1000, 'num_workers': 0},
+          'optimizer': 'SGD',
+          'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
+          }
 
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
-        opt= optim.RMSprop
+        opt = optim.RMSprop
     elif name.lower() == 'sgd':
-        opt= optim.SGD
+        opt = optim.SGD
     elif name.lower() == 'adam':
-        opt= optim.Adam
+        opt = optim.Adam
     else:
         raise NotImplementedError
     return opt
+
+
 def get_CIFAR10():
     transform_train = transforms.Compose(
-            [
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
-                ),
-            ]
-        )
+        [
+            transforms.RandomCrop(32, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+            ),
+        ]
+    )
     transform_test = transforms.Compose(
         [
             transforms.ToTensor(),
@@ -52,8 +54,16 @@ def get_CIFAR10():
             ),
         ]
     )
-    data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
-    data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
+    data_train = datasets.CIFAR10(
+        './data/CIFAR10',
+        train=True,
+        download=True,
+        transform=transform_train)
+    data_test = datasets.CIFAR10(
+        './data/CIFAR10',
+        train=False,
+        download=True,
+        transform=transform_test)
 
     return data_train, data_test
 
@@ -67,8 +77,12 @@ def train(clf, data, device):
     optimizer = optimizer_(
         clf.parameters(),
         **PARAMS['optimizer_args'])
-    scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.001,
-                                          step_size_up=20, max_lr=0.1, mode='triangular2')
+    scheduler = torch.optim.lr_scheduler.CyclicLR(
+        optimizer,
+        base_lr=0.001,
+        step_size_up=20,
+        max_lr=0.1,
+        mode='triangular2')
     loader = DataLoader(data, shuffle=True, **PARAMS['train_args'])
     step = 0
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
@@ -99,12 +113,13 @@ def test(clf, data, device):
         acc = 100.0 * (self.Y_test == preds).sum().item() / self.n_test
     return acc
 
+
 class TORCHVISION_Net(nn.Module):
     def __init__(self, torchv_model):
         super().__init__()
         layers = list(torchv_model.children())
         self.embedding = torch.nn.Sequential(*(layers[:-1]))
-        self.fc_head = torch.nn.Sequential(*(layers[-1:]))  
+        self.fc_head = torch.nn.Sequential(*(layers[-1:]))
         self.e1 = None
 
     def forward(self, x):
@@ -122,6 +137,7 @@ class TORCHVISION_Net(nn.Module):
     def get_embedding_dim(self):
         return self.fc_head[0].in_features
 
+
 class CIFAR10_Net(TORCHVISION_Net):
     def __init__(self):
         n_classes = 10
@@ -131,7 +147,7 @@ class CIFAR10_Net(TORCHVISION_Net):
 
 if __name__ == "__main__":
     # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
-    
+
     # fix random seed
     seed = 16301
     np.random.seed(seed)
