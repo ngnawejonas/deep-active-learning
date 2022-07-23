@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 
 from tqdm import tqdm
 
-import tensorflow as tf
+# import tensorflow as tf
 
 
 PARAMS = {'n_epoch': 200,
@@ -69,7 +69,7 @@ def get_CIFAR10():
 
 
 def train(clf, data, device):
-    tf_summary_writer = tf.summary.create_file_writer('tfboard')
+    # tf_summary_writer = tf.summary.create_file_writer('tfboard')
     n_epoch = PARAMS['n_epoch']
     clf = clf.to(device)
     clf.train()  # set train mode
@@ -84,7 +84,7 @@ def train(clf, data, device):
         max_lr=0.1,
         mode='triangular2')
     loader = DataLoader(data, shuffle=True, **PARAMS['train_args'])
-    step = 0
+    # step = 0
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
         for x, y in loader:
@@ -94,9 +94,9 @@ def train(clf, data, device):
             loss = F.cross_entropy(out, y)
             loss.backward()
             optimizer.step()
-            with tf_summary_writer.as_default():
-                tf.summary.scalar('loss', loss.detach().numpy(), step=step)
-                step = step + 1
+            #with tf_summary_writer.as_default():
+            #    tf.summary.scalar('loss', loss.detach().numpy(), step=step)
+            #    step = step + 1
         scheduler.step()
 
 
