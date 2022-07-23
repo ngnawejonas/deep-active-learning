@@ -103,15 +103,17 @@ def train(clf, data, device):
 def test(clf, data, device):
     clf = clf.to(device)
     clf.eval()
-    preds = torch.zeros(len(data))#, dtype=data.targets[0].dtype)
+    preds = torch.zeros(len(data))
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
         for idx, (x, y) in enumerate(loader):
             x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
-            preds[idx] = pred.cpu()
-        acc = 100.0 * (data.targets == preds).sum().item() / len(data)
+            preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
+            # print(len((data.targets == preds)), 'hhhh')
+        # print(type(data.targets), type(preds))
+        acc = 100.0 * (torch.tensor(data.targets) == preds).sum().item() / len(data)
     return acc
 
 
