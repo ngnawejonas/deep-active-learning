@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import torchvision.models as models
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from tqdm import tqdm
 
@@ -64,8 +64,34 @@ def get_CIFAR10():
         train=False,
         download=True,
         transform=transform_test)
+    dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
+    Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
+    Ytr = [] #torch.zeros(len(data_train))
+    for i, (x, y) in enumerate(dataloader):
+        Xtr.append(x)#[i] = x
+        Ytr.append(y)#[i] = y
+    
+    dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
+    Xt = []#torch.zeros((len(data_test), 3, 32,32))
+    Yt = [] #torch.zeros(len(data_test))
+    for i, (x, y) in enumerate(dataloader):
+        Xt.append(x)
+        Yt.append(y)
 
-    return data_train, data_test
+    return CIFAR10_Handler(Xtr, Ytr), CIFAR10_Handler(Xt, Yt)
+
+
+class CIFAR10_Handler(Dataset):
+    def __init__(self, X, Y):
+        self.X = X
+        self.Y = Y
+
+    def __getitem__(self, index):
+        x, y = self.X[index], self.Y[index]
+        return x, y, index
+
+    def __len__(self):
+        return len(self.X)
 
 
 def train(clf, data, device):
@@ -87,8 +113,8 @@ def train(clf, data, device):
     # step = 0
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y in loader:
-            x, y = x.to(device), y.to(device)
+        for x, y, idx in loader:
+            x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             optimizer.zero_grad()
             out = clf(x)
             loss = F.cross_entropy(out, y)
@@ -106,11 +132,12 @@ def test(clf, data, device):
     preds = torch.zeros(len(data))
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        for idx, (x, y) in enumerate(loader):
+        for x, y, idx in loader:
             x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
-            preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
+            # preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
+            preds[idx] = pred.cpu()
             # print(len((data.targets == preds)), 'hhhh')
         # print(type(data.targets), type(preds))
         acc = 100.0 * (torch.tensor(data.targets) == preds).sum().item() / len(data)
