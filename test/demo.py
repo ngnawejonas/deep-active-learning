@@ -133,7 +133,7 @@ def test(clf, data, device):
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
         for x, y, idx in loader:
-            x, y = x.to(device), y.to(device)
+            x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             out = clf(x)
             pred = out.max(1)[1]
             # preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
