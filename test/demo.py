@@ -22,6 +22,9 @@ PARAMS = {'n_epoch': 200,
           'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
           }
 
+PATH = "model_epoch_{}.pt"
+SAVE_EVERY = 20
+
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
@@ -35,7 +38,7 @@ def get_optimizer(name):
     return opt
 
 
-def get_CIFAR10():
+def get_CIFAR10(n_data, use_handler=False):
     transform_train = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -64,21 +67,22 @@ def get_CIFAR10():
         train=False,
         download=True,
         transform=transform_test)
-    dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
-    Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
-    Ytr = [] #torch.zeros(len(data_train))
-    for i, (x, y) in enumerate(dataloader):
-        Xtr.append(x)#[i] = x
-        Ytr.append(y)#[i] = y
-    
-    dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
-    Xt = []#torch.zeros((len(data_test), 3, 32,32))
-    Yt = [] #torch.zeros(len(data_test))
-    for i, (x, y) in enumerate(dataloader):
-        Xt.append(x)
-        Yt.append(y)
+    if use_handler:
+        dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
+        Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
+        Ytr = [] #torch.zeros(len(data_train))
+        for i, (x, y) in enumerate(dataloader):
+            Xtr.append(x)#[i] = x
+            Ytr.append(y)#[i] = y
+        
+        dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
+        Xt = []#torch.zeros((len(data_test), 3, 32,32))
+        Yt = [] #torch.zeros(len(data_test))
+        for i, (x, y) in enumerate(dataloader):
+            Xt.append(x)
+            Yt.append(y)
 
-    return CIFAR10_Handler(Xtr, Ytr), CIFAR10_Handler(Xt, Yt)
+        return CIFAR10_Handler(Xtr, Ytr), CIFAR10_Handler(Xt, Yt)
 
 
 class CIFAR10_Handler(Dataset):
@@ -93,6 +97,13 @@ class CIFAR10_Handler(Dataset):
     def __len__(self):
         return len(self.X)
 
+def load_checkpoint(epoch):
+    checkpoint = torch.load(PATH.format(epoch))
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+    return model, optimizer, epoch, loss
 
 def train(clf, data, device):
     # tf_summary_writer = tf.summary.create_file_writer('tfboard')
@@ -124,6 +135,16 @@ def train(clf, data, device):
             #    tf.summary.scalar('loss', loss.detach().numpy(), step=step)
             #    step = step + 1
         scheduler.step()
+        if (epoch+1)%SAVE_EVERY == 0:
+            EPOCH = 5
+            torch.save({
+                        'epoch': epoch,
+                        'model_state_dict': clf.state_dict(),
+                        'optimizer_state_dict': optimizer.state_dict(),
+                        'loss': loss.detach().numpy(),
+                        }, PATH.format(epoch))
+
+
 
 def cal_acc(preds, targets):
     return 100.0 * (torch.tensor(targets) == preds).sum().item() / len(targets)
@@ -142,7 +163,7 @@ def test(clf, data, device):
             preds[idx] = pred.cpu()
             # print(len((data.targets == preds)), 'hhhh')
         # print(type(torch.tensor(data.targets)), type(preds))
-        acc = cal_acc(preds, targets)
+        acc = cal_acc(preds, data.targets)
     return acc
 
 
@@ -199,7 +220,7 @@ if __name__ == "__main__":
     train_data, test_data = get_CIFAR10()        # load dataset
     # print('dataset loaded')
     net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
-
+    
     # start experiment
     print()
     start = time.time()
