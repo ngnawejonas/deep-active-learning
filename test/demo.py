@@ -38,7 +38,7 @@ def get_optimizer(name):
     return opt
 
 
-def get_CIFAR10(n_data, use_handler=False):
+def get_CIFAR10(n_data=0, use_handler=False):
     transform_train = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     train_data, test_data = get_CIFAR10()        # load dataset
     # print('dataset loaded')
     net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
-    
+
     # start experiment
     print()
     start = time.time()
