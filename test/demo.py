@@ -125,6 +125,8 @@ def train(clf, data, device):
             #    step = step + 1
         scheduler.step()
 
+def cal_acc(preds, targets):
+    return 100.0 * (torch.tensor(targets) == preds).sum().item() / len(targets)
 
 def test(clf, data, device):
     clf = clf.to(device)
@@ -140,7 +142,7 @@ def test(clf, data, device):
             preds[idx] = pred.cpu()
             # print(len((data.targets == preds)), 'hhhh')
         # print(type(torch.tensor(data.targets)), type(preds))
-        acc = 100.0 * (torch.tensor(data.Y) == preds).sum().item() / len(data)
+        acc = cal_acc(preds, targets)
     return acc
 
 
