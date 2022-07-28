@@ -143,7 +143,7 @@ def train(clf, data, device):
                         'epoch': epoch,
                         'model_state_dict': clf.state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
-                        'loss': loss.detach().numpy(),
+                        'loss': loss.detach().cpu().numpy(),
                         }, PATH.format(epoch))
 
 
