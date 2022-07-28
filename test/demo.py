@@ -38,7 +38,7 @@ def get_optimizer(name):
     return opt
 
 
-def get_CIFAR10(n_data=0, use_handler=False):
+def get_CIFAR10(n_data=0, use_handler=True):
     transform_train = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -83,6 +83,8 @@ def get_CIFAR10(n_data=0, use_handler=False):
             Yt.append(y)
 
         return CIFAR10_Handler(Xtr, Ytr), CIFAR10_Handler(Xt, Yt)
+    else:
+        return train_data, test_data
 
 
 class CIFAR10_Handler(Dataset):
