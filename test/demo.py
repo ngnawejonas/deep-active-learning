@@ -57,7 +57,7 @@ def get_CIFAR10(n_data=4000, use_handler=True):
             ),
         ]
     )
-    rdata_train = datasets.CIFAR10(
+    train_data = datasets.CIFAR10(
         './data/CIFAR10',
         train=True,
         download=True,
@@ -68,13 +68,13 @@ def get_CIFAR10(n_data=4000, use_handler=True):
         download=True,
         transform=transform_test)
 
-
-    train_data, _ = random_split(training_data, [n_data, len(rdata_train) - n_sample],
+    if n_data != len(train_data):
+        train_data, _ = random_split(train_data, [n_data, len(train_data) - n_data],
                                 generator=torch.Generator().manual_seed(42))
     if use_handler:
-        # dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
-        # Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
-        # Ytr = [] #torch.zeros(len(data_train))
+        # dataloader = DataLoader(train_data, shuffle=False, batch_size=1)
+        # Xtr = [] #torch.zeros((len(train_data), 3, 32,32))
+        # Ytr = [] #torch.zeros(len(train_data))
         # for i, (x, y) in enumerate(dataloader):
         #     Xtr.append(x)#[i] = x
         #     Ytr.append(y)#[i] = y
