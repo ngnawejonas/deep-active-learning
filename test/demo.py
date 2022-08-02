@@ -8,7 +8,7 @@ import torch.nn.functional as F
 import torchvision.models as models
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, random_split
 
 from tqdm import tqdm
 
