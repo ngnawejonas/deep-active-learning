@@ -38,7 +38,7 @@ def get_optimizer(name):
     return opt
 
 
-def get_CIFAR10(n_data=0, use_handler=True):
+def get_CIFAR10(n_data=4000, use_handler=True):
     transform_train = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -57,7 +57,7 @@ def get_CIFAR10(n_data=0, use_handler=True):
             ),
         ]
     )
-    data_train = datasets.CIFAR10(
+    rdata_train = datasets.CIFAR10(
         './data/CIFAR10',
         train=True,
         download=True,
@@ -67,22 +67,33 @@ def get_CIFAR10(n_data=0, use_handler=True):
         train=False,
         download=True,
         transform=transform_test)
-    if use_handler:
-        dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
-        Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
-        Ytr = [] #torch.zeros(len(data_train))
-        for i, (x, y) in enumerate(dataloader):
-            Xtr.append(x)#[i] = x
-            Ytr.append(y)#[i] = y
-        
-        dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
-        Xt = []#torch.zeros((len(data_test), 3, 32,32))
-        Yt = [] #torch.zeros(len(data_test))
-        for i, (x, y) in enumerate(dataloader):
-            Xt.append(x)
-            Yt.append(y)
 
-        return CIFAR10_Handler(Xtr, Ytr), CIFAR10_Handler(Xt, Yt)
+
+    train_data, _ = random_split(training_data, [n_data, len(rdata_train) - n_sample],
+                                generator=torch.Generator().manual_seed(42))
+    if use_handler:
+        # dataloader = DataLoader(data_train, shuffle=False, batch_size=1)
+        # Xtr = [] #torch.zeros((len(data_train), 3, 32,32))
+        # Ytr = [] #torch.zeros(len(data_train))
+        # for i, (x, y) in enumerate(dataloader):
+        #     Xtr.append(x)#[i] = x
+        #     Ytr.append(y)#[i] = y
+        
+        # dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
+        # Xt = []#torch.zeros((len(data_test), 3, 32,32))
+        # Yt = [] #torch.zeros(len(data_test))
+        # for i, (x, y) in enumerate(dataloader):
+        #     Xt.append(x)
+        #     Yt.append(y)
+        dtl = DataLoader(train_data, batch_size=len(train_data))
+        for X, Y, idx in dtl:
+            dtrain = CIFAR10_Handler(X, Y)
+
+        dtl = DataLoader(test_data, batch_size=len(test_data))
+        for X, Y, idx in dtl:
+            dtest = CIFAR10_Handler(X, Y)
+
+        return dtrain, dtest
     else:
         return train_data, test_data
 
