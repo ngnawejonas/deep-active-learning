@@ -62,7 +62,7 @@ def get_CIFAR10(n_data=4000, use_handler=True):
         train=True,
         download=True,
         transform=transform_train)
-    data_test = datasets.CIFAR10(
+    test_data = datasets.CIFAR10(
         './data/CIFAR10',
         train=False,
         download=True,
@@ -79,18 +79,18 @@ def get_CIFAR10(n_data=4000, use_handler=True):
         #     Xtr.append(x)#[i] = x
         #     Ytr.append(y)#[i] = y
         
-        # dataloader = DataLoader(data_test, shuffle=False, batch_size=1)
-        # Xt = []#torch.zeros((len(data_test), 3, 32,32))
-        # Yt = [] #torch.zeros(len(data_test))
+        # dataloader = DataLoader(test_data, shuffle=False, batch_size=1)
+        # Xt = []#torch.zeros((len(test_data), 3, 32,32))
+        # Yt = [] #torch.zeros(len(test_data))
         # for i, (x, y) in enumerate(dataloader):
         #     Xt.append(x)
         #     Yt.append(y)
         dtl = DataLoader(train_data, batch_size=len(train_data))
-        for X, Y, idx in dtl:
+        for X, Y in dtl:
             dtrain = CIFAR10_Handler(X, Y)
 
         dtl = DataLoader(test_data, batch_size=len(test_data))
-        for X, Y, idx in dtl:
+        for X, Y in dtl:
             dtest = CIFAR10_Handler(X, Y)
 
         return dtrain, dtest
@@ -138,7 +138,8 @@ def train(clf, data, device):
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
         for x, y, idx in loader:
-            x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
+            if len(x.shape)> 4:
+                x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             optimizer.zero_grad()
             out = clf(x)
             loss = F.cross_entropy(out, y)
