@@ -140,6 +140,8 @@ def train(clf, data, device):
         for x, y, idx in loader:
             if len(x.shape)> 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
+            else:
+                x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
             out = clf(x)
             loss = F.cross_entropy(out, y)
