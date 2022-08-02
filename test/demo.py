@@ -69,7 +69,7 @@ def get_CIFAR10(n_data=4000, use_handler=True):
         download=True,
         transform=transform_test)
 
-    if n_data != len(train_data):
+    if n_data < len(train_data):
         train_data, _ = random_split(train_data, [n_data, len(train_data) - n_data],
                                 generator=torch.Generator().manual_seed(42))
     if use_handler:
