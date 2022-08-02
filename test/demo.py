@@ -1,5 +1,7 @@
 import time
 
+import argparse
+
 import random
 import numpy as np
 import torch
@@ -13,7 +15,6 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from tqdm import tqdm
 
 # import tensorflow as tf
-
 
 PARAMS = {'n_epoch': 200,
           'train_args': {'batch_size': 64, 'num_workers': 0},
@@ -172,7 +173,10 @@ def test(clf, data, device):
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
         for x, y, idx in loader:
-            x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
+            if len(x.shape)> 4:
+                x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
+            else:
+                x, y = x.to(device), y.to(device)
             out = clf(x)
             pred = out.max(1)[1]
             # preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
@@ -216,6 +220,9 @@ class CIFAR10_Net(TORCHVISION_Net):
 
 if __name__ == "__main__":
     # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--n', type=int, default=4000, help='data size')
+    args = parser.parse_args()
 
     # fix random seed
     seed = 16301
@@ -232,8 +239,8 @@ if __name__ == "__main__":
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
-    # print('getting dataset...')
-    train_data, test_data = get_CIFAR10()        # load dataset
+    print(f'getting dataset...: size={args.n}')
+    train_data, test_data = get_CIFAR10(args.n)        # load dataset
     # print('dataset loaded')
     net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
 
