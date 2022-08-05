@@ -40,7 +40,7 @@ RUN useradd --create-home -s /bin/bash --no-user-group -u $USERID $USERNAME && \
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
-RUN conda install -y python=$PYTHON_VERSION
+RUN conda install -y python=$PYTHON_VERSION 
 
 COPY requirements.txt /requirements.txt
 
