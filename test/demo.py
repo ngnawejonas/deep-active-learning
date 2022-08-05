@@ -100,7 +100,7 @@ def train(clf, data, device):
                         'loss': loss.detach().cpu().numpy(),
                         }, PATH.format(epoch))
             val_acc = test(clf, val_data, val_accuracy, device)
-        wandb.log({'train loss': loss.detach().numpy(),
+        wandb.log({'train loss': loss.detach().cpu().numpy(),
                    'val acc': val_acc,
                    })
 
