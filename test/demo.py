@@ -1,5 +1,5 @@
 import time
-
+import os
 import argparse
 
 import random
@@ -9,10 +9,15 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
 import torch.optim as optim
+import torchmetrics
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Dataset, random_split
 
+from demo_models import CIFAR10_Net, MNIST_Net
+from demo_data import get_CIFAR10, get_MNIST
 from tqdm import tqdm
+
+import wandb
 
 # import tensorflow as tf
 
@@ -23,7 +28,7 @@ PARAMS = {'n_epoch': 200,
           'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
           }
 
-PATH = "model_epoch_{}.pt"
+PATH = "checkpoints/model_epoch_{}.pt"
 SAVE_EVERY = 20
 
 
@@ -39,77 +44,8 @@ def get_optimizer(name):
     return opt
 
 
-def get_CIFAR10(n_data=4000, use_handler=True):
-    transform_train = transforms.Compose(
-        [
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
-            ),
-        ]
-    )
-    transform_test = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize(
-                (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
-            ),
-        ]
-    )
-    train_data = datasets.CIFAR10(
-        './data/CIFAR10',
-        train=True,
-        download=True,
-        transform=transform_train)
-    test_data = datasets.CIFAR10(
-        './data/CIFAR10',
-        train=False,
-        download=True,
-        transform=transform_test)
-
-    if n_data < len(train_data):
-        train_data, _ = random_split(train_data, [n_data, len(train_data) - n_data],
-                                generator=torch.Generator().manual_seed(42))
-    if use_handler:
-        # dataloader = DataLoader(train_data, shuffle=False, batch_size=1)
-        # Xtr = [] #torch.zeros((len(train_data), 3, 32,32))
-        # Ytr = [] #torch.zeros(len(train_data))
-        # for i, (x, y) in enumerate(dataloader):
-        #     Xtr.append(x)#[i] = x
-        #     Ytr.append(y)#[i] = y
-        
-        # dataloader = DataLoader(test_data, shuffle=False, batch_size=1)
-        # Xt = []#torch.zeros((len(test_data), 3, 32,32))
-        # Yt = [] #torch.zeros(len(test_data))
-        # for i, (x, y) in enumerate(dataloader):
-        #     Xt.append(x)
-        #     Yt.append(y)
-        dtl = DataLoader(train_data, batch_size=len(train_data))
-        for X, Y in dtl:
-            dtrain = CIFAR10_Handler(X, Y)
-
-        dtl = DataLoader(test_data, batch_size=len(test_data))
-        for X, Y in dtl:
-            dtest = CIFAR10_Handler(X, Y)
-
-        return dtrain, dtest
-    else:
-        return train_data, test_data
 
 
-class CIFAR10_Handler(Dataset):
-    def __init__(self, X, Y):
-        self.X = X
-        self.Y = Y
-
-    def __getitem__(self, index):
-        x, y = self.X[index], self.Y[index]
-        return x, y, index
-
-    def __len__(self):
-        return len(self.X)
 
 def load_checkpoint(epoch):
     checkpoint = torch.load(PATH.format(epoch))
@@ -134,11 +70,14 @@ def train(clf, data, device):
         step_size_up=20,
         max_lr=0.1,
         mode='triangular2')
+
+    train_accuracy = torchmetrics.Accuracy()
+    val_accuracy = torchmetrics.Accuracy()
+
     loader = DataLoader(data, shuffle=True, **PARAMS['train_args'])
-    # step = 0
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y, idx in loader:
+        for x, y in loader:
             if len(x.shape)> 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
@@ -160,62 +99,30 @@ def train(clf, data, device):
                         'optimizer_state_dict': optimizer.state_dict(),
                         'loss': loss.detach().cpu().numpy(),
                         }, PATH.format(epoch))
+            val_acc = test(clf, val_data, val_accuracy, device)
+        wandb.log({'train loss': loss.detach().numpy(),
+                   'val acc': val_acc,
+                   })
 
 
-
-def cal_acc(preds, targets):
-    return 100.0 * (targets == preds).sum().item() / len(targets)
-
-def test(clf, data, device):
+def test(clf, data, metric, device):
     clf = clf.to(device)
     clf.eval()
-    preds = torch.zeros(len(data), dtype=torch.long)
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        for x, y, idx in loader:
+        for x, y in loader:
             if len(x.shape)> 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
                 x, y = x.to(device), y.to(device)
             out = clf(x)
-            pred = out.max(1)[1]
-            # preds[idx*(len(pred)):(idx+1)*(len(pred))] = pred.cpu()
-            preds[idx] = pred.cpu()
-            # print(len((data.targets == preds)), 'hhhh')
-        # print(type(torch.tensor(data.targets)), type(preds))
-        acc = cal_acc(preds, data.Y)
+            # pred = out.max(1)[1]
+            metric.update(out, data.targets[idx])
+    acc = metric.compute()
+    metric.reset()
     return acc
 
 
-class TORCHVISION_Net(nn.Module):
-    def __init__(self, torchv_model):
-        super().__init__()
-        layers = list(torchv_model.children())
-        self.embedding = torch.nn.Sequential(*(layers[:-1]))
-        self.fc_head = torch.nn.Sequential(*(layers[-1:]))
-        self.e1 = None
-
-    def forward(self, x):
-        self.e1 = self.embedding(x)
-        x = torch.flatten(self.e1, 1)
-        x = self.fc_head(x)
-        return x
-
-    def get_embedding(self):
-        if self.e1 is not None:
-            return self.e1.squeeze()
-        else:
-            raise ValueError('Forward should be executed first')
-
-    def get_embedding_dim(self):
-        return self.fc_head[0].in_features
-
-
-class CIFAR10_Net(TORCHVISION_Net):
-    def __init__(self):
-        n_classes = 10
-        model = models.resnet18(num_classes=n_classes)
-        super().__init__(model)
 
 
 if __name__ == "__main__":
@@ -224,6 +131,12 @@ if __name__ == "__main__":
     parser.add_argument('--n', type=int, default=4000, help='data size')
     args = parser.parse_args()
 
+    #
+    wandb.init(project="demo_debug")
+    #
+    ckpath = 'checkpoints'
+    if not os.path.exists(ckpath):
+        os.makedirs(ckpath)
     # fix random seed
     seed = 16301
     np.random.seed(seed)
@@ -251,6 +164,7 @@ if __name__ == "__main__":
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
     acc = test(net, test_data, device)
+
     print(f"Test accuracy: {acc}")
 
     T = time.time() - start
