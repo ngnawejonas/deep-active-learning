@@ -71,8 +71,8 @@ def train(clf, train_data, val_data, device):
         max_lr=0.1,
         mode='triangular2')
 
-    train_accuracy = torchmetrics.Accuracy()
-    val_accuracy = torchmetrics.Accuracy()
+    train_accuracy = torchmetrics.Accuracy().to(device)
+    val_accuracy = torchmetrics.Accuracy().to(device)
 
     loader = DataLoader(train_data, shuffle=True, **PARAMS['train_args'])
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
