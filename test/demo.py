@@ -29,7 +29,7 @@ PARAMS = {'n_epoch': 200,
           }
 
 PATH = "checkpoints/model_epoch_{}.pt"
-SAVE_EVERY = 20
+SAVE_EVERY = 10
 
 
 def get_optimizer(name):
@@ -55,7 +55,7 @@ def load_checkpoint(epoch):
     loss = checkpoint['loss']
     return model, optimizer, epoch, loss
 
-def train(clf, data, device):
+def train(clf, train_data, val_data, device):
     # tf_summary_writer = tf.summary.create_file_writer('tfboard')
     n_epoch = PARAMS['n_epoch']
     clf = clf.to(device)
@@ -92,7 +92,6 @@ def train(clf, data, device):
             #    step = step + 1
         scheduler.step()
         if (epoch+1)%SAVE_EVERY == 0:
-            EPOCH = 5
             torch.save({
                         'epoch': epoch,
                         'model_state_dict': clf.state_dict(),
@@ -116,7 +115,7 @@ def test(clf, data, metric, device):
                 x, y = x.to(device), y.to(device)
             out = clf(x)
             # pred = out.max(1)[1]
-            metric.update(out, data.targets[idx])
+            metric.update(out, y)
     acc = metric.compute()
     metric.reset()
     return acc
@@ -152,19 +151,20 @@ if __name__ == "__main__":
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
     print(f'getting dataset...: size={args.n}')
-    train_data, test_data = get_CIFAR10(args.n)        # load dataset
+    train_data, val_data, test_data = get_CIFAR10(args.n)        # load dataset
     # print('dataset loaded')
     net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
 
     # start experiment
     print()
     start = time.time()
-    train(net, train_data, device)
+    # train(net, train_data,val_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
-    acc = test(net, test_data, device)
-
-    print(f"Test accuracy: {acc}")
+    test_accuracy = torchmetrics.Accuracy()
+    test_acc = test(net, test_data, test_accuracy, device)
+    wandb.log({'test acc': test_acc})
+    print(f"Test accuracy: {test_acc}")
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')

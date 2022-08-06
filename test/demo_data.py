@@ -49,7 +49,7 @@ def get_CIFAR10(n=1000):
     n_val = int(0.2 * len(train_data))
     train_data, val_data = random_split(train_data, [len(train_data) - n_val, n_val])
 
-    return train_data, test_data
+    return train_data, val_data, test_data
 
 
 def get_MNIST(n=1000):
@@ -68,4 +68,4 @@ def get_MNIST(n=1000):
 	n_val = int(0.2 * len(train_data))
 	train_data, val_data = random_split(train_data, [len(train_data) - n_val, n_val])
 
-	return train_data, test_data
+	return train_data, val_data, test_data
