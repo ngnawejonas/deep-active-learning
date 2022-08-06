@@ -158,7 +158,7 @@ if __name__ == "__main__":
     # start experiment
     print()
     start = time.time()
-    # train(net, train_data,val_data, device)
+    train(net, train_data,val_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
     test_accuracy = torchmetrics.Accuracy().to(device)
