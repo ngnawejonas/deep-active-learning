@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # train(net, train_data,val_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
-    test_accuracy = torchmetrics.Accuracy()
+    test_accuracy = torchmetrics.Accuracy().to(device)
     test_acc = test(net, test_data, test_accuracy, device)
     wandb.log({'test acc': test_acc})
     print(f"Test accuracy: {test_acc}")
