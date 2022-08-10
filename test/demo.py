@@ -44,9 +44,6 @@ def get_optimizer(name):
     return opt
 
 
-
-
-
 def load_checkpoint(epoch):
     checkpoint = torch.load(PATH.format(epoch))
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -54,6 +51,7 @@ def load_checkpoint(epoch):
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
     return model, optimizer, epoch, loss
+
 
 def train(clf, train_data, val_data, device):
     # tf_summary_writer = tf.summary.create_file_writer('tfboard')
@@ -77,8 +75,8 @@ def train(clf, train_data, val_data, device):
     loader = DataLoader(train_data, shuffle=True, **PARAMS['train_args'])
     for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y in loader:
-            if len(x.shape)> 4:
+        for x, y, idxs in loader:
+            if len(x.shape) > 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
                 x, y = x.to(device), y.to(device)
@@ -87,17 +85,17 @@ def train(clf, train_data, val_data, device):
             loss = F.cross_entropy(out, y)
             loss.backward()
             optimizer.step()
-            #with tf_summary_writer.as_default():
+            # with tf_summary_writer.as_default():
             #    tf.summary.scalar('loss', loss.detach().numpy(), step=step)
             #    step = step + 1
         scheduler.step()
-        if (epoch+1)%SAVE_EVERY == 0:
+        if (epoch + 1) % SAVE_EVERY == 0:
             torch.save({
-                        'epoch': epoch,
-                        'model_state_dict': clf.state_dict(),
-                        'optimizer_state_dict': optimizer.state_dict(),
-                        'loss': loss.detach().cpu().numpy(),
-                        }, PATH.format(epoch))
+                'epoch': epoch,
+                'model_state_dict': clf.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss.detach().cpu().numpy(),
+            }, PATH.format(epoch))
             val_acc = test(clf, val_data, val_accuracy, device)
             wandb.log({'val acc': val_acc})
         wandb.log({'train loss': loss.detach().cpu().numpy()})
@@ -108,8 +106,8 @@ def test(clf, data, metric, device):
     clf.eval()
     loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
     with torch.no_grad():
-        for x, y in loader:
-            if len(x.shape)> 4:
+        for x, y, idxs in loader:
+            if len(x.shape) > 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
                 x, y = x.to(device), y.to(device)
@@ -121,8 +119,6 @@ def test(clf, data, metric, device):
     return acc
 
 
-
-
 if __name__ == "__main__":
     # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
     parser = argparse.ArgumentParser()
@@ -130,7 +126,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #
-    wandb.init(project="demo_debug")
+    wandb.init(project="demo_debug")#, mode="disabled")
     #
     ckpath = 'checkpoints'
     if not os.path.exists(ckpath):
@@ -158,7 +154,7 @@ if __name__ == "__main__":
     # start experiment
     print()
     start = time.time()
-    train(net, train_data,val_data, device)
+    train(net, train_data, val_data, device)
     print("train time: {:.2f} s".format(time.time() - start))
     print('testing...')
     test_accuracy = torchmetrics.Accuracy().to(device)
