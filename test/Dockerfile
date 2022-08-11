@@ -1,55 +1,50 @@
-# Based on https://hub.docker.com/r/ceshine/cuda-pytorch/dockerfile
-
-# Check host cuda version then choose a suitable base image from https://hub.docker.com/r/nvidia/cuda/tags
-
+# syntax=docker/dockerfile:1
 FROM nvidia/cuda:11.1.1-cudnn8-runtime-ubuntu20.04
 
-LABEL original_source="https://github.com/ceshine/Dockerfiles/blob/master/cuda/pytorch/Dockerfile"
-LABEL maintainer="ngnawejonas@gmail.com"
+ARG WANDB_API_KEY
+ARG WANDB_TAGS
 
-# Based on https://github.com/anurag/fastai-course-1/
+ENV PATH="${PATH}:/home/docker/.local/bin"
 
-ARG PYTHON_VERSION=3.8
-ARG CONDA_PYTHON_VERSION=3
-ARG CONDA_DIR=/opt/conda
-ARG USERNAME=nj
-ARG USERID=1000
+# Set timezone
+ENV TZ=Canada/Eastern
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Instal basic utilities
+# Configure Ray Tune results directory
+ENV TUNE_RESULT_DIR="/home-local2/jongn2.extra.nobkp/ray_results"
+
+# Configure Weights & Biases
+ENV WANDB_API_KEY=${WANDB_API_KEY}
+ENV WANDB_DIR="/home-local2/jongn2.extra.nobkp/wandb"
+ENV WANDB_CACHE_DIR="/home-local2/jongn2.extra.nobkp/.cache/wandb"
+ENV WANDB_TAGS=${WANDB_TAGS}
+
 RUN apt-get update && \
-  apt-get install -y --no-install-recommends git wget unzip bzip2 sudo build-essential && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+    apt-get install -y sudo
 
-# Install miniconda
-ENV PATH $CONDA_DIR/bin:$PATH
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && \
-  wget https://repo.continuum.io/miniconda/Miniconda$CONDA_PYTHON_VERSION-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-  echo 'export PATH=$CONDA_DIR/bin:$PATH' > /etc/profile.d/conda.sh && \
-  /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
-  rm -rf /tmp/* && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+# Copy files to a new 'work' directory
+RUN mkdir -p /home/docker/workspace/
+COPY --chown=15455:110 ./ /home/docker/workspace/
 
-# Create the user
-RUN useradd --create-home -s /bin/bash --no-user-group -u $USERID $USERNAME && \
-  chown $USERNAME $CONDA_DIR -R && \
-  adduser $USERNAME sudo && \
-  echo "$USERNAME ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+# Install Dependencies
+RUN sudo apt-get update && \
+    sudo apt-get install -y openssh-client git python3.9 python3-pip
+RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN pip3 install -r /home/docker/workspace/requirements.txt
 
-USER $USERNAME
-WORKDIR /home/$USERNAME
+# Add (and switch to) new 'docker' user
+RUN groupadd -g 110 usergroup
+RUN adduser --disabled-password --gecos '' --uid 15455 --gid 110 docker
+RUN adduser docker sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+USER docker
 
-RUN conda install -y python=$PYTHON_VERSION 
+# Transfer ownership of home directory
+RUN sudo chown -hR docker /home/docker
 
-COPY requirements.txt /requirements.txt
+# Create mount point for large file storage drive
+RUN sudo mkdir -p /home-local2/jongn2.extra.nobkp && \
+    sudo chown -R docker /home-local2/jongn2.extra.nobkp
 
-RUN pip install --no-cache-dir --user -r /requirements.txt
-
-# create xperiment folder
-RUN sudo mkdir -p /home/nj/xp && sudo chown -R $USERNAME /home/nj/xp
-
-ENV CUDA_HOME=/usr/local/cuda
-ENV CUDA_ROOT=$CUDA_HOME
-ENV PATH=$PATH:$CUDA_ROOT/bin:$HOME/bin
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_ROOT/lib64
+# Set the working directory
+WORKDIR /home/docker/workspace/
