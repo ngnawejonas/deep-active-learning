@@ -1,1 +1,0 @@
-from .demo import cal_acc
