@@ -4,3 +4,4 @@ torchvision
 pyyaml
 torchmetrics
 wandb
+tqdm
