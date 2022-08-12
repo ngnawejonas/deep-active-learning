@@ -29,7 +29,7 @@ def get_CIFAR10(n=4000):
         download=True,)
     # transform=transform_test)
 
-    n_val = int(0.2 * len(train_data))
+    n_val = 5000#int(0.2 * len(train_data))
     train_data, val_data = random_split(
         train_data, [len(train_data) - n_val, n_val])
     trd = CIFAR10_Train_Handler(train_data.dataset.data[train_data.indices], torch.LongTensor(
