@@ -22,8 +22,8 @@ import wandb
 # import tensorflow as tf
 
 PARAMS = {'n_epoch': 200,
-          'train_args': {'batch_size': 64, 'num_workers': 0},
-          'test_args': {'batch_size': 1000, 'num_workers': 0},
+          'train_args': {'batch_size': 64, 'num_workers': 4},
+          'test_args': {'batch_size': 1000, 'num_workers': 4},
           'optimizer': 'SGD',
           'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
           }
