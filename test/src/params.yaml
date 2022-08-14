@@ -2,8 +2,8 @@
 epochs: 200
 seeds:
   - 139937
-  # - 973000
-  # - 663829
+  - 973000
+  - 663829
 
 # Data parameters
 batch_size: 128
