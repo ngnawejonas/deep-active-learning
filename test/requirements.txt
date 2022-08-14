@@ -5,3 +5,4 @@ pyyaml
 torchmetrics
 wandb
 tqdm
+ray[tune]

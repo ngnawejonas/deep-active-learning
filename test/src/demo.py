@@ -1,138 +1,80 @@
 import time
 import os
+import sys
 import argparse
 
 import random
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision.models as models
-import torch.optim as optim
 import torchmetrics
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader, Dataset, random_split
+import yaml
+from ray import tune
+from ray.tune import CLIReporter
 
 from demo_models import CIFAR10_Net, MNIST_Net
 from demo_data import get_CIFAR10, get_MNIST
-from tqdm import tqdm
+from demo_train import train
 
 import wandb
+from tqdm import tqdm
 
 # import tensorflow as tf
 
-PARAMS = {'n_epoch': 200,
-          'train_args': {'batch_size': 64, 'num_workers': 4},
-          'test_args': {'batch_size': 1000, 'num_workers': 4},
-          'optimizer': 'SGD',
-          'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
-          }
+def parse_args(args: list) -> argparse.Namespace:
+    """Parse command line parameters.
 
-PATH = "checkpoints/model_epoch_{}.pt"
-SAVE_EVERY = 10
+    :param args: command line parameters as list of strings (for example
+        ``["--help"]``).
+    :return: command line parameters namespace.
+    """
+    parser = argparse.ArgumentParser(
+        description="Train the models for this experiment."
+    )
 
+    parser.add_argument(
+        "--no-cuda", action="store_true", default=False, help="disables CUDA training"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        default=False,
+        help="quickly check a single pass",
+    )
+    parser.add_argument(
+        "--dataset-path",
+        default="/home-local2/jongn2.extra.nobkp/data",
+        help="the path to the dataset",
+        type=str,
+    )
+    parser.add_argument(
+        "--cpus-per-trial",
+        default=1,
+        help="the number of CPU cores to use per trial",
+        type=int,
+    )
+    parser.add_argument(
+        "--project-name",
+        help="the name of the Weights and Biases project to save the results",
+        required=True,
+        type=str,
+    )
 
-def get_optimizer(name):
-    if name.lower() == 'rmsprop':
-        opt = optim.RMSprop
-    elif name.lower() == 'sgd':
-        opt = optim.SGD
-    elif name.lower() == 'adam':
-        opt = optim.Adam
-    else:
-        raise NotImplementedError
-    return opt
-
-
-def load_checkpoint(epoch):
-    checkpoint = torch.load(PATH.format(epoch))
-    model.load_state_dict(checkpoint['model_state_dict'])
-    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-    epoch = checkpoint['epoch']
-    loss = checkpoint['loss']
-    return model, optimizer, epoch, loss
-
-
-def train(clf, train_data, val_data, device):
-    # tf_summary_writer = tf.summary.create_file_writer('tfboard')
-    n_epoch = PARAMS['n_epoch']
-    clf = clf.to(device)
-    clf.train()  # set train mode
-    optimizer_ = get_optimizer(PARAMS['optimizer'])
-    optimizer = optimizer_(
-        clf.parameters(),
-        **PARAMS['optimizer_args'])
-    scheduler = torch.optim.lr_scheduler.CyclicLR(
-        optimizer,
-        base_lr=0.001,
-        step_size_up=20,
-        max_lr=0.1,
-        mode='triangular2')
-
-    train_accuracy = torchmetrics.Accuracy().to(device)
-    val_accuracy = torchmetrics.Accuracy().to(device)
-
-    loader = DataLoader(train_data, shuffle=True, **PARAMS['train_args'])
-    for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-        # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y, idxs in loader:
-            if len(x.shape) > 4:
-                x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
-            else:
-                x, y = x.to(device), y.to(device)
-            optimizer.zero_grad()
-            out = clf(x)
-            loss = F.cross_entropy(out, y)
-            loss.backward()
-            optimizer.step()
-            # with tf_summary_writer.as_default():
-            #    tf.summary.scalar('loss', loss.detach().numpy(), step=step)
-            #    step = step + 1
-        scheduler.step()
-        if (epoch + 1) % SAVE_EVERY == 0:
-            torch.save({
-                'epoch': epoch,
-                'model_state_dict': clf.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'loss': loss.detach().cpu().numpy(),
-            }, PATH.format(epoch))
-            val_acc = test(clf, val_data, val_accuracy, device)
-            wandb.log({'val acc': val_acc})
-        wandb.log({'train loss': loss.detach().cpu().numpy()})
+    return parser.parse_args(args)
 
 
-def test(clf, data, metric, device):
-    clf = clf.to(device)
-    clf.eval()
-    loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
-    with torch.no_grad():
-        for x, y, idxs in loader:
-            if len(x.shape) > 4:
-                x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
-            else:
-                x, y = x.to(device), y.to(device)
-            out = clf(x)
-            # pred = out.max(1)[1]
-            metric.update(out, y)
-    acc = metric.compute()
-    metric.reset()
-    return acc
+def run_trial(
+    config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
+) -> None:
+    """Train a single model according to the configuration provided.
 
+    :param config: The trial and model configuration.
+    :param params: The hyperparameters.
+    :param args: The program arguments.
+    """
 
-if __name__ == "__main__":
-    # os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--n', type=int, default=4000, help='data size')
-    args = parser.parse_args()
+    # seed_everything(config["seed"], workers=True)
 
-    #
-    wandb.init(project="demo_debug")#, mode="disabled")
-    #
-    ckpath = 'checkpoints'
-    if not os.path.exists(ckpath):
-        os.makedirs(ckpath)
-    # fix random seed
-    seed = 16301
+    seed = config["seed"]
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
@@ -141,16 +83,21 @@ if __name__ == "__main__":
     # torch.backends.cudnn.benchmark = False
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.enabled = False
+    #
+    wandb.init(project=args.project_name)#, mode="disabled")
+    #
+    ckpath = 'checkpoints'
+    if not os.path.exists(ckpath):
+        os.makedirs(ckpath)
+    # fix random seed
 
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
-    print(f'getting dataset...: size={args.n}')
-    train_data, val_data, test_data = get_CIFAR10(args.n)        # load dataset
-    # print('dataset loaded')
-    net = CIFAR10_Net()           # load network models.resnet18(num_classes=n_classes)
-
+    print(f'getting dataset...: size')
+    train_data, val_data, test_data = get_CIFAR10()
+    net = CIFAR10_Net()
     # start experiment
     print()
     start = time.time()
@@ -164,3 +111,60 @@ if __name__ == "__main__":
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
+
+
+def run_experiment(params: dict, args: argparse.Namespace) -> None:
+    """Run the experiment using Ray Tune.
+
+    :param params: The hyperparameters.
+    :param args: The program arguments.
+    """
+    config = {
+        "weight_decay": params["weight_decay"],
+        "momentum": params["momentum"],
+        "init_labelled_size": tune.grid_search(params["init_labelled_size"]),
+        "seed": tune.grid_search(params["seeds"]),
+        "lr_schedule": tune.grid_search(params["lr_schedules"]),
+    }
+
+    reporter = CLIReporter(
+        parameter_columns=["seed"],
+        metric_columns=["val_acc"],
+    )
+
+    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    gpus_per_trial = 1 if use_cuda else 0
+
+    tune.run(
+        tune.with_parameters(
+            run_trial, params=params, args=args, num_gpus=gpus_per_trial
+        ),
+        resources_per_trial={"cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
+        metric="val_acc",
+        mode="max",
+        config=config,
+        progress_reporter=reporter,
+        name=args.project_name,
+    )
+
+
+def main(args: list) -> None:
+    """Parse command line args, load training params, and initiate training.
+
+    :param args: command line parameters as list of strings.
+    """
+    args = parse_args(args)
+    params = yaml.safe_load(open("params.yaml"))
+
+    run_experiment(params, args)
+
+
+def run() -> None:
+    """Calls :func:`main` passing the CLI arguments extracted from :obj:`sys.argv`
+    This function can be used as entry point to create console scripts.
+    """
+    main(sys.argv[1:])
+
+
+if __name__ == "__main__":
+    run()

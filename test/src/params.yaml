@@ -1,0 +1,32 @@
+# General training parameters
+epochs: 200
+seeds:
+  - 139937
+  # - 973000
+  # - 663829
+
+# Data parameters
+batch_size: 128
+init_labelled_size:
+  - 1.0      # All labels
+  # - 0.08889  # 0.08889 x 45,000 = 4000 labels
+  # - 0.04444  # 0.04444 x 45,000 = 2000 labels
+  # - 0.02222  # 0.02222 x 45,000 = 1000 labels
+  # - 0.01111  # 0.01111 x 45,000 = 500 labels
+  # - 0.00556  # 0.00556 x 45,000 = 250 labels
+
+# Model parameters
+
+# Optimizer parameters (minus initial LR)
+weight_decay: 0.0005
+momentum: 0.9
+
+# LR scheduling parameters
+lr_schedules:
+  - scheduler: CyclicLR
+    initial_lr: 0.1
+    params:
+      base_lr: 0.001
+      max_lr: 0.1
+      step_size_up: 20
+      mode: triangular2
