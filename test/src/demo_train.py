@@ -55,7 +55,7 @@ def train(clf, train_data, val_data,config, params, device):
     n_epochs = config['epochs']
     clf = clf.to(device)
     clf.train()  # set train mode
-    optimizer_ = get_optimizer(params['optimizer'])
+    optimizer_ = get_optimizer(config['optimizer'])
     optimizer = optimizer_(
         clf.parameters(), lr=config["lr_schedule"]["initial_lr"],
         **params['optimizer_args'])
@@ -87,7 +87,7 @@ def train(clf, train_data, val_data,config, params, device):
             #     'optimizer_state_dict': optimizer.state_dict(),
             #     'loss': loss.detach().cpu().numpy(),
             # }, PATH.format(epoch))
-            val_acc = test(clf, val_data, val_accuracy, device)
+            val_acc = test(clf, val_data, val_accuracy, params, device)
             wandb.log({'val acc': val_acc})
         wandb.log({'train loss': loss.detach().cpu().numpy()})
 
