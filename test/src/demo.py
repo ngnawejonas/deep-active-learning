@@ -13,7 +13,7 @@ from ray.tune import CLIReporter
 
 from demo_models import CIFAR10_Net, MNIST_Net
 from demo_data import get_CIFAR10, get_MNIST
-from demo_train import train
+from demo_train import train, test
 
 import wandb
 from tqdm import tqdm
@@ -55,11 +55,21 @@ def parse_args(args: list) -> argparse.Namespace:
     parser.add_argument(
         "--project-name",
         help="the name of the Weights and Biases project to save the results",
-        required=True,
+        # required=True,
         type=str,
     )
 
     return parser.parse_args(args)
+
+def set_seeds(seed):
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+    # torch.cuda.manual_seed(seed)
+    # torch.cuda.manual_seed_all(seed)
+    # torch.backends.cudnn.benchmark = False
+    # torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.enabled = False
 
 
 def run_trial(
@@ -73,39 +83,30 @@ def run_trial(
     """
 
     # seed_everything(config["seed"], workers=True)
-
-    seed = config["seed"]
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.manual_seed(seed)
-    # torch.cuda.manual_seed(seed)
-    # torch.cuda.manual_seed_all(seed)
-    # torch.backends.cudnn.benchmark = False
-    # torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.enabled = False
+    set_seeds(config["seed"])
     #
-    wandb.init(project=args.project_name)#, mode="disabled")
+    if args.dry_run:
+        wandb.init(project=args.project_name, mode="disabled")
+    else:
+        wandb.init(project=args.project_name)
     #
     ckpath = 'checkpoints'
     if not os.path.exists(ckpath):
         os.makedirs(ckpath)
-    # fix random seed
-
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
-    print(f'getting dataset...: size')
+
     train_data, val_data, test_data = get_CIFAR10()
     net = CIFAR10_Net()
-    # start experiment
-    print()
+
     start = time.time()
-    train(net, train_data, val_data, device)
+    train(net, train_data, val_data, params, device)
     print("train time: {:.2f} s".format(time.time() - start))
-    print('testing...')
+
     test_accuracy = torchmetrics.Accuracy().to(device)
-    test_acc = test(net, test_data, test_accuracy, device)
+    test_acc = test(net, test_data, test_accuracy, params, device)
     wandb.log({'test acc': test_acc})
     print(f"Test accuracy: {test_acc}")
 
@@ -120,8 +121,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     :param args: The program arguments.
     """
     config = {
-        "weight_decay": params["weight_decay"],
-        "momentum": params["momentum"],
+        "epochs": tune.grid_search(params["epochs"]),
         "init_labelled_size": tune.grid_search(params["init_labelled_size"]),
         "seed": tune.grid_search(params["seeds"]),
         "lr_schedule": tune.grid_search(params["lr_schedules"]),

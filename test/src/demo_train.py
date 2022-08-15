@@ -17,12 +17,12 @@ from tqdm import tqdm
 PATH = "checkpoints/model_epoch_{}.pt"
 SAVE_EVERY = 10
 
-PARAMS = {'n_epoch': 200,
-          'train_args': {'batch_size': 64, 'num_workers': 4},
-          'test_args': {'batch_size': 1000, 'num_workers': 4},
-          'optimizer': 'SGD',
-          'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
-          }
+# PARAMS = {'n_epochs': 200,
+#           'train_args': {'batch_size': 64, 'num_workers': 4},
+#           'test_args': {'batch_size': 1000, 'num_workers': 4},
+#           'optimizer': 'SGD',
+#           'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay': 0.0005}
+#           }
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
@@ -35,8 +35,14 @@ def get_optimizer(name):
         raise NotImplementedError
     return opt
 
+def get_scheduler(name):
+    if name.lower() == 'cycliclr':
+        opt = optim.lr_scheduler.CyclicLR
+    else:
+        raise NotImplementedError
+    return opt
 
-def load_checkpoint(epoch):
+def load_checkpoint(model, optimizer, epoch):
     checkpoint = torch.load(PATH.format(epoch))
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -45,27 +51,23 @@ def load_checkpoint(epoch):
     return model, optimizer, epoch, loss
 
 
-def train(clf, train_data, val_data, device):
-    # tf_summary_writer = tf.summary.create_file_writer('tfboard')
-    n_epoch = PARAMS['n_epoch']
+def train(clf, train_data, val_data,config, params, device):
+    n_epochs = config['epochs']
     clf = clf.to(device)
     clf.train()  # set train mode
-    optimizer_ = get_optimizer(PARAMS['optimizer'])
+    optimizer_ = get_optimizer(params['optimizer'])
     optimizer = optimizer_(
-        clf.parameters(),
-        **PARAMS['optimizer_args'])
-    scheduler = torch.optim.lr_scheduler.CyclicLR(
-        optimizer,
-        base_lr=0.001,
-        step_size_up=20,
-        max_lr=0.1,
-        mode='triangular2')
+        clf.parameters(), lr=config["lr_schedule"]["initial_lr"],
+        **params['optimizer_args'])
+    scheduler_ = get_scheduler(config["lr_schedule"]["scheduler"])
+    scheduler = scheduler_(
+        optimizer, **config["lr_schedule"]["params"])
 
     train_accuracy = torchmetrics.Accuracy().to(device)
     val_accuracy = torchmetrics.Accuracy().to(device)
 
-    loader = DataLoader(train_data, shuffle=True, **PARAMS['train_args'])
-    for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
+    loader = DataLoader(train_data, shuffle=True, **params['train_loader_args'])
+    for epoch in tqdm(range(1, n_epochs + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
         for x, y, idxs in loader:
             if len(x.shape) > 4:
@@ -77,9 +79,6 @@ def train(clf, train_data, val_data, device):
             loss = F.cross_entropy(out, y)
             loss.backward()
             optimizer.step()
-            # with tf_summary_writer.as_default():
-            #    tf.summary.scalar('loss', loss.detach().numpy(), step=step)
-            #    step = step + 1
         scheduler.step()
         if (epoch + 1) % SAVE_EVERY == 0:
             # torch.save({
@@ -93,10 +92,10 @@ def train(clf, train_data, val_data, device):
         wandb.log({'train loss': loss.detach().cpu().numpy()})
 
 
-def test(clf, data, metric, device):
+def test(clf, data, metric, params, device):
     clf = clf.to(device)
     clf.eval()
-    loader = DataLoader(data, shuffle=False, **PARAMS['test_args'])
+    loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
     with torch.no_grad():
         for x, y, idxs in loader:
             if len(x.shape) > 4:
