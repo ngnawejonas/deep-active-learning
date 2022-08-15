@@ -1,12 +1,21 @@
 # General training parameters
-epochs: 200
+epochs:
+  - 200
+  # - 100
 seeds:
   - 139937
   - 973000
   - 663829
 
 # Data parameters
-batch_size: 128
+train_loader_args:
+  batch_size: 128
+  num_workers: 4
+
+test_loader_args:
+  batch_size: 128
+  num_workers: 4
+
 init_labelled_size:
   - 1.0      # All labels
   # - 0.08889  # 0.08889 x 45,000 = 4000 labels
@@ -17,9 +26,13 @@ init_labelled_size:
 
 # Model parameters
 
+# Optimizer
+optimizer: sgd
+
 # Optimizer parameters (minus initial LR)
-weight_decay: 0.0005
-momentum: 0.9
+optimizer_args:
+  weight_decay: 0.0005
+  momentum: 0.9
 
 # LR scheduling parameters
 lr_schedules:
