@@ -88,8 +88,8 @@ def train(clf, train_data, val_data,config, params, device):
             #     'loss': loss.detach().cpu().numpy(),
             # }, PATH.format(epoch))
             val_acc = test(clf, val_data, val_accuracy, params, device)
-            wandb.log({'val acc': val_acc})
-        wandb.log({'train loss': loss.detach().cpu().numpy()})
+            wandb.log({'val_acc': val_acc})
+        wandb.log({'train_loss': loss.detach().cpu().numpy()})
 
 
 def test(clf, data, metric, params, device):

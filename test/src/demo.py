@@ -107,7 +107,7 @@ def run_trial(
 
     test_accuracy = torchmetrics.Accuracy().to(device)
     test_acc = test(net, test_data, test_accuracy, params, device)
-    wandb.log({'test acc': test_acc})
+    wandb.log({'test_acc': test_acc})
     print(f"Test accuracy: {test_acc}")
 
     T = time.time() - start
