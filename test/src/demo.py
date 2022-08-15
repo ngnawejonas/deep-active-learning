@@ -121,6 +121,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     :param args: The program arguments.
     """
     config = {
+        "optimizer":params['optimizer']
         "epochs": tune.grid_search(params["epochs"]),
         "init_labelled_size": tune.grid_search(params["init_labelled_size"]),
         "seed": tune.grid_search(params["seeds"]),
