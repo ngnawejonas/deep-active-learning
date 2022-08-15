@@ -102,7 +102,7 @@ def run_trial(
     net = CIFAR10_Net()
 
     start = time.time()
-    train(net, train_data, val_data, params, device)
+    train(net, train_data, val_data, config, params, device)
     print("train time: {:.2f} s".format(time.time() - start))
 
     test_accuracy = torchmetrics.Accuracy().to(device)
