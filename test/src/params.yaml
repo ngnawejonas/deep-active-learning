@@ -1,6 +1,6 @@
 # General training parameters
 epochs:
-  - 1
+  - 2
   # - 100
 seeds:
   - 139937

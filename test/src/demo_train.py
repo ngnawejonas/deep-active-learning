@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 
 PATH = "checkpoints/model_epoch_{}.pt"
-SAVE_EVERY = 10
+SAVE_EVERY = 1
 
 # PARAMS = {'n_epochs': 200,
 #           'train_args': {'batch_size': 64, 'num_workers': 4},
