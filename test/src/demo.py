@@ -128,10 +128,10 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         "lr_schedule": tune.grid_search(params["lr_schedules"]),
     }
 
-    # reporter = CLIReporter(
-    #     parameter_columns=["seed"],
-    #     metric_columns=["val_acc"],
-    # )
+    reporter = CLIReporter(
+        parameter_columns=["seed", "epochs"],
+        # metric_columns=["val_acc"],
+    )
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     gpus_per_trial = 1 if use_cuda else 0
@@ -144,7 +144,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         # metric="val_acc",
         # mode="max",
         config=config,
-        # progress_reporter=reporter,
+        progress_reporter=reporter,
         name=args.project_name,
     )
 
