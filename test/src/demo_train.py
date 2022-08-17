@@ -69,7 +69,7 @@ def train(clf, train_data, val_data,config, params, device):
     loader = DataLoader(train_data, shuffle=True, **params['train_loader_args'])
     for epoch in tqdm(range(1, n_epochs + 1), ncols=100):
         # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y, idxs in loader:
+        for x, y in loader:
             if len(x.shape) > 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
@@ -97,7 +97,7 @@ def test(clf, data, metric, params, device):
     clf.eval()
     loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
     with torch.no_grad():
-        for x, y, idxs in loader:
+        for x, y in loader:
             if len(x.shape) > 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:

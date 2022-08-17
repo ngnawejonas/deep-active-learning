@@ -1,11 +1,11 @@
 # General training parameters
 epochs:
-  - 2
-  - 5
+  - 200
+  # - 5
 seeds:
   - 139937
   - 973000
-  # - 663829
+  - 663829
 
 # Data parameters
 train_loader_args:

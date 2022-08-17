@@ -7,6 +7,7 @@ import random
 import numpy as np
 import torch
 import torchmetrics
+import torchvision.models as models
 import yaml
 from ray import tune
 from ray.tune import CLIReporter
@@ -99,7 +100,7 @@ def run_trial(
     print(f'Using GPU: {use_cuda}')
 
     train_data, val_data, test_data = get_CIFAR10()
-    net = CIFAR10_Net()
+    net = model = models.resnet18(num_classes=10) #CIFAR10_Net()
 
     start = time.time()
     train(net, train_data, val_data, config, params, device)
