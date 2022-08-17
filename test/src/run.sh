@@ -6,4 +6,4 @@ cd src
 # Run experiment
 python3 demo.py \
     --cpus-per-trial 4 \
-    --project-name demo-debug
+    --project-name demo-debugv2
