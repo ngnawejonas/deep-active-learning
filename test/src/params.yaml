@@ -5,7 +5,7 @@ epochs:
 seeds:
   - 139937
   - 973000
-  - 663829
+  # - 663829
 
 # Data parameters
 train_loader_args:
