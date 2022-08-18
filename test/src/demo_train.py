@@ -8,6 +8,7 @@ import torch.nn.functional as F
 import torchvision.models as models
 import torch.optim as optim
 import torchmetrics
+from ray import tune
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Dataset, random_split
 import wandb
@@ -88,6 +89,7 @@ def train(clf, train_data, val_data,config, params, device):
             #     'loss': loss.detach().cpu().numpy(),
             # }, PATH.format(epoch))
             val_acc = test(clf, val_data, val_accuracy, params, device)
+            tune.report(val_acc=val_acc)
             wandb.log({'val_acc': val_acc})
         wandb.log({'train_loss': loss.detach().cpu().numpy()})
 
