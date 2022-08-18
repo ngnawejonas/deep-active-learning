@@ -100,7 +100,7 @@ def run_trial(
     print(f'Using GPU: {use_cuda}')
 
     train_data, val_data, test_data = get_CIFAR10(args.dataset_path)
-    net = model = models.resnet18(num_classes=10) #CIFAR10_Net()
+    net = model = CIFAR10_Net()
 
     start = time.time()
     train(net, train_data, val_data, config, params, device)
