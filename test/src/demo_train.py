@@ -76,7 +76,7 @@ def train(clf, train_data, val_data,config, params, device):
                 x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
             out = clf(x)
-            loss = F.cross_entropy(out, y)
+            loss = torch.nan_to_num(F.cross_entropy(out, y))
             loss.backward()
             optimizer.step()
         scheduler.step()
