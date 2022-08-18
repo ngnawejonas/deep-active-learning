@@ -17,7 +17,7 @@ from demo_handlers import CIFAR10_Train_Handler, CIFAR10_Test_Handler
 from tqdm import tqdm
 
 
-def get_CIFAR10():
+def get_CIFAR10(dataset_dir):
     transform_train = transforms.Compose(
         [
             transforms.RandomCrop(32, padding=4),
@@ -37,12 +37,12 @@ def get_CIFAR10():
         ]
     )
     train_data = datasets.CIFAR10(
-        './data/CIFAR10',
+        dataset_dir,
         train=True,
         download=True,
         transform=transform_train)
     test_data = datasets.CIFAR10(
-        './data/CIFAR10',
+        dataset_dir,
         train=False,
         download=True,
         transform=transform_test)
@@ -53,7 +53,7 @@ def get_CIFAR10():
     return train_data, val_data, test_data
 
 
-def get_MNIST(n=1000):
+def get_MNIST():
     transform = transforms.Compose(
         [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     train_data = datasets.MNIST(

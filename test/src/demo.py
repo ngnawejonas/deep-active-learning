@@ -13,7 +13,7 @@ from ray import tune
 from ray.tune import CLIReporter
 
 from demo_models import CIFAR10_Net, MNIST_Net
-from demo_data import get_CIFAR10, get_MNIST
+from demo_data import get_CIFAR10
 from demo_train import train, test
 
 import wandb
@@ -99,7 +99,7 @@ def run_trial(
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
 
-    train_data, val_data, test_data = get_CIFAR10()
+    train_data, val_data, test_data = get_CIFAR10(args.dataset_path)
     net = model = models.resnet18(num_classes=10) #CIFAR10_Net()
 
     start = time.time()
