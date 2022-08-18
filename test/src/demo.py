@@ -131,9 +131,9 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
 
     reporter = CLIReporter(
         parameter_columns=["seed", "epochs"],
-        # metric_columns=["val_acc"],
+        metric_columns=["val_acc"],
     )
-
+    
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     gpus_per_trial = 1 if use_cuda else 0
 
@@ -142,8 +142,8 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
             run_trial, params=params, args=args, num_gpus=gpus_per_trial
         ),
         resources_per_trial={"cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
-        # metric="val_acc",
-        # mode="max",
+        metric="val_acc",
+        mode="max",
         config=config,
         progress_reporter=reporter,
         name=args.project_name,
