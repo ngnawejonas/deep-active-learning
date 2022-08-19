@@ -11,6 +11,7 @@ import torchvision.models as models
 import yaml
 from ray import tune
 from ray.tune import CLIReporter
+from pytorch_lightning.utilities.seed import seed_everything
 
 from demo_models import CIFAR10_Net, MNIST_Net
 from demo_data import get_CIFAR10
@@ -83,13 +84,13 @@ def run_trial(
     :param args: The program arguments.
     """
 
-    # seed_everything(config["seed"], workers=True)
-    set_seeds(config["seed"])
+    seed_everything(config["seed"], workers=True)
+    # set_seeds(config["seed"])
     #
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
-        wandb.init(project=args.project_name)
+        wandb.init(project=args.project_name, name='case'+str(tune.get_trial_id()))
     #
     ckpath = 'checkpoints'
     if not os.path.exists(ckpath):
