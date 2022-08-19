@@ -43,3 +43,7 @@ lr_schedules:
       max_lr: 0.1
       step_size_up: 20
       mode: triangular2
+  - scheduler: CosineAnnealingLR
+    initial_lr: 0.1
+    params:
+      T_max: 200

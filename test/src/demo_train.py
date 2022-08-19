@@ -39,6 +39,8 @@ def get_optimizer(name):
 def get_scheduler(name):
     if name.lower() == 'cycliclr':
         opt = optim.lr_scheduler.CyclicLR
+    elif name.lower() =='CosineAnnealingLR':
+        opt = optim.lr_scheduler.CosineAnnealingLR
     else:
         raise NotImplementedError
     return opt

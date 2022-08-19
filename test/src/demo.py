@@ -90,7 +90,7 @@ def run_trial(
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
-        wandb.init(project=args.project_name, name='case'+str(tune.get_trial_id()))
+        wandb.init(project=args.project_name, name='run_no_'+str(tune.get_trial_id()))
     #
     ckpath = 'checkpoints'
     if not os.path.exists(ckpath):
