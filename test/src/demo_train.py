@@ -105,7 +105,7 @@ def test(clf, data, metric, params, device):
     clf = clf.to(device)
     clf.eval()
     metric.reset()
-    val_loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
+    loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
     with torch.no_grad():
         for x, y in loader:
             if len(x.shape) > 4:
