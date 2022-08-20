@@ -13,9 +13,10 @@ from ray import tune
 from ray.tune import CLIReporter
 from pytorch_lightning.utilities.seed import seed_everything
 
-from demo_models import CIFAR10_Net, MNIST_Net, ResNet18
+from demo_models import CIFAR10_Net, MNIST_Net
 from demo_data import get_CIFAR10
 from demo_train import train, test
+from resnet import resnet18
 
 import wandb
 from tqdm import tqdm
@@ -101,7 +102,7 @@ def run_trial(
     print(f'Using GPU: {use_cuda}')
 
     train_data, val_data, test_data = get_CIFAR10(args.dataset_path)
-    net = ResNet18()#CIFAR10_Net()
+    net = resnet18(num_classes=10)#CIFAR10_Net() # 10 ==train.num_classes
     if use_cuda:
         net = torch.nn.DataParallel(net)
 
