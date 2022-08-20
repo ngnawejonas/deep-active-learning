@@ -84,8 +84,8 @@ def run_trial(
     :param args: The program arguments.
     """
 
-    seed_everything(config["seed"], workers=True)
-    # set_seeds(config["seed"])
+    # seed_everything(config["seed"], workers=True)
+    set_seeds(config["seed"])
     #
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
@@ -101,7 +101,9 @@ def run_trial(
     print(f'Using GPU: {use_cuda}')
 
     train_data, val_data, test_data = get_CIFAR10(args.dataset_path)
-    net = model = CIFAR10_Net()
+    net = CIFAR10_Net()
+    if use_cuda:
+        net = torch.nn.DataParallel(net)
 
     start = time.time()
     train(net, train_data, val_data, config, params, device)

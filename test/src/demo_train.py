@@ -52,8 +52,7 @@ def load_checkpoint(model, optimizer, epoch):
     epoch = checkpoint['epoch']
     loss = checkpoint['loss']
     return model, optimizer, epoch, loss
-
-
+ 
 def train(clf, train_data, val_data,config, params, device):
     n_epochs = config['epochs']
     clf = clf.to(device)
@@ -65,14 +64,11 @@ def train(clf, train_data, val_data,config, params, device):
     scheduler_ = get_scheduler(config["lr_schedule"]["scheduler"])
     scheduler = scheduler_(
         optimizer, **config["lr_schedule"]["params"])
+    print('optimizer: ', config["lr_schedule"]["scheduler"], config["lr_schedule"]["params"])
+    train_loader = DataLoader(train_data, shuffle=True, **params['train_loader_args'])
 
-    train_accuracy = torchmetrics.Accuracy().to(device)
-    val_accuracy = torchmetrics.Accuracy().to(device)
-
-    loader = DataLoader(train_data, shuffle=True, **params['train_loader_args'])
-    for epoch in tqdm(range(1, n_epochs + 1), ncols=100):
-        # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-        for x, y in loader:
+    def train_step(epoch):
+        for x, y in train_loader:
             if len(x.shape) > 4:
                 x, y = x.squeeze(1).to(device), y.squeeze(1).to(device)
             else:
@@ -82,7 +78,9 @@ def train(clf, train_data, val_data,config, params, device):
             loss = torch.nan_to_num(F.cross_entropy(out, y))
             loss.backward()
             optimizer.step()
-        scheduler.step()
+            wandb.log({'train_loss': loss.detach().cpu().numpy()})
+
+    def eval_step(epoch):
         if (epoch + 1) % SAVE_EVERY == 0:
             # torch.save({
             #     'epoch': epoch,
@@ -91,16 +89,23 @@ def train(clf, train_data, val_data,config, params, device):
             #     'loss': loss.detach().cpu().numpy(),
             # }, PATH.format(epoch))
             val_acc = test(clf, val_data, val_accuracy, params, device)
-            tune.report(val_acc=val_acc)
+            tune.report(val_acc=val_acc.cpu())
             wandb.log({'val_acc': val_acc})
-        wandb.log({'train_loss': loss.detach().cpu().numpy()})
+
+    # train_accuracy = torchmetrics.Accuracy().to(device)
+    val_accuracy = torchmetrics.Accuracy().to(device)
+
+    for epoch in tqdm(range(1, n_epochs + 1), ncols=100):
+        train_step(epoch)
+        eval_step(epoch)
+        scheduler.step()
 
 
 def test(clf, data, metric, params, device):
     clf = clf.to(device)
     clf.eval()
     metric.reset()
-    loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
+    val_loader = DataLoader(data, shuffle=False, **params['test_loader_args'])
     with torch.no_grad():
         for x, y in loader:
             if len(x.shape) > 4:
