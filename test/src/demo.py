@@ -16,7 +16,7 @@ from pytorch_lightning.utilities.seed import seed_everything
 from demo_models import CIFAR10_Net, MNIST_Net
 from demo_data import get_CIFAR10
 from demo_train import train, test
-from test.src.resnet import resnet18
+from resnet import resnet18
 
 import wandb
 from tqdm import tqdm
