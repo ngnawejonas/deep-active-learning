@@ -1,14 +1,13 @@
-from dis import dis
+# from dis import dis
 from pprint import pprint
 import os
 import argparse
 import sys
 import time
-import yaml
 import random
+import yaml
 import numpy as np
 import torch
-import yaml
 from ray import tune
 from ray.tune import CLIReporter
 
@@ -78,7 +77,7 @@ def run_trial(
     """
     
     strategy_name_on_file = config['strategy_name']+"AdvTrain" if params['advtrain_mode'] else config['strategy_name']
-    ACC_FILENAME = '{}_{}_{}_{}_{}.txt'.format(
+    ACC_FILENAME = '{}_{}_{}_{}_{}_{}.txt'.format(
         strategy_name_on_file, params['n_final_labeled'], params['dataset_name'], params['net_arch'], params['n_final_labeled'], 'r'+str(params['repeat']))
     #
     resultsDirName = 'results'
@@ -95,7 +94,7 @@ def run_trial(
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
     # print('getting dataset...')
-    dataset = get_dataset(params)          # load dataset
+    dataset = get_dataset(params, params['pool_size'])          # load dataset
     # print('dataset loaded')
     net = get_net(params, device)           # load network
 
@@ -207,8 +206,9 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    params = yaml.safe_load(open("params.yaml"))
-    print(params)
+    with open('params.yaml', 'r') as param_file:
+        params = yaml.load(param_file, Loader=yaml.SafeLoader)
+    # print(params)
     run_experiment(params, args)
 
 

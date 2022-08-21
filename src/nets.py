@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
 from train_utils import get_attack_fn
-
+from resnet import ResNet18
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
@@ -405,7 +405,8 @@ class SVHN_Net(TORCHVISION_Net):
 class CIFAR10_Net(TORCHVISION_Net):
     def __init__(self):
         n_classes = 10
-        model = models.resnet18(num_classes=n_classes)
+        # model = models.resnet18(num_classes=n_classes)
+        model = ResNet18()
         super().__init__(model)
 
 class CIFAR10_Net2(TORCHVISION_Net):
