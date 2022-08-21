@@ -46,7 +46,7 @@ def get_net(params, device):
         return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'svhn':
         return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name.lower() == 'cifar10':
+    elif name.lower() == 'cifar10' or name.lower()=='resnet18':
         return Net(CIFAR10_Net, params, device)
     else:
         raise NotImplementedError
