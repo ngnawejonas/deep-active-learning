@@ -94,7 +94,7 @@ def run_trial(
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
     # print('getting dataset...')
-    dataset = get_dataset(params, params['pool_size'])          # load dataset
+    dataset = get_dataset(params['dataset_name'], params['pool_size'])          # load dataset
     # print('dataset loaded')
     net = get_net(params, device)           # load network
 
