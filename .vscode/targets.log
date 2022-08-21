@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.3
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug 15 21:46:58 2022
+# Make data base, printed on Sat Aug 20 21:57:45 2022
 
 # Variables
 
@@ -89,7 +91,7 @@ SNAP_REEXEC =
 # automatic
 @F = $(notdir $@)
 # environment
-VSCODE_PID = 132014
+VSCODE_PID = 470389
 # environment
 XDG_SESSION_TYPE = wayland
 # automatic
@@ -195,7 +197,7 @@ SNAP_CONTEXT = 5L6GinWhY5q6H9YQP1h5CoQ9-lt-_PFf6G_qpceQkCE4ViMvtd1b
 # environment
 MANAGERPID = 1594
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 131975
+GIO_LAUNCHED_DESKTOP_FILE_PID = 470349
 # environment
 _ = /snap/code/104/usr/share/code/code
 # environment
@@ -281,9 +283,6 @@ Makefile:
 # Not a target:
 all:
 #  Command line target.
- 
-make: *** No rule to make target 'all'.  Stop.
-
 #  Implicit rule search has been done.
 #  File does not exist.
 #  File has not been updated.
@@ -311,11 +310,12 @@ GNUmakefile:
 # No general ('VPATH' variable) search path.
 
 # strcache buffers: 1 (0) / strings = 27 / storage = 274 B / avg = 10 B
+ 
 # current buf: size = 8162 B / used = 274 B / count = 27 / avg = 10 B
 
 # strcache performance: lookups = 30 / hit rate = 10%
 # hash-table stats:
 # Load=27/8192=0%, Rehash=0, Collisions=0/30=0%
-# Finished Make data base on Mon Aug 15 21:46:58 2022
+# Finished Make data base on Sat Aug 20 21:57:45 2022
 
  

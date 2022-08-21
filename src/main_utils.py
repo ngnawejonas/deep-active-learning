@@ -1,3 +1,6 @@
+import numpy as np
+import torch.optim as optim
+from attacks import pgd_attack, bim_attack, fgsm_attack, deepfool_attack
 # from torchvision import transforms
 from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
 from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
@@ -7,35 +10,6 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
     KMeansSampling, KCenterGreedy, BALDDropout, \
     AdversarialBIM, AdversarialPGD, AdversarialDeepFool
 
-
-params = {'MNIST':
-          {'n_epoch': 20,
-           'train_args': {'batch_size': 64, 'num_workers': 0},
-           'test_args': {'batch_size': 1000, 'num_workers': 0},
-           'optimizer': 'adam', # rmsprop lr 0.005
-           'optimizer_args': {'lr': 0.001}},
-          'FashionMNIST':
-              {'n_epoch': 50,
-               'train_args': {'batch_size': 64, 'num_workers': 0},
-               'test_args': {'batch_size': 1000, 'num_workers': 0},
-               'optimizer': 'rmsprop',
-               'optimizer_args': {'lr': 0.005}},
-          'SVHN':
-              {'n_epoch': 20,
-               'train_args': {'batch_size': 64, 'num_workers': 0},
-               'test_args': {'batch_size': 1000, 'num_workers': 0},
-               'optimizer': 'rmsprop',
-               'optimizer_args': {'lr': 0.01, 'momentum': 0.5}},
-          'CIFAR10':
-              {'n_epoch': 200,
-               'train_args': {'batch_size': 64, 'num_workers': 0},
-               'test_args': {'batch_size': 1000, 'num_workers': 0},
-               'optimizer': 'SGD',
-               'optimizer_args': {'lr': 0.1, 'momentum': 0.9, 'weight_decay':0.0005}},
-               # 'optimizer': 'adam', # rmsprop lr 0.005
-               # 'optimizer_args': {'lr': 0.001}},
-
-        }
 
 
 def get_handler(name):
@@ -64,24 +38,18 @@ def get_dataset(name, pool_size):
         raise NotImplementedError
 
 
-def get_net(name, device, repeat=1, reset=True, adv_train_mode=False):
-#     if device == 'cpu':
-#         params[name]['train_args']['num_workers'] = 0
-    # print(params[name]['train_args']['num_workers'])
+def get_net(params, device):
+    name = params['net_arch']
     if name == 'MNIST':
-        return Net(oMNIST_Net, params[name], device, repeat, reset, adv_train_mode)
+        return Net(oMNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name == 'FashionMNIST':
-        return Net(MNIST_Net, params[name], device, repeat, reset, adv_train_mode)
+        return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name == 'SVHN':
-        return Net(SVHN_Net, params[name], device, repeat, reset, adv_train_mode)
+        return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name == 'CIFAR10':
-        return Net(CIFAR10_Net, params[name], device, repeat, reset, adv_train_mode)
+        return Net(CIFAR10_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     else:
         raise NotImplementedError
-
-
-def get_params(name):
-    return params[name]
 
 
 def get_strategy(name):

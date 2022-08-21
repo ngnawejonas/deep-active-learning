@@ -1,0 +1,117 @@
+seeds:
+  - 139937
+  # - 973000
+  # - 663829
+strategies: 
+  - RandomSampling
+  # - LeastConfidence
+  # - MarginSampling
+  # - EntropySampling
+  # - LeastConfidenceDropout
+  # - MarginSamplingDropout
+  # - EntropySamplingDropout
+  - KMeansSampling
+  # - KCenterGreedy
+  # - BALDDropout
+  # - AdversarialBIM
+  - AdversarialPGD
+  - AdversarialDeepFool
+#
+n_init_labeled: 1000
+n_query: 100
+n_final_labeled: 4000
+dataset_name: cifar10
+pool_size: 50000
+reset: True
+repeat: 0
+early_stopping: False
+max_iter: 10
+
+#
+advtrain_mode: True
+reset: True
+pseudo_labelling: True
+#strategy parameters
+AdversarialBIM: 
+  n_subset_ul: 300
+  pseudo_labeling: True
+  diversity: False
+  eps: 0.3
+  eps_iter: 0.01
+  nb_iter: 10
+  norm: np.inf
+  targeted: False
+  rand_init: False
+  rand_minmax: 0.3
+
+AdversarialPGD: 
+  n_subset_ul: 300
+  pseudo_labeling: True
+  diversity: True
+  eps: 0.3
+  eps_iter: 0.01
+  nb_iter: 10
+  norm: np.inf
+  targeted: False
+  rand_init: True
+  rand_minmax: 0.3
+
+AdversarialDeepFool:
+  n_subset_ul: 300
+  pseudo_labeling: True
+  diversity: True
+
+# General train/test parameters
+train_loader_args:
+  batch_size: 128
+  num_workers: 4
+
+test_loader_args:
+  batch_size: 128
+  num_workers: 4
+
+net_arch: resnet18
+epochs: 200
+# Optimizer parameters
+optimizer:
+  name: sgd
+  params:
+    weight_decay: 0.0005
+    momentum: 0.9
+    initial_lr: 0.1
+
+# LR scheduling parameters
+scheduler: 
+  name: CyclicLR
+  params:
+    base_lr: 0.001
+    max_lr: 0.1
+    step_size_up: 20
+    mode: triangular2
+
+#  scheduler: 
+#     name: CosineAnnealingLR
+#     params:
+#       T_max: 200
+
+train_attack:
+  name: 'pgd'
+  args:
+    eps: 0.3
+    eps_iter: 0.01
+    nb_iter: 10
+    norm: np.inf
+    targeted: False
+    rand_init: True
+    rand_minmax: 0.3
+
+test_attack:
+  name: 'pgd'
+  args:
+    eps: 0.3
+    eps_iter: 0.01
+    nb_iter: 10
+    norm: np.inf
+    targeted: False
+    rand_init: True
+    rand_minmax: 0.3

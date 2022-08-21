@@ -9,19 +9,29 @@ from torch.utils.data import DataLoader, random_split
 
 from tqdm import tqdm
 
-from train_utils import get_optimizer , EarlyStopping, get_attack_fn, adv_params
+from train_utils import get_attack_fn
 
+
+def get_optimizer(name):
+    if name.lower() == 'rmsprop':
+        return torch.optim.RMSprop
+    elif name.lower() == 'sgd':
+        return torch.optim.SGD
+    elif name.lower() == 'adam':
+        return torch.optim.Adam
+    else:
+        raise NotImplementedError
 
 
 class Net:
-    def __init__(self, net, params, device, repeat=0, reset=True, adv_train_mode=False):
+    def __init__(self, net, params, device, repeat=0, reset=True, advtrain_mode=False):
         self.net = net
         self.clf = None
         self.params = params
         self.device = device
         self.reset = reset
         self.repeat = repeat
-        self.adv_train_mode = adv_train_mode
+        self.advtrain_mode = advtrain_mode
 
 
     def train(self, data):
@@ -45,18 +55,15 @@ class Net:
         #                                       step_size_up=20, max_lr=0.1, mode='triangular2')
         # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.1, patience=10)
 
-        # Early Stopping
-        patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
-        early_topping = EarlyStopping(patience=patience)
         loader = DataLoader(data, shuffle=True, **self.params['train_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
-                if self.adv_train_mode:
-                    attack_name = adv_params['train_attack']['name']
-                    attack_params = adv_params['train_attack']['args']
+                if self.advtrain_mode:
+                    attack_name = self.params['train_attack']['name']
+                    attack_params = self.params['train_attack']['args']
                     attack_fn = get_attack_fn(attack_name)
                     x = attack_fn(self.clf, x, **attack_params)
                 out = self.clf(x)
@@ -102,9 +109,9 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    if self.adv_train_mode:
-                        attack_name = adv_params['train_attack']['name']
-                        attack_params = adv_params['train_attack']['args']
+                    if self.advtrain_mode:
+                        attack_name = self.params['train_attack']['name']
+                        attack_params = self.params['train_attack']['args']
                         attack_fn = get_attack_fn(attack_name)
                         x = attack_fn(self.clf, x, **attack_params)
                     out = self.clf(x)
@@ -147,10 +154,6 @@ class Net:
                 self.clf.parameters(),
                 **self.params['optimizer_args'])
 
-            # Early Stopping
-            # patience = n_epoch//5 if n_epoch//5 > 20 else n_epoch
-            # early_topping = EarlyStopping(patience=patience)
-
             loader = DataLoader(
                 train_data,
                 shuffle=True,
@@ -159,9 +162,9 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    if self.adv_train_mode:
-                        attack_name = adv_params['train_attack']['name']
-                        attack_params = adv_params['train_attack']['args']
+                    if self.advtrain_mode:
+                        attack_name = self.params['train_attack']['name']
+                        attack_params = self.params['train_attack']['args']
                         attack_fn = get_attack_fn(attack_name)
                         x = attack_fn(self.clf, x, **attack_params)
                     out = self.clf(x)
@@ -209,8 +212,8 @@ class Net:
         for x, y, idxs in loader:
         # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
-            attack_name = adv_params['test_attack']['name']
-            attack_params = adv_params['test_attack']['args']
+            attack_name = self.params['test_attack']['name']
+            attack_params = self.params['test_attack']['args']
             attack_fn = get_attack_fn(attack_name)
             x = attack_fn(self.clf, x, **attack_params)
             out = self.clf(x)

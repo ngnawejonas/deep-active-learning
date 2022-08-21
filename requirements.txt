@@ -1,0 +1,9 @@
+--find-links https://download.pytorch.org/whl/torch_stable.html
+
+ray[tune]
+torch
+torchmetrics
+torchvision
+wandb
+cleverhans
+tqdm
