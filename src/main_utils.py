@@ -40,14 +40,14 @@ def get_dataset(name, pool_size):
 
 def get_net(params, device):
     name = params['net_arch']
-    if name.lower() == 'MNIST':
+    if name.lower() == 'mnist':
         return Net(oMNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name.lower() == 'FashionMNIST':
+    elif name.lower() == 'fashionmnist':
         return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name.lower() == 'SVHN':
+    elif name.lower() == 'svhn':
         return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name.lower() == 'CIFAR10':
-        return Net(CIFAR10_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
+    elif name.lower() == 'cifar10':
+        return Net(CIFAR10_Net, params, device)
     else:
         raise NotImplementedError
 

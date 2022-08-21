@@ -24,15 +24,10 @@ def get_optimizer(name):
 
 
 class Net:
-    def __init__(self, net, params, device, repeat=0, reset=True, advtrain_mode=False):
+    def __init__(self, net, params, device):
         self.net = net
         self.clf = None
         self.params = params
-        self.device = device
-        self.reset = reset
-        self.repeat = repeat
-        self.advtrain_mode = advtrain_mode
-
 
     def train(self, data):
         if self.repeat > 0:
@@ -42,7 +37,7 @@ class Net:
 
     def _train_once(self, data):
         n_epoch = self.params['n_epoch']
-        if self.reset or not self.clf:
+        if self.params['reset'] or not self.clf:
             self.clf = self.net().to(self.device)
             # if self.device.type=='cuda':
             #     self.clf = nn.DataParallel(self.clf)
@@ -61,7 +56,7 @@ class Net:
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
-                if self.advtrain_mode:
+                if self.params['advtrain_mode']:
                     attack_name = self.params['train_attack']['name']
                     attack_params = self.params['train_attack']['args']
                     attack_fn = get_attack_fn(attack_name)
@@ -109,7 +104,7 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    if self.advtrain_mode:
+                    if self.params['advtrain_mode']:
                         attack_name = self.params['train_attack']['name']
                         attack_params = self.params['train_attack']['args']
                         attack_fn = get_attack_fn(attack_name)
@@ -162,7 +157,7 @@ class Net:
                 for batch_idx, (x, y, idxs) in enumerate(loader):
                     x, y = x.to(self.device), y.to(self.device)
                     optimizer.zero_grad()
-                    if self.advtrain_mode:
+                    if self.params['advtrain_mode']:
                         attack_name = self.params['train_attack']['name']
                         attack_params = self.params['train_attack']['args']
                         attack_fn = get_attack_fn(attack_name)
