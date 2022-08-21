@@ -10,8 +10,8 @@ strategies:
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
-  - KMeansSampling
-  # - KCenterGreedy
+  # - KMeansSampling
+  - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
   - AdversarialPGD

@@ -13,13 +13,13 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
 
 
 def get_handler(name):
-    if name == 'MNIST':
+    if name.lower() == 'mnist':
         return MNIST_Handler
-    elif name == 'FashionMNIST':
+    elif name.lower() == 'fashionmnist':
         return MNIST_Handler
-    elif name == 'SVHN':
+    elif name.lower() == 'svhn':
         return SVHN_Handler
-    elif name == 'CIFAR10':
+    elif name.lower() == 'cifar10':
         return CIFAR10_Handler
     else:
         raise NotImplementedError('Unhandled dataset')
@@ -40,44 +40,44 @@ def get_dataset(name, pool_size):
 
 def get_net(params, device):
     name = params['net_arch']
-    if name == 'MNIST':
+    if name.lower() == 'MNIST':
         return Net(oMNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name == 'FashionMNIST':
+    elif name.lower() == 'FashionMNIST':
         return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name == 'SVHN':
+    elif name.lower() == 'SVHN':
         return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name == 'CIFAR10':
+    elif name.lower() == 'CIFAR10':
         return Net(CIFAR10_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     else:
         raise NotImplementedError
 
 
 def get_strategy(name):
-    if name == "RandomSampling":
+    if name.lower() == "RandomSampling":
         strategy = RandomSampling
-    elif name == "LeastConfidence":
+    elif name.lower() == "LeastConfidence":
         strategy = LeastConfidence
-    elif name == "MarginSampling":
+    elif name.lower() == "MarginSampling":
         strategy = MarginSampling
-    elif name == "EntropySampling":
+    elif name.lower() == "EntropySampling":
         strategy = EntropySampling
-    elif name == "LeastConfidenceDropout":
+    elif name.lower() == "LeastConfidenceDropout":
         strategy = LeastConfidenceDropout
-    elif name == "MarginSamplingDropout":
+    elif name.lower() == "MarginSamplingDropout":
         strategy = MarginSamplingDropout
-    elif name == "EntropySamplingDropout":
+    elif name.lower() == "EntropySamplingDropout":
         strategy = EntropySamplingDropout
-    elif name == "KMeansSampling":
+    elif name.lower() == "KMeansSampling":
         strategy = KMeansSampling
-    elif name == "KCenterGreedy":
+    elif name.lower() == "KCenterGreedy":
         strategy = KCenterGreedy
-    elif name == "BALDDropout":
+    elif name.lower() == "BALDDropout":
         strategy = BALDDropout
-    elif name == "AdversarialBIM":
+    elif name.lower() == "AdversarialBIM":
         strategy = AdversarialBIM
-    elif name == "AdversarialDeepFool":
+    elif name.lower() == "AdversarialDeepFool":
         strategy = AdversarialDeepFool
-    elif name == "AdversarialPGD":
+    elif name.lower() == "AdversarialPGD":
         strategy = AdversarialPGD
     else:
         raise NotImplementedError
