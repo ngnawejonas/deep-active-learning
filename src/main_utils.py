@@ -26,13 +26,13 @@ def get_handler(name):
 
 
 def get_dataset(name, pool_size):
-    if name == 'MNIST':
+    if name.lower() == 'mnist':
         return get_MNIST(get_handler(name), pool_size)
-    elif name == 'FashionMNIST':
+    elif name.lower() == 'fashionmnist':
         return get_FashionMNIST(get_handler(name), pool_size)
-    elif name == 'SVHN':
+    elif name.lower() == 'svhn':
         return get_SVHN(get_handler(name), pool_size)
-    elif name == 'CIFAR10':
+    elif name.lower() == 'cifar10':
         return get_CIFAR10(get_handler(name), pool_size)
     else:
         raise NotImplementedError
