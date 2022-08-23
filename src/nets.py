@@ -77,10 +77,26 @@ class Net:
         scheduler_ = get_scheduler(self.params["scheduler"]["name"])
         scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
         train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
-        
+
+        def train_step_(self, epoch):
+            for x, y, idxs in train_loader:
+                x, y = x.to(self.device), y.to(self.device)
+                optimizer.zero_grad()
+                if self.params['advtrain_mode']:
+                    attack_name = self.params['train_attack']['name']
+                    attack_params = self.params['train_attack']['args']
+                    if attack_params.get('norm'):
+                        attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
+                    attack_fn = get_attack_fn(attack_name)
+                    x = attack_fn(self.clf, x, **attack_params)
+                out = self.clf(x)
+                loss = F.cross_entropy(out, y)
+                loss.backward()
+                optimizer.step()
+
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-            self.train_step(epoch, train_loader, optimizer)
+            train_step_(epoch)
             self.val_step(epoch)
             scheduler.step()
         # Clear GPU memory in preparation for next model training
