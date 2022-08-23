@@ -9,7 +9,7 @@ def fgsm_attack(model, x, **args):
     return fast_gradient_method(model, x, **args)
 
 def pgd_attack(model, x, **args):
-    pdb.set_trace()
+    # pdb.set_trace()
     assert args['rand_init'] == True
     assert args['norm'] == np.inf or args['norm'] == 2 
     return projected_gradient_descent(model, x, **args)

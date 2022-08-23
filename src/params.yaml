@@ -22,44 +22,44 @@ n_query: 100
 n_final_labeled: 4000
 dataset_name: cifar10
 pool_size: 50000
-reset: True
+reset: true
 repeat: 0
-early_stopping: False
+early_stopping: false
 max_iter: 10
 
 #
-advtrain_mode: True
-reset: True
-pseudo_labelling: True
+advtrain_mode: true
+reset: true
+pseudo_labelling: true
 #strategy parameters
 AdversarialBIM: 
   n_subset_ul: 300
-  pseudo_labeling: True
-  diversity: False
+  pseudo_labeling: true
+  diversity: false
   eps: 0.3
   eps_iter: 0.01
   nb_iter: 10
   norm: np.inf
-  targeted: False
-  rand_init: False
+  targeted: false
+  rand_init: false
   rand_minmax: 0.3
 
 AdversarialPGD: 
   n_subset_ul: 300
-  pseudo_labeling: True
-  diversity: True
+  pseudo_labeling: true
+  diversity: true
   eps: 0.3
   eps_iter: 0.01
   nb_iter: 10
   norm: np.inf
-  targeted: False
-  rand_init: True
+  targeted: false
+  rand_init: true
   rand_minmax: 0.3
 
 AdversarialDeepFool:
   n_subset_ul: 300
-  pseudo_labeling: True
-  diversity: True
+  pseudo_labeling: true
+  diversity: true
 
 # General train/test parameters
 train_loader_args:
@@ -101,8 +101,8 @@ train_attack:
     eps_iter: 0.01
     nb_iter: 10
     norm: np.inf
-    targeted: False
-    rand_init: True
+    targeted: false
+    rand_init: true
     rand_minmax: 0.3
 
 test_attack:
@@ -112,6 +112,6 @@ test_attack:
     eps_iter: 0.01
     nb_iter: 10
     norm: np.inf
-    targeted: False
-    rand_init: True
+    targeted: false
+    rand_init: true
     rand_minmax: 0.3
