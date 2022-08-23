@@ -104,7 +104,7 @@ def run_trial(
             xparams['norm'] = np.inf
         xparams['pseudo_labeling'] = params['pseudo_labelling']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
-    id_exp = int(tune.get_trial_id())
+    id_exp = int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
     pprint(xparams)
 
