@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from ray import tune
 from ray.tune import CLIReporter
-
+import wandb
 
 from main_utils import get_dataset, get_net, get_strategy, log_to_file
 
@@ -89,6 +89,10 @@ def run_trial(
 
     # fix random seed
     set_seeds(config['seed'])
+    if args.dry_run:
+        wandb.init(project=args.project_name, mode="disabled")
+    else:
+        wandb.init(project=args.project_name, name='run_no_'+str(tune.get_trial_id()))
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -127,7 +131,9 @@ def run_trial(
     print("train time: {:.2f} s".format(time.time() - t))
     print('testing...')
     acc = strategy.eval_acc()
+    wandb.log('acc', acc)
     adv_acc = strategy.eval_adv_acc()
+    wandb.log('adv_acc', adv_acc)
     strategy.eval_test_dis()
 
     print(f"Round 0 testing accuracy: {acc}")

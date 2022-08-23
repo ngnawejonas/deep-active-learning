@@ -1,7 +1,5 @@
-import numpy as np
 import torch
-import torch.nn.functional as F
-import torch.optim as optim
+import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from train_utils import adv_params, get_attack_fn, log_to_file
@@ -79,7 +77,11 @@ class Strategy:
         attack_params = adv_params['test_attack']['args']
         attack_fn = get_attack_fn(attack_name)
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
+        avg_dis = 0
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
             nb_iter, dis, x_adv = self.cal_dis(x, attack_fn, **attack_params)
+            avg_dis += dis.numpy()
             log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')
+        avg_dis = avg_dis/self.dataset.n_adv_test
+        wandb.log('dist', avg_dis)
