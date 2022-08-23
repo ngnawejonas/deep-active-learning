@@ -130,6 +130,7 @@ def run_trial(
     strategy.train()
     print("train time: {:.2f} s".format(time.time() - t))
     print('testing...')
+    tune.report(al_iteration=0)
     acc = strategy.eval_acc()
     wandb.log('acc', acc)
     adv_acc = strategy.eval_adv_acc()
@@ -143,6 +144,7 @@ def run_trial(
     rd = 1
     while n_labeled < params['n_final_labeled']:
         print(f"Round {rd}")
+        tune.report(al_iteration=rd)
         # query
         print('>querying...')
         extra_data = None
@@ -160,7 +162,9 @@ def run_trial(
         # calculate accuracy
         print('evaluation...')
         acc = strategy.eval_acc()
+        wandb.log('acc', acc)
         adv_acc = strategy.eval_adv_acc()
+        wandb.log('adv_acc', adv_acc)
         strategy.eval_test_dis()
 
         n_labeled = strategy.dataset.n_labeled()
