@@ -1,4 +1,5 @@
 # from dis import dis
+from msilib.schema import Error
 from pprint import pprint
 import os
 import argparse
@@ -97,12 +98,15 @@ def run_trial(
     dataset = get_dataset(params['dataset_name'], params['pool_size'])          # load dataset
     # print('dataset loaded')
     net = get_net(params, device)           # load network
-
+    xparams = dict()
     if params.get(config['strategy_name']):
         xparams = params.get(config['strategy_name'])
         if xparams.get('norm') and xparams.get('norm') == 'np.inf':
             xparams['norm'] = np.inf
         xparams['pseudo_labeling'] = params['pseudo_labelling']
+    else:
+        raise ValueError
+        exit()
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
