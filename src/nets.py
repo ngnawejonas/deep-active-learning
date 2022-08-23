@@ -78,7 +78,7 @@ class Net:
         scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
         train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
 
-        def train_step_(self, epoch):
+        def train_step_(epoch):
             for x, y, idxs in train_loader:
                 x, y = x.to(self.device), y.to(self.device)
                 optimizer.zero_grad()
