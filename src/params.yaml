@@ -70,7 +70,7 @@ test_loader_args:
   batch_size: 128
   num_workers: 4
 
-net_arch: resnet18
+net_arch: cifar10
 epochs: 200
 # Optimizer parameters
 optimizer:
