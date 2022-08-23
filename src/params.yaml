@@ -14,7 +14,7 @@ strategies:
   # - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
-  # - AdversarialPGD
+  - AdversarialPGD
   # - AdversarialDeepFool
 #
 n_init_labeled: 1000
@@ -28,7 +28,7 @@ early_stopping: false
 max_iter: 10
 
 #
-advtrain_mode: true
+advtrain_mode: false
 reset: true
 pseudo_labelling: true
 #strategy parameters
@@ -70,7 +70,7 @@ test_loader_args:
   batch_size: 128
   num_workers: 4
 
-net_arch: cifar10
+net_arch: resnet18
 epochs: 200
 # Optimizer parameters
 optimizer:
