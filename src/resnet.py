@@ -102,8 +102,9 @@ class ResNet(nn.Module):
         return out
     
     def forward(self, x):
-        self.e1 = self.embedding(x)
-        out = self.e1.view(self.e1.size(0), -1)
+        out = self.embedding(x)
+        self.e1 = out.clone()
+        out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
 
