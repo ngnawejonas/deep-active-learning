@@ -1,5 +1,6 @@
 import gc
 import copy
+from json import load
 import numpy as np
 import torch
 import torch.nn as nn
@@ -43,6 +44,25 @@ class Net:
         else:
             self._train_once(data)
 
+    def train_step(self, epoch, train_loader, optimizer):
+        for x, y, idxs in train_loader:
+            x, y = x.to(self.device), y.to(self.device)
+            optimizer.zero_grad()
+            if self.params['advtrain_mode']:
+                attack_name = self.params['train_attack']['name']
+                attack_params = self.params['train_attack']['args']
+                if attack_params.get('norm'):
+                    attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
+                attack_fn = get_attack_fn(attack_name)
+                x = attack_fn(self.clf, x, **attack_params)
+            out = self.clf(x)
+            loss = F.cross_entropy(out, y)
+            loss.backward()
+            optimizer.step()
+
+    def val_step(self,epoch):
+        pass
+
     def _train_once(self, data):
         n_epoch = self.params['epochs']
         if self.params['reset'] or not self.clf:
@@ -56,28 +76,13 @@ class Net:
             **self.params['optimizer']['params'])
         scheduler_ = get_scheduler(self.params["scheduler"]["name"])
         scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
-
-        loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
+        train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
+        
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-            for x, y, idxs in loader:
-                x, y = x.to(self.device), y.to(self.device)
-                optimizer.zero_grad()
-                if self.params['advtrain_mode']:
-                    attack_name = self.params['train_attack']['name']
-                    attack_params = self.params['train_attack']['args']
-                    attack_fn = get_attack_fn(attack_name)
-                    x = attack_fn(self.clf, x, **attack_params)
-                out = self.clf(x)
-                loss = F.cross_entropy(out, y)
-                loss.backward()
-                optimizer.step()
-                # early_topping(validation_loss)
-                # if early_topping.early_stop:
-                #     print('early stopping')
-                #     break
-                # print(f"epoch {epoch}, batch_idx {batch_idx}")
-            # scheduler.step()
+            self.train_step(epoch, train_loader, optimizer)
+            self.val_step(epoch)
+            scheduler.step()
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
@@ -103,30 +108,19 @@ class Net:
                 self.clf.parameters(),
                 **self.params['optimizer_args'])
 
-            loader = DataLoader(
+            train_loader = DataLoader(
                 data,
                 shuffle=True,
                 **self.params['train_args'])
             for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-                for batch_idx, (x, y, idxs) in enumerate(loader):
-                    x, y = x.to(self.device), y.to(self.device)
-                    optimizer.zero_grad()
-                    if self.params['advtrain_mode']:
-                        attack_name = self.params['train_attack']['name']
-                        attack_params = self.params['train_attack']['args']
-                        if attack_params.get('norm'):
-                            attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
-                        attack_fn = get_attack_fn(attack_name)
-                        x = attack_fn(self.clf, x, **attack_params)
-                    out = self.clf(x)
-                    loss = F.cross_entropy(out, y)
-                    loss.backward()
-                    optimizer.step()
+                self.train_step(epoch, train_loader, optimizer)
+                self.val_step(epoch)
+                # scheduler.step()
 
             train_loss = self.predict_loss(data)
 
             if train_loss < best_loss:
-                best_loss = loss
+                best_loss = train_loss
                 best_model = copy.deepcopy(self.clf)
             # Clear GPU memory in preparation for next model training
             gc.collect()
@@ -158,28 +152,18 @@ class Net:
                 self.clf.parameters(),
                 **self.params['optimizer_args'])
 
-            loader = DataLoader(
+            train_loader = DataLoader(
                 train_data,
                 shuffle=True,
                 **self.params['train_args'])
             for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-                for batch_idx, (x, y, idxs) in enumerate(loader):
-                    x, y = x.to(self.device), y.to(self.device)
-                    optimizer.zero_grad()
-                    if self.params['advtrain_mode']:
-                        attack_name = self.params['train_attack']['name']
-                        attack_params = self.params['train_attack']['args']
-                        attack_fn = get_attack_fn(attack_name)
-                        x = attack_fn(self.clf, x, **attack_params)
-                    out = self.clf(x)
-                    loss = F.cross_entropy(out, y)
-                    loss.backward()
-                    optimizer.step()
-
+                self.train_step(epoch, train_loader, optimizer)
+                self.val_step(epoch)
+                # scheduler.step()
             validation_loss = self.predict_loss(val_data)
 
             if validation_loss < best_loss:
-                best_loss = loss
+                best_loss = validation_loss
                 best_model = copy.deepcopy(self.clf)
             # Clear GPU memory in preparation for next model training
             gc.collect()
@@ -218,6 +202,8 @@ class Net:
             x, y = x.to(self.device), y.to(self.device)
             attack_name = self.params['test_attack']['name']
             attack_params = self.params['test_attack']['args']
+            if attack_params.get('norm'):
+                attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
             attack_fn = get_attack_fn(attack_name)
             x = attack_fn(self.clf, x, **attack_params)
             out = self.clf(x)
