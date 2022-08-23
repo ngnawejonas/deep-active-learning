@@ -1,5 +1,4 @@
 # from dis import dis
-from msilib.schema import Error
 from pprint import pprint
 import os
 import argparse
@@ -76,7 +75,7 @@ def run_trial(
     :param params: The hyperparameters.
     :param args: The program arguments.
     """
-    
+
     strategy_name_on_file = config['strategy_name']+"AdvTrain" if params['advtrain_mode'] else config['strategy_name']
     ACC_FILENAME = '{}_{}_{}_{}_{}_{}.txt'.format(
         strategy_name_on_file, params['n_final_labeled'], params['dataset_name'], params['net_arch'], params['n_final_labeled'], 'r'+str(params['repeat']))
@@ -104,9 +103,6 @@ def run_trial(
         if xparams.get('norm') and xparams.get('norm') == 'np.inf':
             xparams['norm'] = np.inf
         xparams['pseudo_labeling'] = params['pseudo_labelling']
-    else:
-        raise ValueError
-        exit()
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
@@ -184,7 +180,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     }
 
     reporter = CLIReporter(
-        parameter_columns=["seed", "epochs"],
+        parameter_columns=["seed", "strategy_name"],
         metric_columns=["al_iteration"],
     )
     
@@ -210,7 +206,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('params.yaml', 'r') as param_file:
+    with open('./params.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

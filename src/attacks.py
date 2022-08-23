@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-
+import pdb
 from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method        
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent
 
@@ -9,7 +9,9 @@ def fgsm_attack(model, x, **args):
     return fast_gradient_method(model, x, **args)
 
 def pgd_attack(model, x, **args):
+    pdb.set_trace()
     assert args['rand_init'] == True
+    assert args['norm'] == np.inf or args['norm'] == 2 
     return projected_gradient_descent(model, x, **args)
 
 def bim_attack(model, x, **args):

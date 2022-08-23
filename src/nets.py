@@ -10,7 +10,6 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
 from train_utils import get_attack_fn
-from resnet import ResNet18
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
@@ -22,35 +21,43 @@ def get_optimizer(name):
     else:
         raise NotImplementedError
 
+def get_scheduler(name):
+    if name.lower() == 'cycliclr':
+        opt = torch.optim.lr_scheduler.CyclicLR
+    elif name.lower() =='cosineannealinglr':
+        opt = torch.optim.lr_scheduler.CosineAnnealingLR
+    else:
+        raise NotImplementedError
+    return opt
 
 class Net:
     def __init__(self, net, params, device):
         self.net = net
         self.clf = None
         self.params = params
+        self.device = device
 
     def train(self, data):
-        if self.repeat > 0:
+        if self.params['repeat'] > 0:
             self._train_xtimes(data)
         else:
             self._train_once(data)
 
     def _train_once(self, data):
-        n_epoch = self.params['n_epoch']
+        n_epoch = self.params['epochs']
         if self.params['reset'] or not self.clf:
             self.clf = self.net().to(self.device)
             # if self.device.type=='cuda':
             #     self.clf = nn.DataParallel(self.clf)
         self.clf.train()  # set train mode
-        optimizer_ = get_optimizer(self.params['optimizer'])
+        optimizer_ = get_optimizer(self.params['optimizer']['name'])
         optimizer = optimizer_(
             self.clf.parameters(),
-            **self.params['optimizer_args'])
-        # scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.001,
-        #                                       step_size_up=20, max_lr=0.1, mode='triangular2')
-        # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.1, patience=10)
+            **self.params['optimizer']['params'])
+        scheduler_ = get_scheduler(self.params["scheduler"]["name"])
+        scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
 
-        loader = DataLoader(data, shuffle=True, **self.params['train_args'])
+        loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
             for x, y, idxs in loader:
@@ -83,7 +90,7 @@ class Net:
 
         best_model = None
         best_loss = np.inf
-        for i in range(self.repeat):
+        for i in range(self.params['repeat']):
             print(f'training No {i+1}')
 
             self.clf = self.net().to(self.device)
@@ -107,6 +114,8 @@ class Net:
                     if self.params['advtrain_mode']:
                         attack_name = self.params['train_attack']['name']
                         attack_params = self.params['train_attack']['args']
+                        if attack_params.get('norm'):
+                            attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
                         attack_fn = get_attack_fn(attack_name)
                         x = attack_fn(self.clf, x, **attack_params)
                     out = self.clf(x)
@@ -128,12 +137,12 @@ class Net:
     def _train_xtimes(self, data):
         """train x times."""
 
-        n_epoch = self.params['n_epoch']
+        n_epoch = self.params['epochs']
         n_train = (int)(len(data) * 0.8)
 
         best_model = None
         best_loss = np.inf
-        for i in range(self.repeat):
+        for i in range(self.params['repeat']):
             print(f'training No {i+1}')
             # shuffle and split data into train and val
             train_data, val_data = random_split(
@@ -190,7 +199,7 @@ class Net:
     def predict(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['train_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
             # for x, y in loader:
@@ -400,8 +409,8 @@ class SVHN_Net(TORCHVISION_Net):
 class CIFAR10_Net(TORCHVISION_Net):
     def __init__(self):
         n_classes = 10
-        # model = models.resnet18(num_classes=n_classes)
-        model = ResNet18()
+        model = models.resnet18(num_classes=n_classes)
+        # model = ResNet18()
         super().__init__(model)
 
 class CIFAR10_Net2(TORCHVISION_Net):

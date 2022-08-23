@@ -9,7 +9,7 @@ from query_strategies import RandomSampling, LeastConfidence, MarginSampling, En
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
     KMeansSampling, KCenterGreedy, BALDDropout, \
     AdversarialBIM, AdversarialPGD, AdversarialDeepFool
-
+from resnet import ResNet18
 
 
 def get_handler(name):
@@ -46,38 +46,40 @@ def get_net(params, device):
         return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'svhn':
         return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
-    elif name.lower() == 'cifar10' or name.lower()=='resnet18':
+    elif name.lower() == 'cifar10':
         return Net(CIFAR10_Net, params, device)
+    elif name.lower()=='resnet18':
+        return Net(ResNet18, params, device)
     else:
         raise NotImplementedError
 
 
 def get_strategy(name):
-    if name.lower() == "RandomSampling":
+    if name.lower() == "randomsampling":
         strategy = RandomSampling
-    elif name.lower() == "LeastConfidence":
+    elif name.lower() == "leastconfidence":
         strategy = LeastConfidence
-    elif name.lower() == "MarginSampling":
+    elif name.lower() == "marginsampling":
         strategy = MarginSampling
-    elif name.lower() == "EntropySampling":
+    elif name.lower() == "entropysampling":
         strategy = EntropySampling
-    elif name.lower() == "LeastConfidenceDropout":
+    elif name.lower() == "leastconfidencedropout":
         strategy = LeastConfidenceDropout
-    elif name.lower() == "MarginSamplingDropout":
+    elif name.lower() == "marginsamplingdropout":
         strategy = MarginSamplingDropout
-    elif name.lower() == "EntropySamplingDropout":
+    elif name.lower() == "entropysamplingdropout":
         strategy = EntropySamplingDropout
-    elif name.lower() == "KMeansSampling":
+    elif name.lower() == "kmeanssampling":
         strategy = KMeansSampling
-    elif name.lower() == "KCenterGreedy":
+    elif name.lower() == "kcentergreedy":
         strategy = KCenterGreedy
-    elif name.lower() == "BALDDropout":
+    elif name.lower() == "balddropout":
         strategy = BALDDropout
-    elif name.lower() == "AdversarialBIM":
+    elif name.lower() == "adversarialbim":
         strategy = AdversarialBIM
-    elif name.lower() == "AdversarialDeepFool":
+    elif name.lower() == "adversarialdeepfool":
         strategy = AdversarialDeepFool
-    elif name.lower() == "AdversarialPGD":
+    elif name.lower() == "adversarialpgd":
         strategy = AdversarialPGD
     else:
         raise NotImplementedError
