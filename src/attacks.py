@@ -11,7 +11,8 @@ def fgsm_attack(model, x, **args):
 def pgd_attack(model, x, **args):
     # pdb.set_trace()
     assert args['rand_init'] == True
-    assert args['norm'] == np.inf or args['norm'] == 2 
+    print(args)
+    assert (args['norm'] == np.inf or args['norm'] == 2)
     return projected_gradient_descent(model, x, **args)
 
 def bim_attack(model, x, **args):
