@@ -101,6 +101,9 @@ def run_trial(
     dataset = get_dataset(params['dataset_name'], params['pool_size'])          # load dataset
     # print('dataset loaded')
     net = get_net(params, device)           # load network
+    if use_cuda:
+        net = torch.nn.DataParallel(net)
+        torch.backends.cudnn.benchmark = True
     xparams = dict()
     if params.get(config['strategy_name']):
         xparams = params.get(config['strategy_name'])

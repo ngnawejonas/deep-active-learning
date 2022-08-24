@@ -1,7 +1,7 @@
 seeds:
   - 139937
-  # - 973000
-  # - 663829
+  - 973000
+  - 663829
 strategies: 
   - RandomSampling
   # - LeastConfidence
@@ -15,11 +15,11 @@ strategies:
   # - BALDDropout
   # - AdversarialBIM
   - AdversarialPGD
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
 #
-n_init_labeled: 45000
-n_query: 100
-n_final_labeled: 44000
+n_init_labeled: 1000
+n_query: 250
+n_final_labeled: 4000
 dataset_name: cifar10
 pool_size: 50000
 reset: true
@@ -33,7 +33,7 @@ reset: true
 pseudo_labelling: true
 #strategy parameters
 AdversarialBIM: 
-  n_subset_ul: 300
+  n_subset_ul: 500
   pseudo_labeling: true
   diversity: false
   eps: 0.3
@@ -45,7 +45,7 @@ AdversarialBIM:
   rand_minmax: 0.3
 
 AdversarialPGD: 
-  n_subset_ul: 300
+  n_subset_ul: 500
   pseudo_labeling: true
   diversity: true
   eps: 0.3
@@ -57,7 +57,7 @@ AdversarialPGD:
   rand_minmax: 0.3
 
 AdversarialDeepFool:
-  n_subset_ul: 300
+  n_subset_ul: 500
   pseudo_labeling: true
   diversity: true
 
