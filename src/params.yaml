@@ -71,7 +71,7 @@ test_loader_args:
   num_workers: 4
 
 net_arch: resnet18
-epochs: 200
+epochs: 1
 # Optimizer parameters
 optimizer:
   name: sgd

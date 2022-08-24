@@ -84,4 +84,4 @@ class Strategy:
             avg_dis += dis.numpy()
             log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')
         avg_dis = avg_dis/self.dataset.n_adv_test
-        wandb.log('dist', avg_dis)
+        wandb.log({'dist' : avg_dis})
