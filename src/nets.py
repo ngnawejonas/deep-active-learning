@@ -212,7 +212,7 @@ class Net:
     def predict_adv(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for x, y, idxs in loader:
         # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
@@ -230,7 +230,7 @@ class Net:
     def predict_prob(self, data):
         self.clf.eval()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -242,7 +242,7 @@ class Net:
     def predict_prob_dropout(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
@@ -256,7 +256,7 @@ class Net:
     def predict_prob_dropout_split(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([n_drop, len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
@@ -269,7 +269,7 @@ class Net:
     def get_embeddings(self, data):
         self.clf.eval()
         embeddings = torch.zeros([len(data), self.clf.get_embedding_dim()])
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -280,7 +280,7 @@ class Net:
     def predict_loss(self, data):
         self.clf.eval()
         loss = 0.
-        loader = DataLoader(data, shuffle=False, **self.params['test_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         num_batches = len(loader)
         with torch.no_grad():
             for x, y, idxs in loader:
