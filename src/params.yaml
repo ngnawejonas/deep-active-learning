@@ -17,9 +17,9 @@ strategies:
   - AdversarialPGD
   # - AdversarialDeepFool
 #
-n_init_labeled: 1000
+n_init_labeled: 45000
 n_query: 100
-n_final_labeled: 1200
+n_final_labeled: 44000
 dataset_name: cifar10
 pool_size: 50000
 reset: true
@@ -71,7 +71,7 @@ test_loader_args:
   num_workers: 4
 
 net_arch: resnet18
-epochs: 1
+epochs: 200
 # Optimizer parameters
 optimizer:
   name: sgd
