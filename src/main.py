@@ -76,13 +76,13 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
                 'n_labeled' : n_labeled}
     return logdict
 
-def run_trial(
+def run_trial_empty(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
 ) -> None:
     print("DO NOTHING AND EXIT")
 
 
-def run_trialx(
+def run_trial(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
 ) -> None:
     """Train a single model according to the configuration provided.
