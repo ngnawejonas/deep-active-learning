@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import wandb
 from tqdm import tqdm
@@ -67,8 +68,7 @@ class Strategy:
             x_i = attack_fn(self.net.clf, x_i.to(self.net.device), **attack_params)
             i_iter += 1
         x_i = x_i.cpu()
-        dis = torch.norm(x_i - x)
-        return i_iter, dis.detach(), x_i.detach().squeeze(0)
+        return i_iter, x_i.detach().squeeze(0)
 
 
     def eval_test_dis(self):
@@ -77,11 +77,25 @@ class Strategy:
         attack_params = adv_params['test_attack']['args']
         attack_fn = get_attack_fn(attack_name)
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
-        avg_dis = 0
+
+        dis_inf_list = np.zeros(self.dataset.n_adv_test)
+        dis_inf2_list = np.zeros(self.dataset.n_adv_test)
+        dis_2_list = np.zeros(self.dataset.n_adv_test)
+        nb_iter_list = np.zeros(self.dataset.n_adv_test)
+
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
-            nb_iter, dis, x_adv = self.cal_dis(x, attack_fn, **attack_params)
-            avg_dis += dis.numpy()
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')
-        avg_dis = avg_dis/self.dataset.n_adv_test
-        wandb.log({'dist' : avg_dis})
+            nb_iter, x_adv = self.cal_dis(x, attack_fn, **attack_params)
+
+            dis_inf = torch.linalg.norm(x - x_adv, ord=np.inf)
+            dis_inf2 = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
+            dis_2 = torch.linalg.norm(x - x_adv)
+
+            dis_inf_list[i] = dis_inf.detach().numpy()
+            dis_inf2_list[i] = dis_inf2.detach().numpy()
+            dis_2_list[i] = dis_2.detach().numpy()
+
+            nb_iter_list[i] = nb_iter
+
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2.numpy():.3f}, {dis_inf.numpy():.3f}, {dis_inf2.numpy():.3f},  {nb_iter}')
+        return dis_inf_list, dis_inf2_list, dis_2_list, nb_iter_list

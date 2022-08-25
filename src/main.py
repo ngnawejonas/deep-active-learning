@@ -1,4 +1,5 @@
 # from dis import dis
+from dis import dis
 from pprint import pprint
 import os
 import argparse
@@ -66,6 +67,16 @@ def set_seeds(seed):
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.enabled = False
 
+def logdist_metrics(dist_list, name, rd, n_labeled):
+    logdict = {'avg '+name : np.mean(dist_list),
+                'min '+name : np.min(dist_list),
+                'max '+name : np.max(dist_list),
+                'median '+name: np.median(dist_list),
+                'iteration':rd,
+                'n_labeled' : n_labeled}
+    return logdict
+
+
 def run_trial(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
 ) -> None:
@@ -92,7 +103,9 @@ def run_trial(
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
-        wandb.init(project=args.project_name, name='run_no_'+str(tune.get_trial_id()))
+        # exp_name = 'run_no_'+str(tune.get_trial_id())
+        exp_name = 'run_{}_{}_seed{}'.format(tune.get_trial_id(), config['strategy_name'], config['seed'])
+        wandb.init(project=args.project_name, name=exp_name)
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -135,9 +148,9 @@ def run_trial(
     print('testing...')
     tune.report(al_iteration=0)
     acc = strategy.eval_acc()
-    wandb.log({'acc': acc})
+    wandb.log({'acc': acc, 'iteration':0})
     adv_acc = strategy.eval_adv_acc()
-    wandb.log({'adv_acc': adv_acc})
+    wandb.log({'adv_acc': adv_acc, 'iteration':0})
     strategy.eval_test_dis()
 
     print(f"Round 0 testing accuracy: {acc}")
@@ -162,19 +175,20 @@ def run_trial(
         print('training...')
         strategy.train()
 
+        n_labeled = strategy.dataset.n_labeled()
         # calculate accuracy
         print('evaluation...')
         acc = strategy.eval_acc()
-        wandb.log({'acc': acc})
+        wandb.log({'acc': acc, 'iteration':rd, 'n_labeled':n_labeled})
         adv_acc = strategy.eval_adv_acc()
-        wandb.log({'adv_acc': adv_acc})
-        strategy.eval_test_dis()
-
-        n_labeled = strategy.dataset.n_labeled()
+        wandb.log({'adv_acc': adv_acc, 'iteration':rd, 'n_labeled':n_labeled})
+        dis_inf_list, dis_inf2_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
+        wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
+        wandb.log(logdist_metrics(dis_inf2_list, 'perturb norm inf 2', rd, n_labeled))
+        wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
+        wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")
         log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
-        # with tf_summary_writer.as_default():
-        #     tf.summary.scalar('accuracy', acc, step=n_labeled)
         rd += 1 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
@@ -191,7 +205,11 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         "strategy_name": tune.grid_search(params["strategies"]),
         "seed": tune.grid_search(params["seeds"]),
     }
-
+    if args.dry_run:
+        config = {
+            "strategy_name": 'RandomSampling',
+            "seed": 42,
+        }
     reporter = CLIReporter(
         parameter_columns=["seed", "strategy_name"],
         metric_columns=["al_iteration"],

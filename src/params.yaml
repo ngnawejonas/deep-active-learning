@@ -11,11 +11,11 @@ strategies:
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - KCenterGreedy
+  - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
   - AdversarialPGD
-  - AdversarialDeepFool
+  # - AdversarialDeepFool
 #
 n_init_labeled: 1000
 n_query: 250
@@ -25,7 +25,7 @@ pool_size: 50000
 reset: true
 repeat: 0
 early_stopping: false
-max_iter: 10
+max_iter: 100
 
 #
 advtrain_mode: false
