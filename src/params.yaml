@@ -3,7 +3,7 @@ seeds:
   - 973000
   - 663829
 strategies: 
-  # - RandomSampling
+  - RandomSampling
   # - LeastConfidence
   # - MarginSampling
   # - EntropySampling
