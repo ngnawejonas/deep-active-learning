@@ -6,4 +6,4 @@ cd src
 # Run experiment
 python3 main.py \
     --cpus-per-trial 4 \
-    --project-name aal_resnet18_cifar10_xps_cpu_trial3
+    --project-name aal_resnet18_cifar10_xps_good
