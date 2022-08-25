@@ -114,9 +114,9 @@ def run_trial(
     dataset = get_dataset(params['dataset_name'], params['pool_size'])          # load dataset
     # print('dataset loaded')
     net = get_net(params, device)           # load network
-    # if use_cuda:
-    #     net = torch.nn.DataParallel(net)
-    #     torch.backends.cudnn.benchmark = True
+        # if use_cuda:
+        #     net = torch.nn.DataParallel(net)
+        #     torch.backends.cudnn.benchmark = True
     xparams = dict()
     if params.get(config['strategy_name']):
         xparams = params.get(config['strategy_name'])
@@ -182,9 +182,8 @@ def run_trial(
         wandb.log({'acc': acc, 'iteration':rd, 'n_labeled':n_labeled})
         adv_acc = strategy.eval_adv_acc()
         wandb.log({'adv_acc': adv_acc, 'iteration':rd, 'n_labeled':n_labeled})
-        dis_inf_list, dis_inf2_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
+        dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
         wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
-        wandb.log(logdist_metrics(dis_inf2_list, 'perturb norm inf 2', rd, n_labeled))
         wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
         wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
         print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")

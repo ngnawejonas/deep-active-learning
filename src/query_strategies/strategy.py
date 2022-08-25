@@ -87,15 +87,13 @@ class Strategy:
             x, y, _ = iter_loader.next()
             nb_iter, x_adv = self.cal_dis(x, attack_fn, **attack_params)
 
-            dis_inf = torch.linalg.norm(x - x_adv, ord=np.inf)
-            dis_inf2 = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
+            dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
             dis_2 = torch.linalg.norm(x - x_adv)
 
             dis_inf_list[i] = dis_inf.detach().numpy()
-            dis_inf2_list[i] = dis_inf2.detach().numpy()
             dis_2_list[i] = dis_2.detach().numpy()
 
             nb_iter_list[i] = nb_iter
 
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2.numpy():.3f}, {dis_inf.numpy():.3f}, {dis_inf2.numpy():.3f},  {nb_iter}')
-        return dis_inf_list, dis_inf2_list, dis_2_list, nb_iter_list
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2.numpy():.3f}, {dis_inf.numpy():.3f}, {nb_iter}')
+        return dis_inf_list, dis_2_list, nb_iter_list
