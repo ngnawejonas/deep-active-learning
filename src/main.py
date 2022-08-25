@@ -209,6 +209,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
             "strategy_name": 'RandomSampling',
             "seed": 42,
         }
+        params['epochs'] = 2
     reporter = CLIReporter(
         parameter_columns=["seed", "strategy_name"],
         metric_columns=["al_iteration"],
