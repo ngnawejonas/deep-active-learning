@@ -11,10 +11,10 @@ strategies:
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  - KCenterGreedy
+  # - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
-  - AdversarialPGD
+  # - AdversarialPGD
   # - AdversarialDeepFool
 #
 n_init_labeled: 1000
