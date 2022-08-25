@@ -3,15 +3,15 @@ seeds:
   - 973000
   - 663829
 strategies: 
-  - RandomSampling
+  # - RandomSampling
   # - LeastConfidence
   # - MarginSampling
-  # - EntropySampling
+  - EntropySampling
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - KCenterGreedy
+  - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
   # - AdversarialPGD
