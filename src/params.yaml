@@ -3,7 +3,7 @@ seeds:
   - 973000
   - 663829
 strategies: 
-  - RandomSampling
+  # - RandomSampling
   # - LeastConfidence
   # - MarginSampling
   # - EntropySampling
@@ -15,7 +15,7 @@ strategies:
   # - BALDDropout
   # - AdversarialBIM
   # - AdversarialPGD
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
 #
 n_init_labeled: 1000
 n_query: 250
