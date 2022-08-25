@@ -25,7 +25,7 @@ def get_handler(name):
         raise NotImplementedError('Unhandled dataset')
 
 
-def get_dataset(name, pool_size):
+def get_dataset(name, pool_size, n_adv_test):
     if name.lower() == 'mnist':
         return get_MNIST(get_handler(name), pool_size)
     elif name.lower() == 'fashionmnist':
@@ -33,7 +33,7 @@ def get_dataset(name, pool_size):
     elif name.lower() == 'svhn':
         return get_SVHN(get_handler(name), pool_size)
     elif name.lower() == 'cifar10':
-        return get_CIFAR10(get_handler(name), pool_size)
+        return get_CIFAR10(get_handler(name), pool_size, n_adv_test)
     else:
         raise NotImplementedError
 

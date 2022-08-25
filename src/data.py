@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 
 class Data:
-    def __init__(self, X_train, Y_train, X_test, Y_test, handler):
+    def __init__(self, X_train, Y_train, X_test, Y_test, handler, n_adv_test):
         self.X_train = X_train
         self.Y_train = Y_train
         self.X_test = X_test
@@ -21,7 +21,7 @@ class Data:
         self.X_train_extra = torch.Tensor([])
         self.Y_train_extra = torch.Tensor([])
         # adv test data
-        self.n_adv_test = 300
+        self.n_adv_test = n_adv_test
         self.adv_test_idxs = np.random.choice(np.arange(self.n_test), self.n_adv_test, replace=False)
 
     def initialize_labels(self, num):
@@ -149,7 +149,7 @@ def get_SVHN(handler, pool_size):
 #                 torch.LongTensor(data_test.targets)[:pool_size],
 #                 handler)
 
-def get_CIFAR10(handler, pool_size):
+def get_CIFAR10(handler, pool_size, n_adv_test):
     transform_train = transforms.Compose(
             [
                 transforms.RandomCrop(32, padding=4),
@@ -182,4 +182,4 @@ def get_CIFAR10(handler, pool_size):
         Y_test = y
 
     # print('data.py:146 ', X_train.data.shape, X_train.dtype, type(X_train))
-    return Data(X_train, Y_train, X_test, Y_test, handler)
+    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
