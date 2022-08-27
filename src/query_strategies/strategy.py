@@ -57,7 +57,7 @@ class Strategy:
 
     def eval_acc2(self):
         preds = self.predict(self.dataset.get_adv_test_data())
-        acc = self.dataset.cal_test_acc(preds)
+        acc = self.dataset.cal_adv_test_acc(preds)
         return acc
 
     def eval_adv_acc(self):
