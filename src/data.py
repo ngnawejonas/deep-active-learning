@@ -1,3 +1,4 @@
+from webbrowser import get
 import numpy as np
 import torch
 from torchvision import datasets, transforms
@@ -22,7 +23,10 @@ class Data:
         self.Y_train_extra = torch.Tensor([])
         # adv test data
         self.n_adv_test = n_adv_test
-        self.adv_test_idxs = np.random.choice(np.arange(self.n_test), self.n_adv_test, replace=False)
+        if self.n_adv_test == self.n_test:
+            self.adv_test_idxs = np.arange(self.n_test)
+        else:
+            self.adv_test_idxs = np.random.choice(np.arange(self.n_test), self.n_adv_test, replace=False)
 
     def initialize_labels(self, num):
         # generate initial labeled pool
