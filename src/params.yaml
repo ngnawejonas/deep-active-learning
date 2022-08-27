@@ -3,19 +3,19 @@ seeds:
   - 973000
   - 663829
 strategies: 
-  # - RandomSampling
+  - RandomSampling
   # - LeastConfidence
   # - MarginSampling
-  - EntropySampling
+  # - EntropySampling
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  - KCenterGreedy
+  # - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
-  # - AdversarialPGD
-  - AdversarialDeepFool
+  - AdversarialPGD
+  # - AdversarialDeepFool
 #
 n_init_labeled: 1000
 n_query: 250
@@ -37,20 +37,20 @@ AdversarialBIM:
   n_subset_ul: 500
   pseudo_labeling: true
   diversity: false
-  eps: 0.3
-  eps_iter: 0.01
+  eps: 0.05
+  eps_iter: 0.005
   nb_iter: 10
   norm: np.inf
   targeted: false
   rand_init: false
-  rand_minmax: 0.3
+  rand_minmax: 0.05
 
 AdversarialPGD: 
   n_subset_ul: 500
   pseudo_labeling: true
   diversity: true
-  eps: 0.3
-  eps_iter: 0.01
+  eps: 0.05
+  eps_iter: 0.005
   nb_iter: 10
   norm: np.inf
   targeted: false
@@ -98,21 +98,21 @@ scheduler:
 train_attack:
   name: 'pgd'
   args:
-    eps: 0.3
-    eps_iter: 0.01
+    eps: 0.05
+    eps_iter: 0.005
     nb_iter: 10
     norm: np.inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.3
+    rand_minmax: 0.05
 
 test_attack:
   name: 'pgd'
   args:
-    eps: 0.3
-    eps_iter: 0.01
+    eps: 0.05
+    eps_iter: 0.005
     nb_iter: 10
     norm: np.inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.3
+    rand_minmax: 0.05

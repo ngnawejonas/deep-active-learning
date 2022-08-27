@@ -72,7 +72,7 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
                 'min '+name : np.min(dist_list),
                 'max '+name : np.max(dist_list),
                 'median '+name: np.median(dist_list),
-                'iteration':rd,
+                'round ':rd,
                 'n_labeled' : n_labeled}
     return logdict
 
@@ -102,7 +102,7 @@ def run_trial(
         print("Results directory ", resultsDirName ,  " Created ") 
     except FileExistsError:
         print("Results directory " , resultsDirName ,  " already exists")
-
+    
     # fix random seed
     set_seeds(config['seed'])
     if args.dry_run:
@@ -110,7 +110,7 @@ def run_trial(
     else:
         # exp_name = 'run_no_'+str(tune.get_trial_id())
         exp_name = 'run_{}_{}_seed{}'.format(tune.get_trial_id(), config['strategy_name'], config['seed'])
-        wandb.init(project=args.project_name, name=exp_name)
+        wandb.init(project=args.project_name, name=exp_name, config=config)
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
@@ -144,6 +144,7 @@ def run_trial(
     print(f"size of unlabeled pool: {dataset.n_pool-params['n_init_labeled']}")
     print(f"size of testing pool: {dataset.n_test}")
     print()
+    n_labeled = strategy.dataset.n_labeled()
     start = time.time()
     # round 0 accuracy
     print("Round 0")
@@ -151,21 +152,24 @@ def run_trial(
     strategy.train()
     print("train time: {:.2f} s".format(time.time() - t))
     print('testing...')
-    tune.report(al_iteration=0)
+    tune.report(round =0)
     acc = strategy.eval_acc()
-    wandb.log({'acc': acc, 'iteration':0})
+    wandb.log({'clean accuracy (10k)': acc, 'round ':0})
     adv_acc = strategy.eval_adv_acc()
-    wandb.log({'adv_acc': adv_acc, 'iteration':0})
+    advkey  = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
+    wandb.log({advkey: adv_acc, 'round ':0, 'n_labeled':n_labeled})
+    acc2 = strategy.eval_acc2()
+    acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
+    wandb.log({acc2key: adv_acc, 'round ':0})
     strategy.eval_test_dis()
 
     print(f"Round 0 testing accuracy: {acc}")
-    n_labeled = strategy.dataset.n_labeled()
-    log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
+    log_to_file(ACC_FILENAME, f'{id_exp}, {n_labeled}    n_labeled = strategy.dataset.n_labeled(), {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
     print("round 0 time: {:.2f} s".format(time.time() - t))
     rd = 1
     while n_labeled < params['n_final_labeled']:
         print(f"Round {rd}")
-        tune.report(al_iteration=rd)
+        tune.report(round =rd)
         # query
         print('>querying...')
         extra_data = None
@@ -184,9 +188,13 @@ def run_trial(
         # calculate accuracy
         print('evaluation...')
         acc = strategy.eval_acc()
-        wandb.log({'acc': acc, 'iteration':rd, 'n_labeled':n_labeled})
+        wandb.log({'clean accuracy (10k)': acc, 'round ':rd, 'n_labeled':n_labeled})
         adv_acc = strategy.eval_adv_acc()
-        wandb.log({'adv_acc': adv_acc, 'iteration':rd, 'n_labeled':n_labeled})
+        wandb.log({advkey: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
+        acc2 = strategy.eval_acc2()
+        acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
+        wandb.log({acc2key: adv_acc, 'round ':0})
+
         dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
         wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
         wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
@@ -217,7 +225,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         params['epochs'] = 2
     reporter = CLIReporter(
         parameter_columns=["seed", "strategy_name"],
-        metric_columns=["al_iteration"],
+        metric_columns=["round "],
     )
     
     use_cuda = not args.no_cuda and torch.cuda.is_available()
