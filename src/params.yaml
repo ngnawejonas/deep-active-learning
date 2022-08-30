@@ -39,28 +39,26 @@ AdversarialBIM:
   diversity: false
   eps: 0.05
   eps_iter: 0.005
-  nb_iter: 10
+  nb_iter: 5
   norm: np.inf
   targeted: false
   rand_init: false
-  rand_minmax: 0.05
 
 AdversarialPGD: 
   n_subset_ul: 1000
   pseudo_labeling: true
-  diversity: true
+  diversity: false
   eps: 0.05
   eps_iter: 0.005
-  nb_iter: 10
+  nb_iter: 5
   norm: np.inf
   targeted: false
   rand_init: true
-  rand_minmax: 0.3
 
 AdversarialDeepFool:
   n_subset_ul: 500
   pseudo_labeling: true
-  diversity: true
+  diversity: false
 
 # General train/test parameters
 train_loader_args:
@@ -100,19 +98,17 @@ train_attack:
   args:
     eps: 0.05
     eps_iter: 0.005
-    nb_iter: 10
+    nb_iter: 5
     norm: np.inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.05
 
 test_attack:
   name: 'pgd'
   args:
     eps: 0.05
     eps_iter: 0.005
-    nb_iter: 10
+    nb_iter: 5
     norm: np.inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.05

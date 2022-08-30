@@ -18,6 +18,8 @@ class AdversarialStrategy(Strategy):
         self.diversity = diversity
         self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
         self.attack_params = kwargs
+        if self.attack_params.get('norm'):
+            self.attack_params['norm'] = np.inf if self.attack_params['norm']=='np.inf' else 2
         self.adv_dist_file_name = "train_"+dist_file_name
         self.attack_name = None
 
@@ -35,10 +37,13 @@ class AdversarialStrategy(Strategy):
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, _ = iter_loader.next()
             nb_iter, x_adv = self.cal_dis(x, attack_fn, **self.attack_params)
-            dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf).detach()
-            # dis_2 = torch.linalg.norm(x - x_adv)
-            distances[i] = dis_inf
-            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis_inf.numpy():.3f}, {nb_iter}')
+            if self.attack_params.get('norm'):
+                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
+            else:
+                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=2).detach()
+                # dis_2 = torch.linalg.norm(x - x_adv)
+            distances[i] = dis
+            log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis.numpy():.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
 
         ##

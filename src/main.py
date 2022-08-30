@@ -79,24 +79,25 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
 def eval_and_report(strategy, rd, logfile, id_exp):
     tune.report(round =rd)
     n_labeled = strategy.dataset.n_labeled()
-    acc = strategy.eval_acc()
-    wandb.log({'clean accuracy (10k)': acc, 'round ':0})
+    test_acc = strategy.eval_acc()
+    wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
     adv_acc = strategy.eval_adv_acc()
     advkey  = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
     wandb.log({advkey: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
-    acc2 = strategy.eval_acc2()
-    acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
-    wandb.log({acc2key: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
+    if strategy.dataset.n_adv_test < strategy.dataset.n_test:
+        acc2 = strategy.eval_acc2()
+        acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
+        wandb.log({acc2key: acc2, 'round ':rd, 'n_labeled':n_labeled})
 
-    print(f"Round {rd} testing accuracy: {acc}")
-    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
+    print(f"Round {rd} testing accuracy: {test_acc}")
+    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
     dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
     wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
     wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
     wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
-    print(f"Round {rd}:{n_labeled} testing accuracy: {acc}")
-    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round(acc, 2)}, {np.round(adv_acc, 2)}')
+    print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
+    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
 def run_trial_empty(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
@@ -178,7 +179,7 @@ def run_trial(
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
         rd = rd + 1
         print(f"Round {rd}")
-        tune.report(round =rd)
+        tune.report(round=rd)
         # query
         print('>querying...')
         extra_data = None
@@ -197,7 +198,7 @@ def run_trial(
         print('evaluation...')
         
         eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
-        
+
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
     log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
@@ -221,7 +222,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         params['epochs'] = 2
     reporter = CLIReporter(
         parameter_columns=["seed", "strategy_name"],
-        metric_columns=["round "],
+        metric_columns=["round"],
     )
     
     use_cuda = not args.no_cuda and torch.cuda.is_available()
