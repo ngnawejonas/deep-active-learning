@@ -3,9 +3,8 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from main_utils import get_attack_fn
-from utils import log_to_file
-from pgd_adaptive import projected_gradient_descent
+from utils import get_attack_fn, log_to_file
+# from pgd_adaptive import projected_gradient_descent
 
 class Strategy:
     def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
