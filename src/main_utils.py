@@ -1,10 +1,11 @@
 import numpy as np
 import torch.optim as optim
 from attacks import pgd_attack, bim_attack, fgsm_attack, deepfool_attack
+
 # from torchvision import transforms
 from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
 from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
-from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net, oMNIST_Net
+from nets import Net, MNIST_Net, SVHN_Net, CIFAR10_Net, oMNIST_Net, LeNet5
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
     KMeansSampling, KCenterGreedy, BALDDropout, \
@@ -40,8 +41,8 @@ def get_dataset(name, pool_size, n_adv_test):
 
 def get_net(params, device):
     name = params['net_arch']
-    if name.lower() == 'mnist':
-        return Net(oMNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
+    if name.lower() == 'lenet5':
+        return Net(LeNet5, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'fashionmnist':
         return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'svhn':
@@ -84,6 +85,18 @@ def get_strategy(name):
     else:
         raise NotImplementedError
     return strategy
+
+def get_attack_fn(name='fgsm'):
+    if name == 'fgsm':
+        return fgsm_attack
+    elif name == 'bim':
+        return bim_attack
+    elif name == 'pgd':
+        return pgd_attack
+    elif name == 'deepfool':
+        return deepfool_attack
+    else:
+        raise NotImplementedError('Attack "{}" not implemented'.format(name))
 
 # albl_list = [MarginSampling(X_tr, Y_tr, idxs_lb, net, handler, args),
 #              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]

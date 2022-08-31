@@ -4,7 +4,7 @@ from .strategy import Strategy
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 
-from train_utils import log_to_file, get_attack_fn
+from utils import log_to_file
 
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
@@ -30,13 +30,12 @@ class AdversarialStrategy(Strategy):
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
         self.net.clf.eval()
-        attack_fn = get_attack_fn(self.attack_name)
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, _ = iter_loader.next()
-            nb_iter, x_adv = self.cal_dis(x, attack_fn, **self.attack_params)
+            nb_iter, x_adv = self.cal_dis(x, self.attack_name, **self.attack_params)
             if self.attack_params.get('norm'):
                 dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
             else:

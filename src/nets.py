@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 
 from tqdm import tqdm
 
-from train_utils import get_attack_fn
+from main_utils import get_attack_fn
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
@@ -24,12 +24,14 @@ def get_optimizer(name):
 
 def get_scheduler(name):
     if name.lower() == 'cycliclr':
-        opt = torch.optim.lr_scheduler.CyclicLR
-    elif name.lower() =='cosineannealinglr':
-        opt = torch.optim.lr_scheduler.CosineAnnealingLR
+        scheduler = torch.optim.lr_scheduler.CyclicLR
+    elif name.lower() == 'cosineannealinglr':
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR
+    elif name.lower() == 'None':
+        scheduler = None
     else:
         raise NotImplementedError
-    return opt
+    return scheduler
 
 class Net:
     def __init__(self, net, params, device):
@@ -75,7 +77,10 @@ class Net:
             self.clf.parameters(),
             **self.params['optimizer']['params'])
         scheduler_ = get_scheduler(self.params["scheduler"]["name"])
-        scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
+        if scheduler_:
+            scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
+        else:
+            scheduler = None
         train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
 
         def train_step_(epoch):
@@ -98,7 +103,8 @@ class Net:
             # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
             train_step_(epoch)
             self.val_step(epoch)
-            scheduler.step()
+            if scheduler:
+                scheduler.step()
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()

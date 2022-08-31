@@ -1,5 +1,4 @@
 # from dis import dis
-from dis import dis
 from pprint import pprint
 import os
 import argparse

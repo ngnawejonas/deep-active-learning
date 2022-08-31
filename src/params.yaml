@@ -25,8 +25,7 @@ pool_size: 49000
 n_adv_test: 10000
 reset: true
 repeat: 0
-early_stopping: false
-max_iter: 100
+max_iter: 1000
 
 #
 advtrain_mode: false
@@ -56,7 +55,7 @@ AdversarialPGD:
   rand_init: true
 
 AdversarialDeepFool:
-  n_subset_ul: 500
+  n_subset_ul: 1000
   pseudo_labeling: true
   diversity: false
 
@@ -69,14 +68,14 @@ test_loader_args:
   batch_size: 128
   num_workers: 4
 
-net_arch: resnet18
+net_arch: resnet18 #lenet5
 epochs: 200
 # Optimizer parameters
 optimizer:
   name: sgd
   params:
     weight_decay: 0.0005
-    momentum: 0.9
+    momentum: 0.9 #0.5
     lr: 0.1 # initial_lr
 
 # LR scheduling parameters

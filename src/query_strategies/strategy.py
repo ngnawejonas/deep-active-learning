@@ -3,7 +3,9 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from train_utils import adv_params, get_attack_fn, log_to_file
+from main_utils import get_attack_fn
+from utils import log_to_file
+from pgd_adaptive import projected_gradient_descent
 
 class Strategy:
     def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
@@ -65,7 +67,10 @@ class Strategy:
         acc = self.dataset.cal_adv_test_acc(preds)
         return acc
 
-    def cal_dis(self, x, attack_fn, **attack_params):
+    def cal_dis(self, x, attack_name, **attack_params):
+        # if attack_name.lower() == 'pgd':
+        #     return projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
+        attack_fn = get_attack_fn(attack_name)
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
         i_iter = 0
@@ -78,19 +83,18 @@ class Strategy:
 
     def eval_test_dis(self):
         self.net.clf.eval()
-        attack_name = adv_params['test_attack']['name']
-        attack_params = adv_params['test_attack']['args']
-        attack_fn = get_attack_fn(attack_name)
+        attack_name = self.net.params['test_attack']['name']
+        attack_params = self.net.params['test_attack']['args']
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
 
         dis_inf_list = np.zeros(self.dataset.n_adv_test)
-        dis_inf2_list = np.zeros(self.dataset.n_adv_test)
+        # dis_inf2_list = np.zeros(self.dataset.n_adv_test)
         dis_2_list = np.zeros(self.dataset.n_adv_test)
         nb_iter_list = np.zeros(self.dataset.n_adv_test)
 
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
-            nb_iter, x_adv = self.cal_dis(x, attack_fn, **attack_params)
+            nb_iter, x_adv = self.cal_dis(x, attack_name, **attack_params)
 
             dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
             dis_2 = torch.linalg.norm(x - x_adv)
