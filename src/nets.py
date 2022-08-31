@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, random_split
 
 from tqdm import tqdm
 
-from main_utils import get_attack_fn
+from utils import get_attack_fn
 
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
