@@ -12,8 +12,8 @@ from ray import tune
 from ray.tune import CLIReporter
 import wandb
 
-from main_utils import get_dataset, get_net, get_strategy, log_to_file
-
+from main_utils import get_dataset, get_net, get_strategy
+from utils import log_to_file
 
 def parse_args(args: list) -> argparse.Namespace:
     """Parse command line parameters.

@@ -1,7 +1,3 @@
-import numpy as np
-import torch.optim as optim
-from attacks import pgd_attack, bim_attack, fgsm_attack, deepfool_attack
-
 # from torchvision import transforms
 from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
 from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
@@ -85,26 +81,3 @@ def get_strategy(name):
     else:
         raise NotImplementedError
     return strategy
-
-def get_attack_fn(name='fgsm'):
-    if name == 'fgsm':
-        return fgsm_attack
-    elif name == 'bim':
-        return bim_attack
-    elif name == 'pgd':
-        return pgd_attack
-    elif name == 'deepfool':
-        return deepfool_attack
-    else:
-        raise NotImplementedError('Attack "{}" not implemented'.format(name))
-
-# albl_list = [MarginSampling(X_tr, Y_tr, idxs_lb, net, handler, args),
-#              KMeansSampling(X_tr, Y_tr, idxs_lb, net, handler, args)]
-# strategy = ActiveLearningByLearning(X_tr, Y_tr, idxs_lb, net, handler, args, strategy_list=albl_list, delta=0.1)
-def log_to_file(file_name, line):
-    filepath = 'results/'+file_name
-    file = open(filepath, 'a')
-    file.write(line)
-    if not line.endswith('\n'):
-        file.write('\n')
-    file.close()
