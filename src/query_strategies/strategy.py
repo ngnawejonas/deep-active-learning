@@ -99,10 +99,10 @@ class Strategy:
             dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
             dis_2 = torch.linalg.norm(x - x_adv)
 
-            dis_inf_list[i] = dis_inf.detach().numpy()
-            dis_2_list[i] = dis_2.detach().numpy()
+            dis_inf_list[i] = dis_inf.detach().cpu().numpy()
+            dis_2_list[i] = dis_2.detach().cpu().numpy()
 
             nb_iter_list[i] = nb_iter
 
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2.numpy():.3f}, {dis_inf.numpy():.3f}, {nb_iter}')
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2:.3f}, {dis_inf:.3f}, {nb_iter}')
         return dis_inf_list, dis_2_list, nb_iter_list
