@@ -4,7 +4,7 @@ import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from utils import get_attack_fn, log_to_file
-# from pgd_adaptive import projected_gradient_descent
+from pgd_adaptive import projected_gradient_descent
 
 class Strategy:
     def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
@@ -67,8 +67,8 @@ class Strategy:
         return acc
 
     def cal_dis(self, x, attack_name, **attack_params):
-        # if attack_name.lower() == 'pgd':
-        #     return projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
+        if attack_name.lower() == 'pgd':
+            return projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
         attack_fn = get_attack_fn(attack_name)
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
