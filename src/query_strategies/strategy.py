@@ -93,6 +93,7 @@ class Strategy:
 
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
+            x = x.to(self.net.device)
             nb_iter, x_adv = self.cal_dis(x, attack_name, **attack_params)
 
             dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
