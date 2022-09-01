@@ -35,6 +35,7 @@ class AdversarialStrategy(Strategy):
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, _ = iter_loader.next()
+            x =  x.to(self.net.device)
             nb_iter, x_adv = self.cal_dis(x, self.attack_name, **self.attack_params)
             if self.attack_params.get('norm'):
                 dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
