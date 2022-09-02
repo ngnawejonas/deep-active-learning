@@ -1,6 +1,6 @@
 seeds:
   - 139937
-  # - 973000
+  - 973000
   # - 663829
 strategies: 
   - RandomSampling
@@ -14,14 +14,14 @@ strategies:
   # - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
-  - AdversarialPGD
+  # - AdversarialPGD
   # - AdversarialDeepFool
 #
-n_init_labeled: 1000
+n_init_labeled: 50000
 n_query: 500
 n_final_labeled: 40000
 dataset_name: cifar10
-pool_size: 49000
+pool_size: 0
 n_adv_test: 10000
 reset: true
 repeat: 0
@@ -79,18 +79,18 @@ optimizer:
     lr: 0.1 # initial_lr
 
 # LR scheduling parameters
-scheduler: 
-  name: CyclicLR
-  params:
-    base_lr: 0.001
-    max_lr: 0.1
-    step_size_up: 20
-    mode: triangular2
+# scheduler: 
+#   name: CyclicLR
+#   params:
+#     base_lr: 0.001
+#     max_lr: 0.1
+#     step_size_up: 20
+#     mode: triangular2
 
-#  scheduler: 
-#     name: CosineAnnealingLR
-#     params:
-#       T_max: 200
+scheduler: 
+  name: CosineAnnealingLR
+  params:
+    T_max: 200
 
 train_attack:
   name: 'pgd'
