@@ -68,7 +68,8 @@ class Strategy:
 
     def cal_dis(self, x, attack_name, **attack_params):
         if attack_name.lower() == 'pgd':
-            return projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
+            i, x_adv = projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
+            return i, x_adv.cpu()
         attack_fn = get_attack_fn(attack_name)
         x_i = x.clone()
         initial_label = self.net.predict_example(x_i)
@@ -93,14 +94,13 @@ class Strategy:
 
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
-            x = x.to(self.net.device)
             nb_iter, x_adv = self.cal_dis(x, attack_name, **attack_params)
 
             dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
             dis_2 = torch.linalg.norm(x - x_adv)
 
-            dis_inf_list[i] = dis_inf.detach().cpu().numpy()
-            dis_2_list[i] = dis_2.detach().cpu().numpy()
+            dis_inf_list[i] = dis_inf.detach().numpy()
+            dis_2_list[i] = dis_2.detach().numpy()
 
             nb_iter_list[i] = nb_iter
 

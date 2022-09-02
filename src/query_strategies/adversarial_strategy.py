@@ -35,14 +35,13 @@ class AdversarialStrategy(Strategy):
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, index = iter_loader.next()
-            x =  x.to(self.net.device)
             nb_iter, x_adv = self.cal_dis(x, self.attack_name, **self.attack_params)
             if self.attack_params.get('norm'):
                 dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
             else:
                 dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=2).detach()
                 # dis_2 = torch.linalg.norm(x - x_adv)
-            distances[i] = dis.cpu().numpy()
+            distances[i] = dis.numpy()
             log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
 
