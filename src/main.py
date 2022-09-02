@@ -91,10 +91,10 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     print(f"Round {rd} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
-    dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
-    wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
-    wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
-    wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
+    # dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
+    # wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
+    # wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
+    # wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
