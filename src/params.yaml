@@ -1,7 +1,7 @@
 seeds:
   - 139937
   - 973000
-  # - 663829
+  - 663829
 strategies: 
   - RandomSampling
   # - LeastConfidence
@@ -17,9 +17,9 @@ strategies:
   # - AdversarialPGD
   # - AdversarialDeepFool
 #
-n_init_labeled: 50000
-n_query: 500
-n_final_labeled: 40000
+n_init_labeled: 40000
+n_query: 5000
+n_final_labeled: 50000
 dataset_name: cifar10
 pool_size: 50000
 n_adv_test: 10000
