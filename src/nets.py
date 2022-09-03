@@ -26,7 +26,7 @@ def get_scheduler(name):
         scheduler = torch.optim.lr_scheduler.CyclicLR
     elif name.lower() == 'cosineannealinglr':
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR
-    elif name.lower() == 'None':
+    elif name.lower() == 'none':
         scheduler = None
     else:
         raise NotImplementedError
