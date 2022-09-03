@@ -40,7 +40,7 @@ def get_net(params, device):
     if name.lower() == 'lenet5':
         return Net(LeNet5, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'fashionmnist':
-        return Net(MNIST_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
+        return Net(MNIST_Net, params, device)
     elif name.lower() == 'svhn':
         return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
     elif name.lower() == 'cifar10':
