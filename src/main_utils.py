@@ -38,11 +38,11 @@ def get_dataset(name, pool_size, n_adv_test):
 def get_net(params, device):
     name = params['net_arch']
     if name.lower() == 'lenet5':
-        return Net(LeNet5, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
+        return Net(MNIST_Net, params, device)
     elif name.lower() == 'fashionmnist':
         return Net(MNIST_Net, params, device)
     elif name.lower() == 'svhn':
-        return Net(SVHN_Net, params['name'], device, params['repeat'], params['reset'], params['advtrain_mode'])
+        return Net(MNIST_Net, params, device)
     elif name.lower() == 'cifar10':
         return Net(CIFAR10_Net, params, device)
     elif name.lower()=='resnet18':
