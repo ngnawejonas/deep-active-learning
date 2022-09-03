@@ -76,7 +76,7 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
     return logdict
 
 def eval_and_report(strategy, rd, logfile, id_exp):
-    tune.report(round =rd)
+    tune.report(round=rd)
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
     wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
@@ -97,6 +97,7 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     # wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
+    return test_acc
 
 def run_trial_empty(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
@@ -172,13 +173,13 @@ def run_trial(
     strategy.train()
     print("train time: {:.2f} s".format(time.time() - t))
     print('testing...')
-    eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
+    test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
     print("round 0 time: {:.2f} s".format(time.time() - t))
 
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
         rd = rd + 1
-        print(f"Round {rd}")
-        tune.report(round=rd)
+        # print(f"Round {rd}")
+        # tune.report(round=rd)
         # query
         print('>querying...')
         extra_data = None
@@ -196,12 +197,12 @@ def run_trial(
         # calculate accuracy
         print('evaluation...')
         
-        eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
+        test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
     log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
-
+    tune.report(final_acc=test_acc)
 
 def run_experiment(params: dict, args: argparse.Namespace) -> None:
     """Run the experiment using Ray Tune.

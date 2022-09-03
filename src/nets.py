@@ -1,15 +1,15 @@
 import gc
 import copy
 from json import load
+from tkinter import wantobjects
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-from torch.utils.data import DataLoader, random_split
-
+import wandb
+from torch.utils.data import DataLoader
 from tqdm import tqdm
-
 from utils import get_attack_fn
 
 def get_optimizer(name):
@@ -40,16 +40,10 @@ class Net:
         self.params = params
         self.device = device
 
-    def train(self, data):
-        if self.params['repeat'] > 0:
-            self._train_xtimes(data)
-        else:
-            self._train_once(data)
-
     def train_step(self, epoch, train_loader, optimizer):
+        train_loss = 0.
         for x, y, idxs in train_loader:
             x, y = x.to(self.device), y.to(self.device)
-            optimizer.zero_grad()
             if self.params['advtrain_mode']:
                 attack_name = self.params['train_attack']['name']
                 attack_params = self.params['train_attack']['args']
@@ -57,21 +51,19 @@ class Net:
                     attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
                 attack_fn = get_attack_fn(attack_name)
                 x = attack_fn(self.clf, x, **attack_params)
+            optimizer.zero_grad()
             out = self.clf(x)
             loss = F.cross_entropy(out, y)
             loss.backward()
             optimizer.step()
 
-    def val_step(self,epoch):
+            train_loss += loss.item()
+        wandb.log({'train loss': train_loss/len(train_loader), 'epoch':epoch})
+
+    def val_step(self):
         pass
 
-    def _train_once(self, data):
-        n_epoch = self.params['epochs']
-        if self.params['reset'] or not self.clf:
-            self.clf = self.net().to(self.device)
-            # if self.device.type=='cuda':
-            #     self.clf = nn.DataParallel(self.clf)
-        self.clf.train()  # set train mode
+    def _configure_optimizer(self):
         optimizer_ = get_optimizer(self.params['optimizer']['name'])
         optimizer = optimizer_(
             self.clf.parameters(),
@@ -81,117 +73,26 @@ class Net:
             scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
         else:
             scheduler = None
+        return optimizer, scheduler
+
+    def train(self, data):
+        n_epoch = self.params['epochs']
+        if self.params['reset'] or not self.clf:
+            self.clf = self.net().to(self.device)
+            # if self.device.type=='cuda':
+            #     self.clf = nn.DataParallel(self.clf)
+        optimizer, scheduler = self._configure_optimizer()
+        self.clf.train()  # set train mode
         train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
-
-        def train_step_(epoch):
-            for x, y, idxs in train_loader:
-                x, y = x.to(self.device), y.to(self.device)
-                optimizer.zero_grad()
-                if self.params['advtrain_mode']:
-                    attack_name = self.params['train_attack']['name']
-                    attack_params = self.params['train_attack']['args']
-                    if attack_params.get('norm'):
-                        attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
-                    attack_fn = get_attack_fn(attack_name)
-                    x = attack_fn(self.clf, x, **attack_params)
-                out = self.clf(x)
-                loss = F.cross_entropy(out, y)
-                loss.backward()
-                optimizer.step()
-
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-            # print('==============epoch: %d, lr: %.3f==============' % (epoch, scheduler.get_lr()[0]))
-            train_step_(epoch)
-            self.val_step(epoch)
+            self.train_step(epoch, train_loader, optimizer)
+            self.val_step()
             if scheduler:
                 scheduler.step()
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
-
-    def noval_train_xtimes(self, data):
-        """train x times with full data."""
-
-        n_epoch = self.params['n_epoch']
-        n_train = (int)(len(data) * 0.8)
-
-        best_model = None
-        best_loss = np.inf
-        for i in range(self.params['repeat']):
-            print(f'training No {i+1}')
-
-            self.clf = self.net().to(self.device)
-            # if self.device.type=='cuda':
-            #     self.clf = nn.DataParallel(self.clf)
-
-            self.clf.train()  # set train mode
-            optimizer_ = get_optimizer(self.params['optimizer'])
-            optimizer = optimizer_(
-                self.clf.parameters(),
-                **self.params['optimizer_args'])
-
-            train_loader = DataLoader(
-                data,
-                shuffle=True,
-                **self.params['train_args'])
-            for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-                self.train_step(epoch, train_loader, optimizer)
-                self.val_step(epoch)
-                # scheduler.step()
-
-            train_loss = self.predict_loss(data)
-
-            if train_loss < best_loss:
-                best_loss = train_loss
-                best_model = copy.deepcopy(self.clf)
-            # Clear GPU memory in preparation for next model training
-            gc.collect()
-            torch.cuda.empty_cache()
-        self.clf = best_model
-
-
-    def _train_xtimes(self, data):
-        """train x times."""
-
-        n_epoch = self.params['epochs']
-        n_train = (int)(len(data) * 0.8)
-
-        best_model = None
-        best_loss = np.inf
-        for i in range(self.params['repeat']):
-            print(f'training No {i+1}')
-            # shuffle and split data into train and val
-            train_data, val_data = random_split(
-                data, [n_train, len(data) - n_train])
-
-            self.clf = self.net().to(self.device)
-            # if self.device.type=='cuda':
-            #     self.clf = nn.DataParallel(self.clf)
-
-            self.clf.train()  # set train mode
-            optimizer_ = get_optimizer(self.params['optimizer'])
-            optimizer = optimizer_(
-                self.clf.parameters(),
-                **self.params['optimizer_args'])
-
-            train_loader = DataLoader(
-                train_data,
-                shuffle=True,
-                **self.params['train_args'])
-            for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
-                self.train_step(epoch, train_loader, optimizer)
-                self.val_step(epoch)
-                # scheduler.step()
-            validation_loss = self.predict_loss(val_data)
-
-            if validation_loss < best_loss:
-                best_loss = validation_loss
-                best_model = copy.deepcopy(self.clf)
-            # Clear GPU memory in preparation for next model training
-            gc.collect()
-            torch.cuda.empty_cache()
-        self.clf = best_model
-
+    
     def predict_example(self, x):
         if len(x.shape) < 4:
             x = x.unsqueeze(0)
