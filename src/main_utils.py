@@ -24,7 +24,7 @@ def get_handler(name):
 
 def get_dataset(name, pool_size, n_adv_test):
     if name.lower() == 'mnist':
-        return get_MNIST(get_handler(name), pool_size)
+        return get_MNIST(get_handler(name), pool_size, n_adv_test)
     elif name.lower() == 'fashionmnist':
         return get_FashionMNIST(get_handler(name), pool_size)
     elif name.lower() == 'svhn':
