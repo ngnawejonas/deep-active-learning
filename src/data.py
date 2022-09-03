@@ -89,7 +89,7 @@ class Data:
         return 100.0 * (self.Y_test[self.adv_test_idxs] == preds).sum().item() / self.n_adv_test
 
 
-def get_xMNIST(x_fn, handler, pool_size, pref = ''):
+def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref = ''):
     raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
     raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
 
@@ -107,11 +107,11 @@ def get_xMNIST(x_fn, handler, pool_size, pref = ''):
     # Y_train = raw_train.targets[:pool_size]
     # X_test =  raw_test.data[:pool_size]
     # Y_test = raw_test.targets[:pool_size]
-    return Data(X_train, Y_train, X_test, Y_test, handler)
+    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
 
 
-def get_MNIST(handler, pool_size):
-    return get_xMNIST(datasets.MNIST, handler, pool_size)
+def get_MNIST(handler, pool_size, n_adv_test):
+    return get_xMNIST(datasets.MNIST, handler, pool_size, n_adv_test)
 
 
 def get_FashionMNIST(handler, pool_size):

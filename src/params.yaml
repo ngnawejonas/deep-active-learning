@@ -17,11 +17,11 @@ strategies:
   # - AdversarialPGD
   # - AdversarialDeepFool
 #
-n_init_labeled: 40000
-n_query: 5000
-n_final_labeled: 50000
-dataset_name: cifar10
-pool_size: 50000
+n_init_labeled: 5000
+n_query: 55000
+n_final_labeled: 60000
+dataset_name: mnist
+pool_size: 60000
 n_adv_test: 10000
 reset: true
 repeat: 0
@@ -68,15 +68,15 @@ test_loader_args:
   batch_size: 128
   num_workers: 4
 
-net_arch: resnet18 #lenet5
+net_arch: lenet5
 epochs: 200
 # Optimizer parameters
 optimizer:
-  name: sgd
+  name: adam
   params:
-    weight_decay: 0.0005
-    momentum: 0.9 #0.5
-    lr: 0.1 # initial_lr
+    # weight_decay: 0.0005
+    # momentum: 0.5 #0.9
+    lr: 0.001 # initial_lr
 
 # LR scheduling parameters
 # scheduler: 
@@ -88,7 +88,7 @@ optimizer:
 #     mode: triangular2
 
 scheduler: 
-  name: CosineAnnealingLR
+  name: None #CosineAnnealingLR
   params:
     T_max: 200
 
