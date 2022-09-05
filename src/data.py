@@ -77,10 +77,10 @@ class Data:
         return self.labeled_idxs.copy(), self.handler(self.X_train, self.Y_train)
 
     def get_test_data(self):
-        return self.handler(self.X_test, self.Y_test)
+        return self.handler(self.X_test, self.Y_test, train=False)
 
     def get_adv_test_data(self):
-        return self.handler(self.X_test[self.adv_test_idxs], self.Y_test[self.adv_test_idxs])
+        return self.handler(self.X_test[self.adv_test_idxs], self.Y_test[self.adv_test_idxs], train=False)
 
     def cal_test_acc(self, preds):
         return 100.0 * (self.Y_test == preds).sum().item() / self.n_test
@@ -154,36 +154,37 @@ def get_SVHN(handler, pool_size):
 #                 handler)
 
 def get_CIFAR10(handler, pool_size, n_adv_test):
-    transform_train = transforms.Compose(
-            [
-                transforms.RandomCrop(32, padding=4),
-                transforms.RandomHorizontalFlip(),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
-                ),
-            ]
-        )
-    transform_test = transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize(
-                (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
-            ),
-        ]
-    )
-    data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True, transform=transform_train)
-    data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True, transform=transform_test)
+    # transform_train = transforms.Compose(
+    #         [
+    #             transforms.RandomCrop(32, padding=4),
+    #             transforms.RandomHorizontalFlip(),
+    #             transforms.ToTensor(),
+    #             transforms.Normalize(
+    #                 (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+    #             ),
+    #         ]
+    #     )
+    # transform_test = transforms.Compose(
+    #     [
+    #         transforms.ToTensor(),
+    #         transforms.Normalize(
+    #             (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)
+    #         ),
+    #     ]
+    # )
+    raw_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)#, transform=transform_train)
+    raw_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)#, transform=transform_test)
 
-    dtl = DataLoader(data_train, batch_size=len(data_train))
-    for X,y in dtl:
-        X_train = X
-        Y_train = y
+    # dtl = DataLoader(data_train, batch_size=len(data_train))
+    # for X,y in dtl:
+    #     X_train = X
+    #     Y_train = y
 
-    dtl = DataLoader(data_test, batch_size=len(data_test))
-    for X,y in dtl:
-        X_test = X
-        Y_test = y
+    # dtl = DataLoader(data_test, batch_size=len(data_test))
+    # for X,y in dtl:
+    #     X_test = X
+    #     Y_test = y
 
     # print('data.py:146 ', X_train.data.shape, X_train.dtype, type(X_train))
-    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
+    # return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
+    return Data(raw_train.data[:pool_size], raw_train.targets[:pool_size], raw_test.data, raw_test.targets, handler, n_adv_test)
