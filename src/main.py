@@ -75,7 +75,7 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
     #             'round ':rd,
     #             'n_labeled' : n_labeled}
     fig = sns.boxplot(y=dist_list)
-    logdict = {'BP '+name : fig, 'round ':rd, 'n_labeled' : n_labeled}
+    logdict = {'BP '+name : fig.figure, 'round ':rd, 'n_labeled' : n_labeled}
     return logdict
 
 def eval_and_report(strategy, rd, logfile, id_exp):
@@ -98,9 +98,9 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     kdefig_inf = sns.kdeplot(dis_inf_list)
     kdefig_2 = sns.kdeplot(dis_2_list)
     kdefig_iter = sns.kdeplot(nb_iter_list)
-    wandb.log({"kde norm inf":kdefig_inf,'round ':rd, 'n_labeled':n_labeled})
-    wandb.log({"kde norm 2":kdefig_2,'round ':rd, 'n_labeled':n_labeled})
-    wandb.log({"kde nb iters":kdefig_iter,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde norm inf":kdefig_inf.figure,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde norm 2":kdefig_2.figure,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde nb iters":kdefig_iter.figure,'round ':rd, 'n_labeled':n_labeled})
     #
     wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
     wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
