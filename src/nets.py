@@ -38,7 +38,7 @@ class Net:
         self.clf = None
         self.params = params
         self.device = device
-
+        
     def train_step(self, epoch, train_loader, optimizer):
         train_loss = 0.
         for x, y, idxs in train_loader:
