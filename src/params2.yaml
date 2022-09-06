@@ -25,7 +25,7 @@ pool_size: 60000
 n_adv_test: 1000
 reset: true
 repeat: 0
-max_iter: 1000
+max_iter: 100
 
 #
 advtrain_mode: false
@@ -117,7 +117,7 @@ dis_test_attack:
   args:
     eps: 0.05
     eps_iter: 0.005
-    nb_iter: 1000
+    nb_iter: 5
     norm: np.inf
     targeted: false
     rand_init: true
