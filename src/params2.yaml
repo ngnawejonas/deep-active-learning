@@ -22,7 +22,7 @@ n_query: 250
 n_final_labeled: 10000
 dataset_name: mnist
 pool_size: 60000
-n_adv_test: 10000
+n_adv_test: 1000
 reset: true
 repeat: 0
 max_iter: 1000
