@@ -74,8 +74,9 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
     #             'median '+name: np.median(dist_list),
     #             'round ':rd,
     #             'n_labeled' : n_labeled}
+    #plotly is required to log interactive plots, install with: pip install plotly or convert the plot to an image with `wandb.Image(plt)
     fig = sns.boxplot(y=dist_list)
-    logdict = {'BP '+name : fig.figure, 'round ':rd, 'n_labeled' : n_labeled}
+    logdict = {'BP '+name : wandb.Image(fig)}#fig.figure
     return logdict
 
 def eval_and_report(strategy, rd, logfile, id_exp):
@@ -98,9 +99,9 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     kdefig_inf = sns.kdeplot(dis_inf_list)
     kdefig_2 = sns.kdeplot(dis_2_list)
     kdefig_iter = sns.kdeplot(nb_iter_list)
-    wandb.log({"kde norm inf":kdefig_inf.figure,'round ':rd, 'n_labeled':n_labeled})
-    wandb.log({"kde norm 2":kdefig_2.figure,'round ':rd, 'n_labeled':n_labeled})
-    wandb.log({"kde nb iters":kdefig_iter.figure,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde norm inf":wandb.Image(kdefig_inf)})
+    wandb.log({"kde norm 2":wandb.Image(kdefig_2)})
+    wandb.log({"kde nb iters":wandb.Image(kdefig_iter)})
     #
     wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
     wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
