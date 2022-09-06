@@ -68,15 +68,12 @@ def set_seeds(seed):
     # torch.backends.cudnn.enabled = False
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
-    # logdict = {'BP '+name : np.mean(dist_list),
-    #             'min '+name : np.min(dist_list),
-    #             'max '+name : np.max(dist_list),
-    #             'median '+name: np.median(dist_list),
-    #             'round ':rd,
-    #             'n_labeled' : n_labeled}
-    #plotly is required to log interactive plots, install with: pip install plotly or convert the plot to an image with `wandb.Image(plt)
-    fig = sns.boxplot(data=dist_list)
-    logdict = {'BP '+name : fig.figure}
+    logdict = {'BP '+name : np.mean(dist_list),
+                'min '+name : np.min(dist_list),
+                'max '+name : np.max(dist_list),
+                'median '+name: np.median(dist_list),
+                'round ':rd,
+                'n_labeled' : n_labeled}
     return logdict
 
 def eval_and_report(strategy, rd, logfile, id_exp):
@@ -96,12 +93,12 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
     dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
-    kdefig_inf = sns.kdeplot(data=dis_inf_list)
-    kdefig_2 = sns.kdeplot(data=dis_2_list)
-    kdefig_iter = sns.kdeplot(data=nb_iter_list)
-    wandb.log({"kde norm inf":kdefig_inf.figure})
-    wandb.log({"kde norm 2":kdefig_2.figure})
-    wandb.log({"kde nb iters":kdefig_iter.figure})
+    kdefig_inf = sns.displot(data=dis_inf_list.ravel())
+    kdefig_2 = sns.displot(data=dis_2_list.ravel())
+    kdefig_iter = sns.displot(data=nb_iter_list.ravel())
+    wandb.log({"norm inf":kdefig_inf.figure})
+    wandb.log({"norm 2":kdefig_2.figure})
+    wandb.log({"nb iters":kdefig_iter.figure})
     #
     wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
     wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
