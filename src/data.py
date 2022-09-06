@@ -90,24 +90,9 @@ class Data:
 
 
 def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref = ''):
-    raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
-
-    dtl = DataLoader(raw_train, batch_size=len(raw_train))
-    for X,y in dtl:
-        X_train = X
-        Y_train = y
-
-    dtl = DataLoader(raw_test, batch_size=len(raw_test))
-    for X,y in dtl:
-        X_test = X
-        Y_test = y
-
-    # X_train = raw_train.data[:pool_size]
-    # Y_train = raw_train.targets[:pool_size]
-    # X_test =  raw_test.data[:pool_size]
-    # Y_test = raw_test.targets[:pool_size]
-    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
+    data_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
+    data_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
+    return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
 
 
 def get_MNIST(handler, pool_size, n_adv_test):

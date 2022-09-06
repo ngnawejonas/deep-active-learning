@@ -83,8 +83,8 @@ class Strategy:
 
     def eval_test_dis(self):
         self.net.clf.eval()
-        attack_name = self.net.params['test_attack']['name']
-        attack_params = self.net.params['test_attack']['args']
+        attack_name = self.net.params['dis_test_attack']['name']
+        attack_params = self.net.params['dis_test_attack']['args']
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
 
         dis_inf_list = np.zeros(self.dataset.n_adv_test)
