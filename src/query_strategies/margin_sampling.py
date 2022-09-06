@@ -3,7 +3,7 @@ from .strategy import Strategy
 
 class MarginSampling(Strategy):
     def __init__(self, dataset, net, **kwargs):
-        super().__init__(dataset, net)
+        super().__init__(dataset, net, **kwargs)
 
     def query(self, n):
         unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data()
