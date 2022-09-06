@@ -68,7 +68,7 @@ def set_seeds(seed):
     # torch.backends.cudnn.enabled = False
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
-    logdict = {'BP '+name : np.mean(dist_list),
+    logdict = {'avg '+name : np.mean(dist_list),
                 'min '+name : np.min(dist_list),
                 'max '+name : np.max(dist_list),
                 'median '+name: np.median(dist_list),
@@ -76,8 +76,34 @@ def logdist_metrics(dist_list, name, rd, n_labeled):
                 'n_labeled' : n_labeled}
     return logdict
 
-def eval_and_report(strategy, rd, logfile, id_exp):
-    tune.report(round=rd)
+def logdist_hist(dist_list, name, rd, n_labeled):
+    kdefig = sns.displot(data=dist_list.ravel())
+    logdict = {name : kdefig.figure}
+    return logdict
+
+def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
+    name = name+'(SUBSET)' if correct_idxs else name+''
+    if correct_idxs:
+        wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
+        wandb.log(logdist_metrics(dis_list[correct_idxs], name, rd, n_labeled))
+    else: 
+        wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
+        wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
+
+def dis_eval_and_report(strategy, rd):
+    n_labeled = strategy.dataset.n_labeled()
+    dis_inf_list, dis_2_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
+
+    def dis_report_wrap(correct_idxs=None):
+        dis_report(dis_inf_list, 'norm inf', rd, n_labeled, correct_idxs)
+        dis_report(dis_2_list, 'norm 2', rd, n_labeled, correct_idxs)
+        dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
+
+    dis_report_wrap()
+    dis_report_wrap(correct_idxs)
+
+
+def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
     wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
@@ -88,23 +114,15 @@ def eval_and_report(strategy, rd, logfile, id_exp):
         acc2 = strategy.eval_acc2()
         acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
         wandb.log({acc2key: acc2, 'round ':rd, 'n_labeled':n_labeled})
-
-    print(f"Round {rd} testing accuracy: {test_acc}")
-    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
-
-    dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
-    kdefig_inf = sns.displot(data=dis_inf_list.ravel())
-    kdefig_2 = sns.displot(data=dis_2_list.ravel())
-    kdefig_iter = sns.displot(data=nb_iter_list.ravel())
-    wandb.log({"norm inf":kdefig_inf.figure})
-    wandb.log({"norm 2":kdefig_2.figure})
-    wandb.log({"nb iters":kdefig_iter.figure})
-    #
-    wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
-    wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
-    wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
+    
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
+    return test_acc
+
+def eval_and_report(strategy, rd, logfile, id_exp):
+    tune.report(round=rd)
+    test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
+    dis_eval_and_report(strategy, rd)
     return test_acc
 
 def run_trial_empty(

@@ -107,7 +107,7 @@ test_attack:
   args:
     eps: 0.3
     eps_iter: 0.01
-    nb_iter: 10
+    nb_iter: 15
     norm: np.inf
     targeted: false
     rand_init: true

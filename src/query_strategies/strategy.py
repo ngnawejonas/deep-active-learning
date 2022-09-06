@@ -66,13 +66,12 @@ class Strategy:
         acc = self.dataset.cal_adv_test_acc(preds)
         return acc
 
-    def cal_dis(self, x, attack_name, **attack_params):
+    def cal_dis(self, x, initial_label, attack_name, **attack_params):
         # if attack_name.lower() == 'pgd':
         #     i, x_adv = projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
         #     return i, x_adv.cpu()
         attack_fn = get_attack_fn(attack_name)
         x_i = x.clone()
-        initial_label = self.net.predict_example(x_i)
         i_iter = 0
         while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
             x_i = attack_fn(self.net.clf, x_i.to(self.net.device), **attack_params)
@@ -93,18 +92,20 @@ class Strategy:
         # dis_inf2_list = np.zeros(self.dataset.n_adv_test)
         dis_2_list = np.zeros(self.dataset.n_adv_test)
         nb_iter_list = np.zeros(self.dataset.n_adv_test)
-
+        correct_idxs = []
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
-            nb_iter, x_adv = self.cal_dis(x, attack_name, **attack_params)
-
+            initial_label = self.net.predict_example(x)
+            if y == initial_label:
+                correct_idxs.append(i)
+            nb_iter, x_adv = self.cal_dis(x, initial_label, attack_name, **attack_params)
             dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
             dis_2 = torch.linalg.norm(x - x_adv)
+            
+            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2:.3f}, {dis_inf:.3f}, {nb_iter}')
 
             dis_inf_list[i] = dis_inf.detach().numpy()
             dis_2_list[i] = dis_2.detach().numpy()
-
             nb_iter_list[i] = nb_iter
 
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2:.3f}, {dis_inf:.3f}, {nb_iter}')
-        return dis_inf_list, dis_2_list, nb_iter_list
+        return dis_inf_list, dis_2_list, nb_iter_list, correct_idxs
