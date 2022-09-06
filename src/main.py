@@ -11,6 +11,7 @@ import torch
 from ray import tune
 from ray.tune import CLIReporter
 import wandb
+import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
 from utils import log_to_file
@@ -67,12 +68,14 @@ def set_seeds(seed):
     # torch.backends.cudnn.enabled = False
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
-    logdict = {'avg '+name : np.mean(dist_list),
-                'min '+name : np.min(dist_list),
-                'max '+name : np.max(dist_list),
-                'median '+name: np.median(dist_list),
-                'round ':rd,
-                'n_labeled' : n_labeled}
+    # logdict = {'BP '+name : np.mean(dist_list),
+    #             'min '+name : np.min(dist_list),
+    #             'max '+name : np.max(dist_list),
+    #             'median '+name: np.median(dist_list),
+    #             'round ':rd,
+    #             'n_labeled' : n_labeled}
+    fig = sns.boxplot(y=dist_list)
+    logdict = {'BP '+name : fig, 'round ':rd, 'n_labeled' : n_labeled}
     return logdict
 
 def eval_and_report(strategy, rd, logfile, id_exp):
@@ -91,10 +94,17 @@ def eval_and_report(strategy, rd, logfile, id_exp):
     print(f"Round {rd} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
 
-    # dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
-    # wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
-    # wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
-    # wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
+    dis_inf_list, dis_2_list, nb_iter_list = strategy.eval_test_dis()
+    kdefig_inf = sns.kdeplot(dis_inf_list)
+    kdefig_2 = sns.kdeplot(dis_2_list)
+    kdefig_iter = sns.kdeplot(nb_iter_list)
+    wandb.log({"kde norm inf":kdefig_inf,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde norm 2":kdefig_2,'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({"kde nb iters":kdefig_iter,'round ':rd, 'n_labeled':n_labeled})
+    #
+    wandb.log(logdist_metrics(dis_inf_list, 'perturb norm inf', rd, n_labeled))
+    wandb.log(logdist_metrics(dis_2_list, 'perturb norm 2', rd, n_labeled))
+    wandb.log(logdist_metrics(nb_iter_list, 'nb iters', rd, n_labeled))
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
     log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
     return test_acc
@@ -247,7 +257,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params.yaml', 'r') as param_file:
+    with open('./params2.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

@@ -1,0 +1,123 @@
+seeds:
+  - 139937
+  - 973000
+  - 663829
+strategies: 
+  - RandomSampling
+  - AdversarialPGD
+  - MarginSampling
+  - AdversarialDeepFool
+  # - LeastConfidence
+  # - EntropySampling
+  # - LeastConfidenceDropout
+  # - MarginSamplingDropout
+  # - EntropySamplingDropout
+  # - KMeansSampling
+  - KCenterGreedy
+  # - BALDDropout
+  # - AdversarialBIM
+#
+n_init_labeled: 250
+n_query: 250
+n_final_labeled: 10000
+dataset_name: mnist
+pool_size: 60000
+n_adv_test: 10000
+reset: true
+repeat: 0
+max_iter: 1000
+
+#
+advtrain_mode: false
+reset: true
+pseudo_labelling: true
+#strategy parameters
+AdversarialBIM: 
+  n_subset_ul: 1000
+  pseudo_labeling: true
+  diversity: false
+  eps: 0.05
+  eps_iter: 0.005
+  nb_iter: 5
+  norm: np.inf
+  targeted: false
+  rand_init: false
+
+AdversarialPGD: 
+  n_subset_ul: 500
+  pseudo_labeling: true
+  diversity: false
+  eps: 0.05
+  eps_iter: 0.005
+  nb_iter: 5
+  norm: np.inf
+  targeted: false
+  rand_init: true
+
+AdversarialDeepFool:
+  n_subset_ul: 500
+  pseudo_labeling: true
+  diversity: false
+
+# General train/test parameters
+train_loader_args:
+  batch_size: 128
+  num_workers: 4
+
+test_loader_args:
+  batch_size: 128
+  num_workers: 4
+
+net_arch: lenet5
+epochs: 200
+# Optimizer parameters
+optimizer:
+  name: adam
+  params:
+    # weight_decay: 0.0005
+    # momentum: 0.5 #0.9
+    lr: 0.001 # initial_lr
+
+# LR scheduling parameters
+# scheduler: 
+#   name: CyclicLR
+#   params:
+#     base_lr: 0.001
+#     max_lr: 0.1
+#     step_size_up: 20
+#     mode: triangular2
+
+scheduler: 
+  name: None #CosineAnnealingLR
+  params:
+    T_max: 200
+
+train_attack:
+  name: 'pgd'
+  args:
+    eps: 0.05
+    eps_iter: 0.005
+    nb_iter: 5
+    norm: np.inf
+    targeted: false
+    rand_init: true
+
+test_attack:
+  name: 'pgd'
+  args:
+    eps: 0.3
+    eps_iter: 0.01
+    nb_iter: 10
+    norm: np.inf
+    targeted: false
+    rand_init: true
+
+dis_test_attack:
+  name: 'pgd'
+  args:
+    eps: 0.05
+    eps_iter: 0.005
+    nb_iter: 1000
+    norm: np.inf
+    targeted: false
+    rand_init: true
