@@ -69,7 +69,7 @@ test_loader_args:
   num_workers: 4
 
 net_arch: lenet5
-epochs: 200
+epochs: 100
 # Optimizer parameters
 optimizer:
   name: adam
