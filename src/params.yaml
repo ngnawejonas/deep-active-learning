@@ -4,25 +4,25 @@ seeds:
   - 663829
 strategies: 
   - RandomSampling
+  - AdversarialPGD
+  - MarginSampling
+  - AdversarialDeepFool
   # - LeastConfidence
-  # - MarginSampling
   # - EntropySampling
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - KCenterGreedy
+  - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
-  - AdversarialPGD
-  # - AdversarialDeepFool
 #
-n_init_labeled: 40000
-n_query: 5000
-n_final_labeled: 50000
+n_init_labeled: 250
+n_query: 250
+n_final_labeled: 10000
 dataset_name: cifar10
 pool_size: 50000
-n_adv_test: 10000
+n_adv_test: 500
 reset: true
 repeat: 0
 max_iter: 1000
@@ -44,7 +44,7 @@ AdversarialBIM:
   rand_init: false
 
 AdversarialPGD: 
-  n_subset_ul: 1000
+  n_subset_ul: 500
   pseudo_labeling: true
   diversity: false
   eps: 0.05
@@ -55,7 +55,7 @@ AdversarialPGD:
   rand_init: true
 
 AdversarialDeepFool:
-  n_subset_ul: 1000
+  n_subset_ul: 500
   pseudo_labeling: true
   diversity: false
 
@@ -103,6 +103,16 @@ train_attack:
     rand_init: true
 
 test_attack:
+  name: 'pgd'
+  args:
+    eps: 0.1
+    eps_iter: 0.01
+    nb_iter: 15
+    norm: np.inf
+    targeted: false
+    rand_init: true
+
+dis_test_attack:
   name: 'pgd'
   args:
     eps: 0.05
