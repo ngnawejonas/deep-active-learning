@@ -1,31 +1,31 @@
 seeds:
   - 139937
-  # - 973000
-  # - 663829
+  - 973000
+  - 663829
 strategies: 
   - RandomSampling
   - AdversarialPGD
   - MarginSampling
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - KCenterGreedy
+  - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
 #
-n_init_labeled: 250
-n_query: 250
-n_final_labeled: 10000
+n_init_labeled: 100
+n_query: 100
+n_final_labeled: 5000
 dataset_name: mnist
 pool_size: 60000
-n_adv_test: 500
+n_adv_test: 300
 reset: true
 repeat: 0
-max_iter: 100
+max_iter: 1000
 
 #
 advtrain_mode: false
@@ -44,7 +44,7 @@ AdversarialBIM:
   rand_init: false
 
 AdversarialPGD: 
-  n_subset_ul: 500
+  n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
   eps: 0.05
@@ -55,7 +55,7 @@ AdversarialPGD:
   rand_init: true
 
 AdversarialDeepFool:
-  n_subset_ul: 500
+  n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
 
