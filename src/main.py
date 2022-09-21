@@ -84,10 +84,10 @@ def logdist_hist(dist_list, name, rd, n_labeled):
 def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
     name = name+'(SUBSET)' if correct_idxs else name+''
     if correct_idxs:
-        wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
+        # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list[correct_idxs], name, rd, n_labeled))
     else: 
-        wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
+        # wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
 
 def dis_eval_and_report(strategy, rd):
