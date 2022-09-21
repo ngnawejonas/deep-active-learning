@@ -1,4 +1,3 @@
-from webbrowser import get
 import numpy as np
 import torch
 from torchvision import datasets, transforms
@@ -54,7 +53,8 @@ class Data:
                 X_train_extra = self.X_train_extra.unsqueeze(1) 
             else:
                 X_train_extra = self.X_train_extra
-            X = np.vstack((self.X_train[labeled_idxs], X_train_extra.numpy()))
+            breakpoint()
+            X = torch.vstack((self.X_train[labeled_idxs], X_train_extra))
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
             X = self.X_train[labeled_idxs]
