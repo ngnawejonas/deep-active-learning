@@ -158,7 +158,7 @@ def run_trial(
         wandb.init(project=args.project_name, mode="disabled")
     else:
         # exp_name = 'run_no_'+str(tune.get_trial_id())
-        exp_name = 'run_{}_{}_seed{}'.format(tune.get_trial_id(), config['strategy_name'], config['seed'])
+        exp_name = '{}_run_{}_{}_seed{}'.format(config['dataset_name'], tune.get_trial_id(), config['strategy_name'], config['seed'])
         wandb.init(project=args.project_name, name=exp_name, config=config)
     # device
     use_cuda = torch.cuda.is_available()
@@ -237,6 +237,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     :param args: The program arguments.
     """
     config = {
+        "dataset_name": params['dataset_name'],
         "strategy_name": tune.grid_search(params["strategies"]),
         "seed": tune.grid_search(params["seeds"]),
     }
@@ -247,7 +248,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         }
         params['epochs'] = 2
     reporter = CLIReporter(
-        parameter_columns=["seed", "strategy_name"],
+        parameter_columns=["seed", "strategy_name", "dataset"],
         metric_columns=["round"],
     )
     
@@ -273,7 +274,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params2.yaml', 'r') as param_file:
+    with open('./params.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)
