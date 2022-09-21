@@ -248,7 +248,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         }
         params['epochs'] = 2
     reporter = CLIReporter(
-        parameter_columns=["seed", "strategy_name", "dataset"],
+        parameter_columns=["seed", "strategy_name", "dataset_name"],
         metric_columns=["round"],
     )
     
