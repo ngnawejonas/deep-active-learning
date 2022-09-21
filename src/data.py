@@ -54,7 +54,7 @@ class Data:
                 X_train_extra = self.X_train_extra.unsqueeze(1) 
             else:
                 X_train_extra = self.X_train_extra
-            X = torch.vstack([self.X_train[labeled_idxs], X_train_extra])
+            X = np.vstack((self.X_train[labeled_idxs], X_train_extra.numpy()))
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
             X = self.X_train[labeled_idxs]
@@ -145,5 +145,4 @@ def get_SVHN(handler, pool_size):
 def get_CIFAR10(handler, pool_size, n_adv_test):
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
-    return Data(torch.Tensor(data_train.data[:pool_size]), torch.LongTensor(data_train.targets)[:pool_size],
-                torch.Tensor(data_test.data[:pool_size]), torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
+    return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
