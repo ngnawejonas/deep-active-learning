@@ -3,9 +3,9 @@ seeds:
   # - 973000
   # - 663829
 strategies: 
-  # - RandomSampling
+  - RandomSampling
   - AdversarialPGD
-  # - MarginSampling
+  - MarginSampling
   # - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
