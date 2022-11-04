@@ -73,11 +73,15 @@ class Strategy:
         attack_fn = get_attack_fn(attack_name)
         x_i = x.clone()
         i_iter = 0
+        dis_inf = 0.
+        dis_2 = 0.
         while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
             x_i = attack_fn(self.net.clf, x_i.to(self.net.device), **attack_params)
             i_iter += 1
+            dis_inf += torch.linalg.norm(torch.ravel(x - x_i), ord=np.inf)
+            dis_2 += torch.linalg.norm(x - x_i) 
         x_i = x_i.cpu()
-        return i_iter, x_i.detach().squeeze(0)
+        return i_iter, dis_inf, dis_2 # x_i.detach().squeeze(0)
 
 
     def eval_test_dis(self):
@@ -98,9 +102,9 @@ class Strategy:
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, x_adv = self.cal_dis(x, initial_label, attack_name, **attack_params)
-            dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
-            dis_2 = torch.linalg.norm(x - x_adv)
+            nb_iter, dis_inf, dis_2 = self.cal_dis(x, initial_label, attack_name, **attack_params)
+            # dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
+            # dis_2 = torch.linalg.norm(x - x_adv)
             
             log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2:.3f}, {dis_inf:.3f}, {nb_iter}')
 
