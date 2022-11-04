@@ -13,7 +13,7 @@ strategies:
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  - KCenterGreedy
+  # - KCenterGreedy
   # - BALDDropout
   # - AdversarialBIM
 #
