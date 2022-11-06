@@ -78,9 +78,9 @@ class Strategy:
         while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
             x_i = attack_fn(self.net.clf, x_i.to(self.net.device), **attack_params)
             i_iter += 1
-            dis_inf += torch.linalg.norm(torch.ravel(x - x_i), ord=np.inf)
-            dis_2 += torch.linalg.norm(x - x_i) 
-        x_i = x_i.cpu()
+            dis_inf += torch.linalg.norm(torch.ravel(x - x_i.cpu()), ord=np.inf)
+            dis_2 += torch.linalg.norm(x - x_i.cpu()) 
+        # x_i = x_i.cpu()
         return i_iter, dis_inf, dis_2 # x_i.detach().squeeze(0)
 
 
