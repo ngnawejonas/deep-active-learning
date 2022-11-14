@@ -25,7 +25,7 @@ pool_size: 60000
 n_adv_test: 300
 reset: true
 repeat: 0
-max_iter: 10000
+max_iter: 100
 
 #
 advtrain_mode: false
@@ -95,9 +95,9 @@ scheduler:
 train_attack:
   name: 'pgd'
   args:
-    eps: 0.05
-    eps_iter: 0.005
-    nb_iter: 10000
+    eps: 0.2
+    eps_iter: 0.01
+    nb_iter: 100
     norm: np.inf
     targeted: false
     rand_init: true
@@ -115,9 +115,9 @@ test_attack:
 dis_test_attack:
   name: 'pgd'
   args:
-    eps: 0.05
-    eps_iter: 0.005
-    nb_iter: 10000
+    eps: 0.2
+    eps_iter: 0.01
+    nb_iter: 100
     norm: np.inf
     targeted: false
     rand_init: true
