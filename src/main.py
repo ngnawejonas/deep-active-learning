@@ -92,14 +92,15 @@ def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
 
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
-    dis_inf_list, dis_2_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
+    dis_inf_list, dis_2_list, cumul_dis_inf_list, cumul_dis_2_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
 
     def dis_report_wrap(correct_idxs=None):
         dis_report(dis_inf_list, 'norm inf', rd, n_labeled, correct_idxs)
         dis_report(dis_2_list, 'norm 2', rd, n_labeled, correct_idxs)
         dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
-
-    dis_report_wrap()
+        dis_report(cumul_dis_inf_list, 'cumul norm inf', rd, n_labeled, correct_idxs)
+        dis_report(cumul_dis_2_list, 'cumul norm 2', rd, n_labeled, correct_idxs)
+    # dis_report_wrap()
     dis_report_wrap(correct_idxs)
 
 
