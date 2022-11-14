@@ -56,10 +56,10 @@ def deepfool_attack(model, x, **args):
 
             wi = grad_i - grad_np
             fi = out[0, i] - out[0, py]
-            value_i = np.abs(fi.item()) / np.linalg.norm(wi.numpy().flatten())
+            value_i = np.abs(fi.item()) / torch.norm(wi.flatten())
 
             if value_i < value_l:
-                ri = value_i/np.linalg.norm(wi.numpy().flatten()) * wi
+                ri = value_i/torch.norm(wi.flatten()) * wi
                 value_l = value_i
 
         eta += ri.clone()
