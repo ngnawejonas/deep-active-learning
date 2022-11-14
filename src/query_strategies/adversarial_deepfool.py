@@ -23,3 +23,4 @@ class AdversarialDeepFool(AdversarialStrategy):
                         diversity, dist_file_name,id_exp, **kwargs)
 
         self.attack_name = 'deepfool'
+        self.attack_params['max_iter'] = max_iter
