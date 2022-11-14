@@ -30,7 +30,7 @@ def deepfool_attack(model, x, **args):
     """DeepFool attack"""
     nx = torch.unsqueeze(x, 0)
     nx.requires_grad_()
-    eta = torch.zeros(nx.shape)
+    eta = torch.zeros(nx.shape).cuda()
 
     out = model(nx+eta)
     n_class = out.shape[1]

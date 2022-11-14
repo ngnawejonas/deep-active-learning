@@ -1,9 +1,11 @@
 import numpy as np
 import torch
-from .strategy import Strategy
-from tqdm import tqdm
 from torch.utils.data import DataLoader
+from tqdm import tqdm
+
 from utils import get_attack_fn, log_to_file
+
+from .strategy import Strategy
 
 
 class AdversarialStrategy(Strategy):
@@ -40,9 +42,9 @@ class AdversarialStrategy(Strategy):
             x_adv, nb_iter, cumul_dis_inf, cumul_dis_2 = attack_fn(self.net.clf, x.to(self.net.device), **self.attack_params)
 
             if self.attack_params.get('norm'):
-                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
+                dis = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=self.attack_params['norm']).detach()
             else:
-                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=2).detach()
+                dis = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=2).detach()
                 # dis_2 = torch.linalg.norm(x - x_adv)
 
             distances[i] = dis.numpy()
