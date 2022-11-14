@@ -22,6 +22,7 @@ class AdversarialStrategy(Strategy):
         self.attack_params = kwargs
         if self.attack_params.get('norm'):
             self.attack_params['norm'] = np.inf if self.attack_params['norm']=='np.inf' else 2
+        
         self.adv_dist_file_name = "train_"+dist_file_name
         self.attack_name = None
 
