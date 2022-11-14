@@ -40,9 +40,11 @@ class AdversarialStrategy(Strategy):
             x_adv, nb_iter, cumul_dis_inf, cumul_dis_2 = attack_fn(self.net.clf, x.to(self.net.device), **self.attack_params)
 
             if self.attack_params.get('norm'):
-                dis = cumul_dis_2 if self.attack_params['norm']==2 else cumul_dis_inf
+                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
             else:
-                dis = cumul_dis_2
+                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=2).detach()
+                # dis_2 = torch.linalg.norm(x - x_adv)
+
             distances[i] = dis.numpy()
             log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
