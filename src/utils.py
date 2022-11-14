@@ -1,4 +1,5 @@
-from attacks import pgd_attack, bim_attack, fgsm_attack, deepfool_attack
+from attacks import test_pgd_attack, pgd_attack, bim_attack, fgsm_attack, deepfool_attack
+# from pgd_adaptive import pgd_attack
 
 def log_to_file(file_name, line):
     filepath = 'results/'+file_name
@@ -15,6 +16,8 @@ def get_attack_fn(name='fgsm'):
         return bim_attack
     elif name == 'pgd':
         return pgd_attack
+    elif name == 'test_pgd':
+        return test_pgd_attack
     elif name == 'deepfool':
         return deepfool_attack
     else:

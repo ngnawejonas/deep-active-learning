@@ -3,8 +3,8 @@ import torch
 from .strategy import Strategy
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from utils import get_attack_fn, log_to_file
 
-from utils import log_to_file
 
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
@@ -35,13 +35,14 @@ class AdversarialStrategy(Strategy):
         iter_loader = iter(DataLoader(unlabeled_data))
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, index = iter_loader.next()
-            initial_label = self.net.predict_example(x)
-            nb_iter, x_adv = self.cal_dis(x, initial_label, self.attack_name, **self.attack_params)
+
+            attack_fn = get_attack_fn(self.attack_name)
+            x_adv, nb_iter, cumul_dis_inf, cumul_dis_2 = attack_fn(self.net.clf, x.to(self.net.device), **self.attack_params)
+
             if self.attack_params.get('norm'):
-                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=self.attack_params['norm']).detach()
+                dis = cumul_dis_2 if self.attack_params['norm']==2 else cumul_dis_inf
             else:
-                dis = torch.linalg.norm(torch.ravel(x - x_adv), ord=2).detach()
-                # dis_2 = torch.linalg.norm(x - x_adv)
+                dis = cumul_dis_2
             distances[i] = dis.numpy()
             log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)

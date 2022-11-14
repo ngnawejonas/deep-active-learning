@@ -66,22 +66,14 @@ class Strategy:
         acc = self.dataset.cal_adv_test_acc(preds)
         return acc
 
-    def cal_dis(self, x, initial_label, attack_name, **attack_params):
-        # if attack_name.lower() == 'pgd':
-        #     i, x_adv = projected_gradient_descent(self.net.clf, x.to(self.net.device), **attack_params)
-        #     return i, x_adv.cpu()
+    def cal_dis_test(self, x, attack_name, **attack_params):
         attack_fn = get_attack_fn(attack_name)
-        x_i = x.clone()
-        i_iter = 0
-        dis_inf = 0.
-        dis_2 = 0.
-        while self.net.predict_example(x_i) == initial_label and i_iter < self.max_iter:
-            x_i = attack_fn(self.net.clf, x_i.to(self.net.device), **attack_params)
-            i_iter += 1
-            dis_inf += torch.linalg.norm(torch.ravel(x - x_i.cpu()), ord=np.inf)
-            dis_2 += torch.linalg.norm(x - x_i.cpu()) 
-        # x_i = x_i.cpu()
-        return i_iter, dis_inf, dis_2 # x_i.detach().squeeze(0)
+        x_adv, nb_iter, cumul_dis_inf, cumul_dis_2 = attack_fn(self.net.clf, x.to(self.net.device), **attack_params)
+        
+        dis_inf = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=np.inf)
+        dis_2 = torch.linalg.norm(x - x_adv.cpu())
+        
+        return nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2
 
 
     def eval_test_dis(self):
@@ -96,20 +88,23 @@ class Strategy:
         # dis_inf2_list = np.zeros(self.dataset.n_adv_test)
         dis_2_list = np.zeros(self.dataset.n_adv_test)
         nb_iter_list = np.zeros(self.dataset.n_adv_test)
+        cumul_dis_inf_list = np.zeros(self.dataset.n_adv_test)
+        cumul_dis_2_list = np.zeros(self.dataset.n_adv_test)
+
         correct_idxs = []
         for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
             x, y, _ = iter_loader.next()
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, dis_inf, dis_2 = self.cal_dis(x, initial_label, attack_name, **attack_params)
-            # dis_inf = torch.linalg.norm(torch.ravel(x - x_adv), ord=np.inf)
-            # dis_2 = torch.linalg.norm(x - x_adv)
+            nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2 = self.cal_dis_test(x, initial_label, attack_name, **attack_params)
             
-            log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {dis_2:.3f}, {dis_inf:.3f}, {nb_iter}')
+            # log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {cumul_dis_2:.3f}, {cumul_dis_inf:.3f}, {nb_iter}')
 
             dis_inf_list[i] = dis_inf.detach().numpy()
             dis_2_list[i] = dis_2.detach().numpy()
             nb_iter_list[i] = nb_iter
+            dis_inf_list[i] = cumul_dis_inf.detach().numpy()
+            dis_2_list[i] = cumul_dis_2.detach().numpy()
 
-        return dis_inf_list, dis_2_list, nb_iter_list, correct_idxs
+        return dis_inf_list, dis_2_list, cumul_dis_inf_list, cumul_dis_2_list, nb_iter_list, correct_idxs

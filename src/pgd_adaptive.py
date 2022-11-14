@@ -122,6 +122,8 @@ def projected_gradient_descent(
         _, y = torch.max(model_fn(x), 1)
 
     i = 0
+    cumul_dis_inf = 0.
+    cumul_dis_2 = 0.
     # Jonas: nb_iter will now act as max number of iterations (supposed very high)
     while i < nb_iter and torch.max(model_fn(x), 1)[1] == y:
         adv_x = fast_gradient_method(
@@ -140,6 +142,8 @@ def projected_gradient_descent(
         eta = clip_eta(eta, norm, eps)
         adv_x = x + eta
 
+        cumul_dis_inf += torch.linalg.norm(torch.ravel(eta.cpu()), ord=np.inf)
+        cumul_dis_2 += torch.linalg.norm(eta.cpu()) 
         # Redo the clipping.
         # FGM already did it, but subtracting and re-adding eta can add some
         # small numerical error.
@@ -154,4 +158,5 @@ def projected_gradient_descent(
 
     if sanity_checks:
         assert np.all(asserts)
-    return i, adv_x
+  
+    return adv_x, i, cumul_dis_2, cumul_dis_inf
