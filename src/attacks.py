@@ -28,13 +28,13 @@ def bim_attack(model, x, **args):
 
 def deepfool_attack(model, x, **args):
     """DeepFool attack"""
-    nx = torch.unsqueeze(x, 0)
+    nx = x.clone()
     nx.requires_grad_()
     eta = torch.zeros(nx.shape).cuda()
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1].item()
+    py = out.max(1)[1].cumul_dis_infitem()
     ny = out.max(1)[1].item()
 
     i_iter = 0
