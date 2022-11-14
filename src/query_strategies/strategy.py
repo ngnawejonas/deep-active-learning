@@ -97,7 +97,7 @@ class Strategy:
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2 = self.cal_dis_test(x, initial_label, attack_name, **attack_params)
+            nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2 = self.cal_dis_test(x, attack_name, **attack_params)
             
             # log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {cumul_dis_2:.3f}, {cumul_dis_inf:.3f}, {nb_iter}')
 
