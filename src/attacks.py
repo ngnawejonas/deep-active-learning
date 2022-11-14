@@ -34,7 +34,7 @@ def deepfool_attack(model, x, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1].cumul_dis_infitem()
+    py = out.max(1)[1].item()
     ny = out.max(1)[1].item()
 
     i_iter = 0
