@@ -6,7 +6,7 @@ strategies:
   # - RandomSampling
   - AdversarialDeepFool
   # - MarginSampling
-  - AdversarialPGD
+  # - AdversarialPGD
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
@@ -25,7 +25,7 @@ pool_size: 60000
 n_adv_test: 20
 reset: true
 repeat: 0
-max_iter: 2
+max_iter: 10
 
 #
 advtrain_mode: false
