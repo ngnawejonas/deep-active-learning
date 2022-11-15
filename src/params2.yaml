@@ -22,7 +22,7 @@ n_query: 10
 n_final_labeled: 500
 dataset_name: mnist
 pool_size: 60000
-n_adv_test: 30
+n_adv_test: 20
 reset: true
 repeat: 0
 max_iter: 2
@@ -34,7 +34,7 @@ pseudo_labelling: true
 #strategy parameters
 
 AdversarialPGD: 
-  n_subset_ul: 30
+  n_subset_ul: 20
   pseudo_labeling: true
   diversity: false
   eps: 0.05
@@ -45,7 +45,7 @@ AdversarialPGD:
   rand_init: true
 
 AdversarialDeepFool:
-  n_subset_ul: 30
+  n_subset_ul: 20
   pseudo_labeling: true
   diversity: false
 
@@ -59,7 +59,7 @@ test_loader_args:
   num_workers: 4
 
 net_arch: lenet5
-epochs: 10
+epochs: 20
 # Optimizer parameters
 optimizer:
   name: adam
