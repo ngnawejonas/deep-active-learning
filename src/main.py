@@ -123,7 +123,7 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
 def eval_and_report(strategy, rd, logfile, id_exp):
     tune.report(round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
-    dis_eval_and_report(strategy, rd)
+    # dis_eval_and_report(strategy, rd)
     return test_acc
 
 def run_trial_empty(
