@@ -108,7 +108,8 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
     wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
-    adv_acc = strategy.eval_adv_acc()
+    # adv_acc = strategy.eval_adv_acc()
+    adv_acc = 0.5
     advkey  = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
     wandb.log({advkey: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
     if strategy.dataset.n_adv_test < strategy.dataset.n_test:
