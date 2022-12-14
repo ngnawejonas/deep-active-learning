@@ -4,9 +4,9 @@ seeds:
   # - 663829
 strategies: 
   - RandomSampling
-  # - AdversarialDeepFool
-  # - MarginSampling
   # - AdversarialPGD
+  - MarginSampling
+  # - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
@@ -18,14 +18,14 @@ strategies:
   # - AdversarialBIM
 #
 n_init_labeled: 100
-n_query: 10
-n_final_labeled: 500
+n_query: 100
+n_final_labeled: 5000
 dataset_name: mnist
 pool_size: 60000
-n_adv_test: 20
+n_adv_test: 300
 reset: true
 repeat: 0
-max_iter: 10
+max_iter: 1000
 
 #
 advtrain_mode: false
