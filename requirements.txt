@@ -11,3 +11,4 @@ tqdm
 scikit-learn
 seaborn
 plotly
+git+https://github.com/fra31/auto-attack

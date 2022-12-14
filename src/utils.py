@@ -1,5 +1,7 @@
-from attacks import test_pgd_attack, pgd_attack, bim_attack, fgsm_attack, deepfool_attack
+from attacks import test_pgd_attack, pgd_attack, deepfool_attack
+from attacks import test_deepfool_attack, bim_attack, test_bim_attack#, test_auto_attack
 # from pgd_adaptive import pgd_attack
+
 
 def log_to_file(file_name, line):
     filepath = 'results/'+file_name
@@ -9,16 +11,30 @@ def log_to_file(file_name, line):
         file.write('\n')
     file.close()
 
-def get_attack_fn(name='fgsm'):
-    if name == 'fgsm':
-        return fgsm_attack
-    elif name == 'bim':
-        return bim_attack
-    elif name == 'pgd':
-        return pgd_attack
-    elif name == 'test_pgd':
-        return test_pgd_attack
-    elif name == 'deepfool':
-        return deepfool_attack
+
+def get_attack_fn(name='fgsm', is_test=False):
+    if is_test:
+        # if name == 'autoattack':
+        #     return test_auto_attack
+        if name == 'bim':
+            return test_bim_attack
+        elif name == 'pgd':
+            return test_pgd_attack
+        elif name == 'deepfool':
+            return test_deepfool_attack
+        else:
+            raise NotImplementedError(
+                'Attack "{}" not implemented'.format(name))
     else:
-        raise NotImplementedError('Attack "{}" not implemented'.format(name))
+ 
+        if name == 'bim':
+            return bim_attack
+        elif name == 'pgd':
+            return pgd_attack
+        elif name == 'test_pgd':
+            return test_pgd_attack
+        elif name == 'deepfool':
+            return deepfool_attack
+        else:
+            raise NotImplementedError(
+                'Attack "{}" not implemented'.format(name))

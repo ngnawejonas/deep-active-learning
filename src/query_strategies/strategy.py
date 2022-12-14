@@ -3,7 +3,7 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import get_attack_fn, log_to_file
+from utils import get_attack_fn #, log_to_file
 # from pgd_adaptive import projected_gradient_descent
 
 class Strategy:
@@ -56,7 +56,7 @@ class Strategy:
         acc = self.dataset.cal_test_acc(preds)
         return acc
 
-    def eval_acc2(self):
+    def eval_acc_on_adv_test_data(self):
         preds = self.predict(self.dataset.get_adv_test_data())
         acc = self.dataset.cal_adv_test_acc(preds)
         return acc
@@ -68,24 +68,23 @@ class Strategy:
 
     def cal_dis_test(self, x, attack_name, **attack_params):
         attack_fn = get_attack_fn(attack_name)
-        x_adv, nb_iter, cumul_dis_inf, cumul_dis_2 = attack_fn(self.net.clf, x.to(self.net.device), **attack_params)
+        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), **attack_params)
         
         dis_inf = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=np.inf)
         dis_2 = torch.linalg.norm(x - x_adv.cpu())
-        
-        return nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2
+        dis = {'2':dis_2, 'inf': dis_inf}
+        return nb_iter, dis, cumul_dis
 
 
     def eval_test_dis(self):
         self.net.clf.eval()
-        attack_name = self.net.params['dis_test_attack']['name']
-        attack_params = self.net.params['dis_test_attack']['args']
+        attack_name = self.net.params['dis_attack']['name']
+        attack_params = self.net.params['dis_attack']['args']
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
 
         dis_inf_list = np.zeros(self.dataset.n_adv_test)
-        # dis_inf2_list = np.zeros(self.dataset.n_adv_test)
         dis_2_list = np.zeros(self.dataset.n_adv_test)
         nb_iter_list = np.zeros(self.dataset.n_adv_test)
         cumul_dis_inf_list = np.zeros(self.dataset.n_adv_test)
@@ -97,14 +96,16 @@ class Strategy:
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, dis_inf, dis_2, cumul_dis_inf, cumul_dis_2 = self.cal_dis_test(x, attack_name, **attack_params)
-            
-            # log_to_file(self.dist_file_name, f'{self.id_exp}, {i}, {cumul_dis_2:.3f}, {cumul_dis_inf:.3f}, {nb_iter}')
+            nb_iter, dis, cumul_dis = self.cal_dis_test(x, attack_name, **attack_params)
 
-            dis_inf_list[i] = dis_inf.detach().numpy()
-            dis_2_list[i] = dis_2.detach().numpy()
+            dis_inf_list[i] = dis['inf'].detach().numpy()
+            dis_2_list[i] = dis['2'].detach().numpy()
             nb_iter_list[i] = nb_iter
-            dis_inf_list[i] = cumul_dis_inf.detach().numpy()
-            dis_2_list[i] = cumul_dis_2.detach().numpy()
+            dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
+            dis_2_list[i] = cumul_dis['2'].detach().numpy()
 
-        return dis_inf_list, dis_2_list, cumul_dis_inf_list, cumul_dis_2_list, nb_iter_list, correct_idxs
+            dis_list = {'d_inf': dis_inf_list,
+                        'd_2': dis_2_list,
+                        'cumul_inf': cumul_dis_inf_list,
+                        'cumul_2': cumul_dis_2_list}
+        return dis_list, nb_iter_list, correct_idxs

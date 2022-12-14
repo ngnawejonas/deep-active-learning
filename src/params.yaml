@@ -102,7 +102,7 @@ train_attack:
     targeted: false
     rand_init: true
 
-test_attack:
+dis_attack:
   name: 'pgd'
   args:
     eps: 0.1
@@ -112,12 +112,19 @@ test_attack:
     targeted: false
     rand_init: true
 
-dis_test_attack:
+# test_attack:
+#   name: 'autoattack'
+#   args:
+#     norm: Linf 
+#     eps: 0.1
+#     version: standard
+
+test_attack:
   name: 'pgd'
   args:
-    eps: 0.005 # approx 1/255
-    eps_iter: 0.001
-    nb_iter: 5
+    eps: 0.1
+    eps_iter: 0.05
+    nb_iter: 15
     norm: np.inf
     targeted: false
     rand_init: true

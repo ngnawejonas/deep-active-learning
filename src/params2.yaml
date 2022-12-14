@@ -3,8 +3,8 @@ seeds:
   # - 973000
   # - 663829
 strategies: 
-  # - RandomSampling
-  - AdversarialDeepFool
+  - RandomSampling
+  # - AdversarialDeepFool
   # - MarginSampling
   # - AdversarialPGD
   # - LeastConfidence
@@ -102,12 +102,12 @@ test_attack:
     targeted: false
     rand_init: true
 
-dis_test_attack:
+dis_attack:
   name: 'pgd'
   args:
-    eps: 0.2
+    eps: 0.3
     eps_iter: 0.01
-    nb_iter: 2
+    nb_iter: 100
     norm: np.inf
     targeted: false
     rand_init: true

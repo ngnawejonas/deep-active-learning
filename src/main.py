@@ -92,14 +92,14 @@ def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
 
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
-    dis_inf_list, dis_2_list, cumul_dis_inf_list, cumul_dis_2_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
+    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
 
     def dis_report_wrap(correct_idxs=None):
-        dis_report(dis_inf_list, 'norm inf', rd, n_labeled, correct_idxs)
-        dis_report(dis_2_list, 'norm 2', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, correct_idxs)
         dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
-        dis_report(cumul_dis_inf_list, 'cumul norm inf', rd, n_labeled, correct_idxs)
-        dis_report(cumul_dis_2_list, 'cumul norm 2', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_inf'], 'cumul norm inf', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_2'], 'cumul norm 2', rd, n_labeled, correct_idxs)
     # dis_report_wrap()
     dis_report_wrap(correct_idxs)
 
@@ -108,12 +108,11 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
     wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
-    # adv_acc = strategy.eval_adv_acc()
-    adv_acc = 0.5
+    adv_acc = strategy.eval_adv_acc()
     advkey  = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
     wandb.log({advkey: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
     if strategy.dataset.n_adv_test < strategy.dataset.n_test:
-        acc2 = strategy.eval_acc2()
+        acc2 = strategy.eval_acc_on_adv_test_data()
         acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
         wandb.log({acc2key: acc2, 'round ':rd, 'n_labeled':n_labeled})
     
@@ -124,7 +123,7 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
 def eval_and_report(strategy, rd, logfile, id_exp):
     tune.report(round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
-    # dis_eval_and_report(strategy, rd)
+    dis_eval_and_report(strategy, rd)
     return test_acc
 
 def run_trial_empty(
