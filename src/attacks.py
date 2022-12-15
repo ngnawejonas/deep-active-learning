@@ -141,4 +141,4 @@ def test_deepfool_attack(model, x, **args):
         py = out.max(1)[1].item()
         i_iter += 1
 
-    return x+ri, i_iter, cumul_dis
+    return x+ri

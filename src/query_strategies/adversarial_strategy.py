@@ -92,5 +92,4 @@ class AdversarialStrategy(Strategy):
             max_dist = dist[(self.n_subset_ul*i)+index_max]
             if max_dist > median_dist:
                 selected_idxs.append(index_perturbation[i])
-        selected_idxs = selected_idxs[:n]
         return selected_idxs
