@@ -67,19 +67,21 @@ class Strategy:
         return acc
 
     def cal_dis_test(self, x, attack_name, **attack_params):
-        attack_fn = get_attack_fn(attack_name)
-        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), **attack_params)
+        attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
+        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **attack_params)
+
+        eta  = x - x_adv.cpu()
         
-        dis_inf = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=np.inf)
-        dis_2 = torch.linalg.norm(x - x_adv.cpu())
+        dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
+        dis_2 = torch.linalg.norm(eta)
         dis = {'2':dis_2, 'inf': dis_inf}
         return nb_iter, dis, cumul_dis
 
 
     def eval_test_dis(self):
         self.net.clf.eval()
-        attack_name = self.net.params['dis_attack']['name']
-        attack_params = self.net.params['dis_attack']['args']
+        attack_name = self.net.params['dis_test_attack']['name']
+        attack_params = self.net.params['dis_test_attack']['args']
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
@@ -101,8 +103,8 @@ class Strategy:
             dis_inf_list[i] = dis['inf'].detach().numpy()
             dis_2_list[i] = dis['2'].detach().numpy()
             nb_iter_list[i] = nb_iter
-            dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
-            dis_2_list[i] = cumul_dis['2'].detach().numpy()
+            cumul_dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
+            cumul_dis_2_list[i] = cumul_dis['2'].detach().numpy()
 
             dis_list = {'d_inf': dis_inf_list,
                         'd_2': dis_2_list,

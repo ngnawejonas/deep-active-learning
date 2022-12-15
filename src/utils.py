@@ -12,8 +12,8 @@ def log_to_file(file_name, line):
     file.close()
 
 
-def get_attack_fn(name='fgsm', is_test=False):
-    if is_test:
+def get_attack_fn(name='pgd', for_dis_cal=False):
+    if not for_dis_cal:
         # if name == 'autoattack':
         #     return test_auto_attack
         if name == 'bim':
@@ -26,7 +26,6 @@ def get_attack_fn(name='fgsm', is_test=False):
             raise NotImplementedError(
                 'Attack "{}" not implemented'.format(name))
     else:
- 
         if name == 'bim':
             return bim_attack
         elif name == 'pgd':

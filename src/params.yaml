@@ -122,9 +122,9 @@ dis_attack:
 test_attack:
   name: 'pgd'
   args:
-    eps: 0.1
-    eps_iter: 0.05
-    nb_iter: 15
+    eps: 0.0314 #eps = 8/255
+    eps_iter: 0.006 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
+    nb_iter: 20
     norm: np.inf
     targeted: false
     rand_init: true

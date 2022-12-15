@@ -117,7 +117,7 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
         wandb.log({acc2key: acc2, 'round ':rd, 'n_labeled':n_labeled})
     
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
-    log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
+    # log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
     return test_acc
 
 def eval_and_report(strategy, rd, logfile, id_exp):

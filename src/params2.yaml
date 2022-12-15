@@ -25,7 +25,7 @@ pool_size: 60000
 n_adv_test: 300
 reset: true
 repeat: 0
-max_iter: 1000
+max_iter: 100
 
 #
 advtrain_mode: false
@@ -34,18 +34,21 @@ pseudo_labelling: true
 #strategy parameters
 
 AdversarialPGD: 
-  n_subset_ul: 20
+  n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  eps: 0.05
-  eps_iter: 0.005
-  nb_iter: 2
-  norm: np.inf
-  targeted: false
-  rand_init: true
+  cumul: False
+  args:
+    eps: 0.05
+    eps_iter: 0.01
+    nb_iter: 5
+    norm: np.inf
+    targeted: false
+    rand_init: true
+
 
 AdversarialDeepFool:
-  n_subset_ul: 20
+  n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
 
@@ -82,7 +85,7 @@ scheduler:
   params:
     T_max: 200
 
-train_attack:
+advtrain_attack:
   name: 'pgd'
   args:
     eps: 0.2
@@ -93,21 +96,21 @@ train_attack:
     rand_init: true
 
 test_attack:
-  name: 'test_pgd'
+  name: 'pgd'
   args:
     eps: 0.3
-    eps_iter: 0.01
-    nb_iter: 15
+    eps_iter: 0.1
+    nb_iter: 20
     norm: np.inf
     targeted: false
     rand_init: true
 
-dis_attack:
+dis_test_attack:
   name: 'pgd'
   args:
-    eps: 0.3
+    eps: 0.05
     eps_iter: 0.01
-    nb_iter: 100
+    nb_iter: 5
     norm: np.inf
     targeted: false
     rand_init: true

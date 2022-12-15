@@ -17,11 +17,31 @@ def test_pgd_attack(model, x, **args):
     assert (args['norm'] == np.inf or args['norm'] == 2)
     return _pgd(model, x, **args)
 
-def pgd_attack(model, x, **args):
+def pgd_attack(model, x, max_iter, **args):
     # pdb.set_trace()
     assert args['rand_init'] == True
     assert (args['norm'] == np.inf or args['norm'] == 2)
-    return adapted_pgd(model, x, **args)
+
+    nx = x.clone()
+
+    out = model(nx)
+    py = out.max(1)[1].item()
+    ny = out.max(1)[1].item()
+    i_iter = 0
+    cumul_dis_2 = 0.
+    cumul_dis_inf = 0.
+    while py == ny and i_iter < max_iter:
+        nx = _pgd(model, x, **args)  
+        out = model(nx)
+        py = out.max(1)[1].item()
+
+        eta = x - nx.cpu()
+
+        i_iter += 1
+        cumul_dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
+        cumul_dis_2 = torch.linalg.norm(eta)
+        cumul_dis = {'2': cumul_dis_2, 'inf':cumul_dis_inf}
+    return nx, i_iter, cumul_dis
 
 def bim_attack(model, x, **args):
     assert args['rand_init'] == False
@@ -31,7 +51,7 @@ def test_bim_attack(model, x, **args):
     assert args['rand_init'] == False
     return _pgd(model, x, **args)
 
-def deepfool_attack(model, x, **args):
+def deepfool_attack(model, x, max_iter, **args):
     """DeepFool attack"""
     nx = x.clone()
     nx.requires_grad_()
@@ -45,7 +65,7 @@ def deepfool_attack(model, x, **args):
     i_iter = 0
     cumul_dis_2 = 0.
     cumul_dis_inf = 0.
-    while py == ny and i_iter < args['max_iter']:
+    while py == ny and i_iter < max_iter:
         out[0, py].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
