@@ -35,7 +35,7 @@ def pgd_attack(model, x, max_iter, **args):
         out = model(nx)
         py = out.max(1)[1].item()
 
-        eta = x - nx.cpu()
+        eta = (x - nx).cpu()
 
         i_iter += 1
         cumul_dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
