@@ -4,9 +4,9 @@ seeds:
   # - 663829
 strategies: 
   - RandomSampling
-  # - AdversarialPGD
+  - AdversarialPGD
   - MarginSampling
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
@@ -51,7 +51,8 @@ AdversarialDeepFool:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-
+  cumul: false
+  
 # General train/test parameters
 train_loader_args:
   batch_size: 128
