@@ -111,7 +111,7 @@ class Net:
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
         loader = DataLoader(data, shuffle=False, **
-                            self.params['train_loader_args'])
+                            self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 # for x, y in loader:
@@ -180,7 +180,7 @@ class Net:
                 for x, y, idxs in loader:
                     x, y = x.to(self.device), y.to(self.device)
                     out = self.clf(x)
-                    prob = F.softmax(out, dim=1)
+                    probs = F.softmax(out, dim=1)
                     probs[i][idxs] += F.softmax(out, dim=1).cpu()
         return probs
 

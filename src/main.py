@@ -77,7 +77,10 @@ def set_seeds(seed):
 
 def tune_report(no_ray, **args):
     if not no_ray:
-        tune.report(**args)
+        try:
+            tune.report(**args)
+        except:
+            pass
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
     logdict = {'avg '+name: np.mean(dist_list),
@@ -277,7 +280,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     gpus_per_trial = 1 if use_cuda else 0
 
     if args.no_ray:
-        run_trial(params=params, args=args, num_gpus=gpus_per_trial)
+        run_trial(config=config, params=params, args=args, num_gpus=gpus_per_trial)
     else:
         reporter = CLIReporter(
             parameter_columns=["seed", "strategy_name", "dataset_name"],

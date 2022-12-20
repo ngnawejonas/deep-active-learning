@@ -27,15 +27,15 @@ def pgd_attack(model, x, max_iter, **args):
     nx = x.clone()
 
     out = model(nx)
-    py = out.max(1)[1].item()
-    ny = out.max(1)[1].item()
+    py = out.max(1)[1]
+    ny = out.max(1)[1]
     i_iter = 0
     cumul_dis_2 = 0.
     cumul_dis_inf = 0.
     while py == ny and i_iter < max_iter:
         nx = _pgd(model, x, **args)
         out = model(nx)
-        py = out.max(1)[1].item()
+        py = out.max(1)[1]
 
         eta = (x - nx).cpu()
 
@@ -64,8 +64,8 @@ def deepfool_attack(model, x, max_iter, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1].item()
-    ny = out.max(1)[1].item()
+    py = out.max(1)[1]
+    ny = out.max(1)[1]
 
     i_iter = 0
     cumul_dis_2 = 0.
@@ -100,7 +100,7 @@ def deepfool_attack(model, x, max_iter, **args):
         eta += ri.clone()
         nx.grad.data.zero_()
         out = model(nx+eta)
-        py = out.max(1)[1].item()
+        py = out.max(1)[1]
         i_iter += 1
 
     cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
@@ -115,8 +115,8 @@ def test_deepfool_attack(model, x, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1].item()
-    ny = out.max(1)[1].item()
+    py = out.max(1)[1]
+    ny = out.max(1)[1]
 
     i_iter = 0
 
@@ -146,7 +146,7 @@ def test_deepfool_attack(model, x, **args):
         eta += ri.clone()
         nx.grad.data.zero_()
         out = model(nx+eta)
-        py = out.max(1)[1].item()
+        py = out.max(1)[1]
         i_iter += 1
 
     return x+ri
