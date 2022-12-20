@@ -108,6 +108,8 @@ advtrain_attack:
 
 test_attack:
   name: 'deepfool'
+  args:
+    nb_iter: 20
 
 
 dis_test_attack:

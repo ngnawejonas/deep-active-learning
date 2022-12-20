@@ -120,7 +120,7 @@ def test_deepfool_attack(model, x, **args):
 
     i_iter = 0
 
-    while py == ny and i_iter < args['max_iter']:
+    while i_iter < args['nb_iter']:
         out[0, py].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
