@@ -131,8 +131,7 @@ class Net:
 
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **
-                            self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False)
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)

@@ -115,8 +115,6 @@ def test_deepfool_attack(model, x, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1]
-    ny = out.max(1)[1]
 
     i_iter = 0
 
@@ -145,8 +143,6 @@ def test_deepfool_attack(model, x, **args):
         ri = value_l/torch.norm(w_l.flatten()) * w_l
         eta += ri.clone()
         nx.grad.data.zero_()
-        out = model(nx+eta)
-        py = out.max(1)[1]
         i_iter += 1
 
     return x+ri
