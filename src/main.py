@@ -274,7 +274,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         params['epochs'] = 2
 
     if args.no_ray:
-        run_trial(params=params, args=args, num_gpus=gpus_per_trial)
+        run_trial(params=params, args=args, num_gpus=int(use_cuda))
     else:
         reporter = CLIReporter(
             parameter_columns=["seed", "strategy_name", "dataset_name"],
