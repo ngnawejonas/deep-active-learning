@@ -38,6 +38,12 @@ def parse_args(args: list) -> argparse.Namespace:
         help="quickly check a single pass",
     )
     parser.add_argument(
+        "--no-ray",
+        action="store_false",
+        default=False,
+        help="run without ray",
+    )
+    parser.add_argument(
         "--dataset-path",
         default="/home-local2/jongn2.extra.nobkp/data",
         help="the path to the dataset",
@@ -130,8 +136,9 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
     return test_acc
 
 
-def eval_and_report(strategy, rd, logfile, id_exp):
-    tune.report(round=rd)
+def eval_and_report(strategy, rd, logfile, id_exp, no_ray=False):
+    if not no_ray:
+        tune.report(round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
     dis_eval_and_report(strategy, rd)
     return test_acc
@@ -170,9 +177,9 @@ def run_trial(
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
-        # exp_name = 'run_no_'+str(tune.get_trial_id())
+        id = 0 if args.no_ray else tune.get_trial_id()
         exp_name = '{}_run_{}_{}_seed{}'.format(
-            config['dataset_name'], tune.get_trial_id(), config['strategy_name'], config['seed'])
+            config['dataset_name'], id, config['strategy_name'], config['seed'])
         wandb.init(project=args.project_name, name=exp_name, config=config)
     # device
     use_cuda = torch.cuda.is_available()
@@ -191,7 +198,7 @@ def run_trial(
             xparams['norm'] = np.inf
         xparams['pseudo_labeling'] = params['pseudo_labelling']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
-    id_exp = int(tune.get_trial_id().split('_')[-1])
+    id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
     pprint(xparams)
 
@@ -220,8 +227,6 @@ def run_trial(
 
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
         rd = rd + 1
-        # print(f"Round {rd}")
-        # tune.report(round=rd)
         # query
         print('>querying...')
         extra_data = None
@@ -244,7 +249,9 @@ def run_trial(
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
     log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
-    tune.report(final_acc=test_acc)
+
+    if not args.no_ray:
+        tune.report(final_acc=test_acc)
 
 
 def run_experiment(params: dict, args: argparse.Namespace) -> None:
@@ -264,26 +271,29 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
             "seed": 42,
         }
         params['epochs'] = 2
-    reporter = CLIReporter(
-        parameter_columns=["seed", "strategy_name", "dataset_name"],
-        metric_columns=["round"],
-    )
+    if args.no_ray:
+        run_trial(params=params, args=args, num_gpus=gpus_per_trial)
+    else:
+        reporter = CLIReporter(
+            parameter_columns=["seed", "strategy_name", "dataset_name"],
+            metric_columns=["round"],
+        )
 
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
-    gpus_per_trial = 1 if use_cuda else 0
+        use_cuda = not args.no_cuda and torch.cuda.is_available()
+        gpus_per_trial = 1 if use_cuda else 0
 
-    tune.run(
-        tune.with_parameters(
-            run_trial, params=params, args=args, num_gpus=gpus_per_trial
-        ),
-        resources_per_trial={
-            "cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
-        # metric="val_acc",
-        # mode="max",
-        config=config,
-        progress_reporter=reporter,
-        name=args.project_name,
-    )
+        tune.run(
+            tune.with_parameters(
+                run_trial, params=params, args=args, num_gpus=gpus_per_trial
+            ),
+            resources_per_trial={
+                "cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
+            # metric="val_acc",
+            # mode="max",
+            config=config,params, args)
+            progress_reporter=reporter,
+            name=args.project_name,
+        )
 
 
 def main(args: list) -> None:
