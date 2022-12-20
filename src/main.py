@@ -107,6 +107,7 @@ def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
 
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
+    print("___dis_eval_and_report___")
     dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
 
     def dis_report_wrap(correct_idxs=None):
@@ -134,7 +135,7 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
         acc2key = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
         wandb.log({acc2key: acc2, 'round ': rd, 'n_labeled': n_labeled})
 
-    print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
+    print(f"Round {rd}: {n_labeled} clean accuracy: {test_acc} adv accuracy: {adv_acc}")
     # log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
     return test_acc
 

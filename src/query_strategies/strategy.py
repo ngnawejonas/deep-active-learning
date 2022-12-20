@@ -88,7 +88,7 @@ class Strategy:
         attack_params = self.net.params['dis_test_attack']['args']
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
-        iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
+        data_loader = DataLoader(self.dataset.get_adv_test_data())
 
         dis_inf_list = np.zeros(self.dataset.n_adv_test)
         dis_2_list = np.zeros(self.dataset.n_adv_test)
@@ -97,8 +97,8 @@ class Strategy:
         cumul_dis_2_list = np.zeros(self.dataset.n_adv_test)
 
         correct_idxs = []
-        for i in tqdm(range(self.dataset.n_adv_test), ncols=100):
-            x, y, _ = iter_loader.next()
+        i = 0
+        for x, y, _ in tqdm(data_loader):
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
@@ -110,9 +110,9 @@ class Strategy:
             nb_iter_list[i] = nb_iter
             cumul_dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
             cumul_dis_2_list[i] = cumul_dis['2'].detach().numpy()
-
-            dis_list = {'d_inf': dis_inf_list,
-                        'd_2': dis_2_list,
-                        'cumul_inf': cumul_dis_inf_list,
-                        'cumul_2': cumul_dis_2_list}
+            i += 1
+        dis_list = {'d_inf': dis_inf_list,
+                    'd_2': dis_2_list,
+                    'cumul_inf': cumul_dis_inf_list,
+                    'cumul_2': cumul_dis_2_list}
         return dis_list, nb_iter_list, correct_idxs
