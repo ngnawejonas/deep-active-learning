@@ -290,7 +290,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
                 "cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
             # metric="val_acc",
             # mode="max",
-            config=config,params, args)
+            config=config,
             progress_reporter=reporter,
             name=args.project_name,
         )
