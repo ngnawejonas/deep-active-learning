@@ -39,7 +39,7 @@ def parse_args(args: list) -> argparse.Namespace:
     )
     parser.add_argument(
         "--no-ray",
-        action="store_false",
+        action="store_true",
         default=False,
         help="run without ray",
     )
