@@ -27,15 +27,15 @@ def pgd_attack(model, x, max_iter, **args):
     nx = x.clone()
 
     out = model(nx)
-    py = out.max(1)[1]
-    ny = out.max(1)[1]
+    initial_label = out.max(1)[1]
+    pred_nx= out.max(1)[1]
     i_iter = 0
     cumul_dis_2 = 0.
     cumul_dis_inf = 0.
-    while py == ny and i_iter < max_iter:
+    while pred_nx == initial_label and i_iter < max_iter:
         nx = _pgd(model, x, **args)
         out = model(nx)
-        py = out.max(1)[1]
+        pred_nx = out.max(1)[1]
 
         eta = (x - nx).cpu()
 
@@ -64,14 +64,14 @@ def deepfool_attack(model, x, max_iter, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    py = out.max(1)[1]
-    ny = out.max(1)[1]
+    initial_label = out.max(1)[1]
+    pred_nx = out.max(1)[1]
 
     i_iter = 0
     cumul_dis_2 = 0.
     cumul_dis_inf = 0.
-    while py == ny and i_iter < max_iter:
-        out[0, py].backward(retain_graph=True)
+    while pred_nx == initial_label and i_iter < max_iter:
+        out[0, pred_nx].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
@@ -85,7 +85,7 @@ def deepfool_attack(model, x, max_iter, **args):
             grad_i = nx.grad.data.clone()
 
             wi = grad_i - grad_np
-            fi = out[0, i] - out[0, py]
+            fi = out[0, i] - out[0, initial_label]
             value_i = np.abs(fi.item()) / torch.norm(wi.flatten())
 
             if value_i < value_l:
@@ -100,7 +100,7 @@ def deepfool_attack(model, x, max_iter, **args):
         eta += ri.clone()
         nx.grad.data.zero_()
         out = model(nx+eta)
-        py = out.max(1)[1]
+        pred_nx = out.max(1)[1]
         i_iter += 1
 
     cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
@@ -115,11 +115,13 @@ def test_deepfool_attack(model, x, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
+    initial_label = out.max(1)[1]
+    pred_nx = out.max(1)[1]
 
     i_iter = 0
 
-    while i_iter < args['nb_iter']:
-        out[0, py].backward(retain_graph=True)
+    while pred_nx == initial_label and i_iter < args['nb_iter']:
+        out[0, pred_nx].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
@@ -133,7 +135,7 @@ def test_deepfool_attack(model, x, **args):
             grad_i = nx.grad.data.clone()
 
             wi = grad_i - grad_np
-            fi = out[0, i] - out[0, py]
+            fi = out[0, i] - out[0, initial_label]
             value_i = np.abs(fi.item()) / torch.norm(wi.flatten())
 
             if value_i < value_l:
@@ -141,8 +143,11 @@ def test_deepfool_attack(model, x, **args):
                 w_l = wi
 
         ri = value_l/torch.norm(w_l.flatten()) * w_l
+     
         eta += ri.clone()
         nx.grad.data.zero_()
+        out = model(nx+eta)
+        pred_nx = out.max(1)[1]
         i_iter += 1
 
     return x+ri
