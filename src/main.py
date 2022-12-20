@@ -76,11 +76,8 @@ def set_seeds(seed):
     # torch.backends.cudnn.enabled = False
 
 def tune_report(no_ray, **args):
-    if not no_ray:
-        try:
-            tune.report(**args)
-        except:
-            print('Ray Tune report Error')
+    if not no_ray and tune.is_session_enabled():
+        tune.report(**args)
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
     logdict = {'avg '+name: np.mean(dist_list),

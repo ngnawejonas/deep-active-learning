@@ -96,20 +96,20 @@ advtrain_attack:
     targeted: false
     rand_init: true
 
-# test_attack:
-#   name: 'pgd'
-#   args:
-#     eps: 0.3
-#     eps_iter: 0.1
-#     nb_iter: 20
-#     norm: np.inf
-#     targeted: false
-#     rand_init: true
-
 test_attack:
-  name: 'deepfool'
+  name: 'pgd'
   args:
+    eps: 0.3
+    eps_iter: 0.1
     nb_iter: 20
+    norm: np.inf
+    targeted: false
+    rand_init: true
+
+# test_attack:
+#   name: 'deepfool'
+#   args:
+#     nb_iter: 20
 
 
 dis_test_attack:
