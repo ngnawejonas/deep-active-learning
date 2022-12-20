@@ -80,7 +80,7 @@ def tune_report(no_ray, **args):
         try:
             tune.report(**args)
         except:
-            pass
+            print('Ray Tune report Error')
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
     logdict = {'avg '+name: np.mean(dist_list),

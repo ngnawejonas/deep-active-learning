@@ -77,7 +77,7 @@ def deepfool_attack(model, x, max_iter, **args):
         w_l = None
         ri = None
         for i in range(n_class):
-            if i == py:
+            if i == initial_label:
                 continue
 
             nx.grad.data.zero_()
@@ -127,7 +127,7 @@ def test_deepfool_attack(model, x, **args):
         w_l = None
         ri = None
         for i in range(n_class):
-            if i == py:
+            if i == initial_label:
                 continue
 
             nx.grad.data.zero_()

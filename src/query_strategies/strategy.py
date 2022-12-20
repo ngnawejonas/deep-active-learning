@@ -105,8 +105,8 @@ class Strategy:
             nb_iter, dis, cumul_dis = self.cal_dis_test(
                 x, attack_name, **attack_params)
 
-            dis_inf_list[i] = dis['inf'].detach().numpy()
-            dis_2_list[i] = dis['2'].detach().numpy()
+            dis_inf_list[i] = dis['inf'].numpy()
+            dis_2_list[i] = dis['2'].numpy()
             nb_iter_list[i] = nb_iter
             cumul_dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
             cumul_dis_2_list[i] = cumul_dis['2'].detach().numpy()
