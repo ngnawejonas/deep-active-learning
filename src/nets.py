@@ -124,7 +124,7 @@ class Net:
     def predict_adv(self, data):
 
         attack_name = self.params['test_attack']['name']
-        attack_params = self.params['test_attack']['args']
+        attack_params = self.params['test_attack']['args'] if self.params['test_attack'].get('args') else {}
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         attack_fn = get_attack_fn(attack_name)
