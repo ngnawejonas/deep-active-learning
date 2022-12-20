@@ -75,6 +75,9 @@ def set_seeds(seed):
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.enabled = False
 
+def tune_report(no_ray, **args):
+    if not no_ray:
+        tune.report(**args)
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
     logdict = {'avg '+name: np.mean(dist_list),
@@ -137,8 +140,7 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
 
 
 def eval_and_report(strategy, rd, logfile, id_exp, no_ray=False):
-    if not no_ray:
-        tune.report(round=rd)
+    tune_report(no_ray, round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
     dis_eval_and_report(strategy, rd)
     return test_acc
@@ -250,8 +252,7 @@ def run_trial(
     print(f'Total time: {T/60:.2f} mins.')
     log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
 
-    if not args.no_ray:
-        tune.report(final_acc=test_acc)
+    tune_report(args.no_ray, final_acc=test_acc)
 
 
 def run_experiment(params: dict, args: argparse.Namespace) -> None:
@@ -271,6 +272,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
             "seed": 42,
         }
         params['epochs'] = 2
+
     if args.no_ray:
         run_trial(params=params, args=args, num_gpus=gpus_per_trial)
     else:
