@@ -55,7 +55,7 @@ class Data:
                 X_train_extra = self.X_train_extra.unsqueeze(1)
             else:
                 X_train_extra = self.X_train_extra
-            breakpoint()
+            # breakpoint()
             X = torch.vstack((self.X_train[labeled_idxs], X_train_extra))
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
