@@ -273,16 +273,16 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         }
         params['epochs'] = 2
 
+    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    gpus_per_trial = 1 if use_cuda else 0
+
     if args.no_ray:
-        run_trial(params=params, args=args, num_gpus=int(use_cuda))
+        run_trial(params=params, args=args, num_gpus=gpus_per_trial)
     else:
         reporter = CLIReporter(
             parameter_columns=["seed", "strategy_name", "dataset_name"],
             metric_columns=["round"],
         )
-
-        use_cuda = not args.no_cuda and torch.cuda.is_available()
-        gpus_per_trial = 1 if use_cuda else 0
 
         tune.run(
             tune.with_parameters(
