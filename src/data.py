@@ -51,8 +51,10 @@ class Data:
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
         if len(self.X_train_extra) > 0:
             # print('data.py:44',self.X_train[labeled_idxs].shape, self.X_train_extra.shape)
-            if len(self.X_train_extra.shape) == 3:
+            if len(self.X_train_extra.shape) - len(self.X_train[0].shape) == -1:
                 X_train_extra = self.X_train_extra.unsqueeze(1)
+            elif len(self.X_train_extra.shape) - len(self.X_train[0].shape) == 1:
+                X_train_extra = self.X_train_extra.squeeze(1)
             else:
                 X_train_extra = self.X_train_extra
             # breakpoint()

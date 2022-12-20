@@ -59,7 +59,7 @@ class AdversarialStrategy(Strategy):
                 distances[i] = dis.numpy()
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
-            adv_images.append(x_adv.squeeze(0) if x.shape[0] == 1 else x_adv)
+            adv_images.append(x_adv.squeeze(0).cpu() if x.shape[0] == 1 else x_adv)
 
         ##
         if self.diversity:
