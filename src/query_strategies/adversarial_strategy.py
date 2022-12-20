@@ -10,29 +10,31 @@ from .strategy import Strategy
 
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
-                    pseudo_labeling=True,
-                    max_iter=10,
-                    n_subset_ul=None,
-                    diversity=False,
-                    dist_file_name=None,
-                    id_exp=0,cumul=False, **kwargs):
+                 pseudo_labeling=True,
+                 max_iter=10,
+                 n_subset_ul=None,
+                 diversity=False,
+                 dist_file_name=None,
+                 id_exp=0, cumul=False, **kwargs):
         super().__init__(dataset, net, pseudo_labeling, max_iter, dist_file_name, id_exp)
         self.diversity = diversity
-        self.n_subset_ul = n_subset_ul # number of unlabeled data to attack
-        self.cumul=cumul
+        self.n_subset_ul = n_subset_ul  # number of unlabeled data to attack
+        self.cumul = cumul
         self.attack_params = kwargs['args'] if kwargs.get('args') else {}
         if self.attack_params.get('norm'):
-            self.attack_params['norm'] = np.inf if self.attack_params['norm']=='np.inf' else 2
-        
+            self.attack_params['norm'] = np.inf if self.attack_params['norm'] == 'np.inf' else 2
+
         self.adv_dist_file_name = "train_"+dist_file_name
         self.attack_name = None
 
     def check_querying(self, n_query):
         if self.n_subset_ul < n_query:
-            raise ValueError(f"Impossible to query more than {self.n_subset_ul}. n_query = {n_query}!")
+            raise ValueError(
+                f"Impossible to query more than {self.n_subset_ul}. n_query = {n_query}!")
 
     def query(self, n):
-        unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(self.n_subset_ul) 
+        unlabeled_idxs, unlabeled_data = self.dataset.get_unlabeled_data(
+            self.n_subset_ul)
         self.net.clf.eval()
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
@@ -41,20 +43,23 @@ class AdversarialStrategy(Strategy):
         for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
             x, y, index = iter_loader.next()
 
-            x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **self.attack_params)
+            x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
+                self.net.device), self.max_iter, **self.attack_params)
 
             if self.cumul:
                 distances[i] = cumul_dis.numpy()
             else:
                 if self.attack_params.get('norm'):
-                    dis = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=self.attack_params['norm']).detach()
-                else: #default
-                    dis = torch.linalg.norm(torch.ravel(x - x_adv.cpu()), ord=2).detach()
+                    dis = torch.linalg.norm(torch.ravel(
+                        x - x_adv.cpu()), ord=self.attack_params['norm']).detach()
+                else:  # default
+                    dis = torch.linalg.norm(torch.ravel(
+                        x - x_adv.cpu()), ord=2).detach()
                 # dis_2 = torch.linalg.norm(x - x_adv)
                 distances[i] = dis.numpy()
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
-            adv_images.append(x_adv.squeeze(0) if x.shape[0]==1 else x_adv)
+            adv_images.append(x_adv.squeeze(0) if x.shape[0] == 1 else x_adv)
 
         ##
         if self.diversity:
@@ -65,16 +70,15 @@ class AdversarialStrategy(Strategy):
         # breakpoint()
         extra_data = None
         if self.pseudo_labeling:
-            if len(adv_images)>0:
+            if len(adv_images) > 0:
                 extra_data = torch.stack(adv_images)[selected_idxs]
 
         return unlabeled_idxs[selected_idxs], extra_data
 
-
-    def f_diversity(self,distances, adv_images):
+    def f_diversity(self, distances, adv_images):
         print('diversity selection')
         perturbations = torch.Tensor(distances)
-        index_perturbation = perturbations.argsort()    
+        index_perturbation = perturbations.argsort()
         adv = torch.stack(adv_images)
         sortedAdv = adv[index_perturbation]
 
@@ -88,7 +92,8 @@ class AdversarialStrategy(Strategy):
         selected_idxs = []
 
         for i in range(self.n_subset_ul):
-            index_max = np.argmax(dist[self.n_subset_ul*i:self.n_subset_ul*(i+1)])
+            index_max = np.argmax(
+                dist[self.n_subset_ul*i:self.n_subset_ul*(i+1)])
             max_dist = dist[(self.n_subset_ul*i)+index_max]
             if max_dist > median_dist:
                 selected_idxs.append(index_perturbation[i])

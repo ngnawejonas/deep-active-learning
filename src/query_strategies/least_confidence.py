@@ -1,6 +1,7 @@
 import numpy as np
 from .strategy import Strategy
 
+
 class LeastConfidence(Strategy):
     def __init__(self, dataset, net, **kwargs):
         super().__init__(dataset, net)

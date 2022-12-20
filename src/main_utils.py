@@ -45,7 +45,7 @@ def get_net(params, device):
         return Net(MNIST_Net, params, device)
     elif name.lower() == 'cifar10':
         return Net(CIFAR10_Net, params, device)
-    elif name.lower()=='resnet18':
+    elif name.lower() == 'resnet18':
         return Net(ResNet18, params, device)
     else:
         raise NotImplementedError

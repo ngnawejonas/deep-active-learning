@@ -25,7 +25,8 @@ class Data:
         if self.n_adv_test == self.n_test:
             self.adv_test_idxs = np.arange(self.n_test)
         else:
-            self.adv_test_idxs = np.random.choice(np.arange(self.n_test), self.n_adv_test, replace=False)
+            self.adv_test_idxs = np.random.choice(
+                np.arange(self.n_test), self.n_adv_test, replace=False)
 
     def initialize_labels(self, num):
         # generate initial labeled pool
@@ -37,8 +38,9 @@ class Data:
     def add_extra_data(self, pos_idxs, extra_data):
         # print('Y_train_extra', self.Y_train[pos_idxs])
         if len(self.X_train_extra) > 0:
-            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data]) 
-            self.Y_train_extra = torch.hstack([self.Y_train_extra, self.Y_train[pos_idxs]])
+            self.X_train_extra = torch.vstack([self.X_train_extra, extra_data])
+            self.Y_train_extra = torch.hstack(
+                [self.Y_train_extra, self.Y_train[pos_idxs]])
         else:
             self.X_train_extra = extra_data
             self.Y_train_extra = self.Y_train[pos_idxs]
@@ -50,7 +52,7 @@ class Data:
         if len(self.X_train_extra) > 0:
             # print('data.py:44',self.X_train[labeled_idxs].shape, self.X_train_extra.shape)
             if len(self.X_train_extra.shape) == 3:
-                X_train_extra = self.X_train_extra.unsqueeze(1) 
+                X_train_extra = self.X_train_extra.unsqueeze(1)
             else:
                 X_train_extra = self.X_train_extra
             breakpoint()
@@ -89,24 +91,28 @@ class Data:
         return 100.0 * (self.Y_test[self.adv_test_idxs] == preds).sum().item() / self.n_adv_test
 
 
+def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref=''):
+    data_train = x_fn(root='./data/'+pref+'MNIST', train=True,
+                      download=True, transform=ToTensor())
+    data_test = x_fn(root='./data/'+pref+'MNIST', train=False,
+                     download=True, transform=ToTensor())
+    return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
+
 # def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref = ''):
-#     data_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
-#     data_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
-#     return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
-def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref = ''):
-    raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
+#     raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
+#     raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
 
-    dtl = DataLoader(raw_train, batch_size=len(raw_train))
-    for X,y in dtl:
-        X_train = X
-        Y_train = y
+#     dtl = DataLoader(raw_train, batch_size=len(raw_train))
+#     for X,y in dtl:
+#         X_train = X
+#         Y_train = y
 
-    dtl = DataLoader(raw_test, batch_size=len(raw_test))
-    for X,y in dtl:
-        X_test = X
-        Y_test = y
-    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
+#     dtl = DataLoader(raw_test, batch_size=len(raw_test))
+#     for X,y in dtl:
+#         X_test = X
+#         Y_test = y
+#     return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
+
 
 def get_MNIST(handler, pool_size, n_adv_test):
     return get_xMNIST(datasets.MNIST, handler, pool_size, n_adv_test)
@@ -119,22 +125,26 @@ def get_FashionMNIST(handler, pool_size):
 def get_SVHN(handler, pool_size):
     transform_train = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        transforms.Normalize((0.4377, 0.4438, 0.4728),
+                             (0.1980, 0.2010, 0.1970)),
     ])
     transform_test = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.4377, 0.4438, 0.4728), (0.1980, 0.2010, 0.1970)),
+        transforms.Normalize((0.4377, 0.4438, 0.4728),
+                             (0.1980, 0.2010, 0.1970)),
     ])
-    data_train = datasets.SVHN('data', split='train', download=True, transform=transform_train)
-    data_test = datasets.SVHN('data', split='test', download=True, transform=transform_test)
+    data_train = datasets.SVHN(
+        'data', split='train', download=True, transform=transform_train)
+    data_test = datasets.SVHN('data', split='test',
+                              download=True, transform=transform_test)
 
     dtl = DataLoader(data_train, batch_size=len(data_train))
-    for X,y in dtl:
+    for X, y in dtl:
         X_train = X
         Y_train = y
 
     dtl = DataLoader(data_test, batch_size=len(data_test))
-    for X,y in dtl:
+    for X, y in dtl:
         X_test = X
         Y_test = y
 

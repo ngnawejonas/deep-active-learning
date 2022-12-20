@@ -14,7 +14,8 @@ import wandb
 import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
-from utils import log_to_file
+from utils import log_to_file, DMAX
+
 
 def parse_args(args: list) -> argparse.Namespace:
     """Parse command line parameters.
@@ -57,6 +58,7 @@ def parse_args(args: list) -> argparse.Namespace:
 
     return parser.parse_args(args)
 
+
 def set_seeds(seed):
     np.random.seed(seed)
     random.seed(seed)
@@ -67,39 +69,45 @@ def set_seeds(seed):
     # torch.backends.cudnn.deterministic = True
     # torch.backends.cudnn.enabled = False
 
+
 def logdist_metrics(dist_list, name, rd, n_labeled):
-    logdict = {'avg '+name : np.mean(dist_list),
-                'min '+name : np.min(dist_list),
-                'max '+name : np.max(dist_list),
-                'median '+name: np.median(dist_list),
-                'round ':rd,
-                'n_labeled' : n_labeled}
+    logdict = {'avg '+name: np.mean(dist_list),
+               'min '+name: np.min(dist_list),
+               'max '+name: np.max(dist_list),
+               'median '+name: np.median(dist_list),
+               'round ': rd,
+               'n_labeled': n_labeled}
     return logdict
+
 
 def logdist_hist(dist_list, name, rd, n_labeled):
     kdefig = sns.displot(data=dist_list.ravel())
-    logdict = {name : kdefig.figure}
+    logdict = {name: kdefig.figure}
     return logdict
+
 
 def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
     name = name+'(SUBSET)' if correct_idxs else name+''
     if correct_idxs:
         # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list[correct_idxs], name, rd, n_labeled))
-    else: 
+    else:
         # wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
 
+
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
-    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis() 
+    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
 
     def dis_report_wrap(correct_idxs=None):
         dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, correct_idxs)
         dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, correct_idxs)
         dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
-        dis_report(dis_list['cumul_inf'], 'cumul norm inf', rd, n_labeled, correct_idxs)
-        dis_report(dis_list['cumul_2'], 'cumul norm 2', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_inf'], 'cumul norm inf',
+                   rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_2'], 'cumul norm 2',
+                   rd, n_labeled, correct_idxs)
     # dis_report_wrap()
     dis_report_wrap(correct_idxs)
 
@@ -107,24 +115,27 @@ def dis_eval_and_report(strategy, rd):
 def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
-    wandb.log({'clean accuracy (10000)': test_acc,  'round ':rd, 'n_labeled':n_labeled})
+    wandb.log({'clean accuracy (10000)': test_acc,
+              'round ': rd, 'n_labeled': n_labeled})
     adv_acc = strategy.eval_adv_acc()
-    advkey  = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
-    wandb.log({advkey: adv_acc, 'round ':rd, 'n_labeled':n_labeled})
+    advkey = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
+    wandb.log({advkey: adv_acc, 'round ': rd, 'n_labeled': n_labeled})
     if strategy.dataset.n_adv_test < strategy.dataset.n_test:
         acc2 = strategy.eval_acc_on_adv_test_data()
-        acc2key  = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
-        wandb.log({acc2key: acc2, 'round ':rd, 'n_labeled':n_labeled})
-    
+        acc2key = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
+        wandb.log({acc2key: acc2, 'round ': rd, 'n_labeled': n_labeled})
+
     print(f"Round {rd}:{n_labeled} testing accuracy: {test_acc}")
     # log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
     return test_acc
+
 
 def eval_and_report(strategy, rd, logfile, id_exp):
     tune.report(round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
     dis_eval_and_report(strategy, rd)
     return test_acc
+
 
 def run_trial_empty(
     config: dict, params: dict, args: argparse.Namespace, num_gpus: int = 0
@@ -142,33 +153,36 @@ def run_trial(
     :param args: The program arguments.
     """
 
-    strategy_name_on_file = config['strategy_name']+"AdvTrain" if params['advtrain_mode'] else config['strategy_name']
+    strategy_name_on_file = config['strategy_name'] + \
+        "AdvTrain" if params['advtrain_mode'] else config['strategy_name']
     ACC_FILENAME = '{}_{}_{}_{}_{}_{}.txt'.format(
         strategy_name_on_file, params['n_final_labeled'], params['dataset_name'], params['net_arch'], params['n_final_labeled'], 'r'+str(params['repeat']))
     #
     resultsDirName = 'results'
     try:
         os.mkdir(resultsDirName)
-        print("Results directory ", resultsDirName ,  " Created ") 
+        print("Results directory ", resultsDirName,  " Created ")
     except FileExistsError:
-        print("Results directory " , resultsDirName ,  " already exists")
-    
+        print("Results directory ", resultsDirName,  " already exists")
+
     # fix random seed
     set_seeds(config['seed'])
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
         # exp_name = 'run_no_'+str(tune.get_trial_id())
-        exp_name = '{}_run_{}_{}_seed{}'.format(config['dataset_name'], tune.get_trial_id(), config['strategy_name'], config['seed'])
+        exp_name = '{}_run_{}_{}_seed{}'.format(
+            config['dataset_name'], tune.get_trial_id(), config['strategy_name'], config['seed'])
         wandb.init(project=args.project_name, name=exp_name, config=config)
     # device
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
     print(f'Using GPU: {use_cuda}')
     # print('getting dataset...')
-    dataset = get_dataset(params['dataset_name'], params['pool_size'], params['n_adv_test'])          
+    dataset = get_dataset(params['dataset_name'],
+                          params['pool_size'], params['n_adv_test'])
     # print('dataset loaded')
-    net = get_net(params, device)           
+    net = get_net(params, device)
 
     xparams = dict()
     if params.get(config['strategy_name']):
@@ -181,7 +195,8 @@ def run_trial(
     xparams['id_exp'] = id_exp
     pprint(xparams)
 
-    strategy = get_strategy(config['strategy_name'])(dataset, net, **xparams)       # load strategy
+    strategy = get_strategy(config['strategy_name'])(
+        dataset, net, **xparams)       # load strategy
 
     if hasattr(strategy, 'n_subset_ul'):
         strategy.check_querying(params['n_query'])
@@ -191,7 +206,7 @@ def run_trial(
     print(f"size of labeled pool: {params['n_init_labeled']}")
     print(f"size of unlabeled pool: {dataset.n_pool-params['n_init_labeled']}")
     print(f"size of testing pool: {dataset.n_test}")
-    print()    
+    print()
     start = time.time()
     # round 0 accuracy
     rd = 0
@@ -223,13 +238,14 @@ def run_trial(
 
         # calculate accuracy
         print('evaluation...')
-        
+
         test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
     log_to_file('time.txt', f'Total time({ACC_FILENAME}): {T/60:.2f} mins.\n')
     tune.report(final_acc=test_acc)
+
 
 def run_experiment(params: dict, args: argparse.Namespace) -> None:
     """Run the experiment using Ray Tune.
@@ -252,7 +268,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         parameter_columns=["seed", "strategy_name", "dataset_name"],
         metric_columns=["round"],
     )
-    
+
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     gpus_per_trial = 1 if use_cuda else 0
 
@@ -260,7 +276,8 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         tune.with_parameters(
             run_trial, params=params, args=args, num_gpus=gpus_per_trial
         ),
-        resources_per_trial={"cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
+        resources_per_trial={
+            "cpu": args.cpus_per_trial, "gpu": gpus_per_trial},
         # metric="val_acc",
         # mode="max",
         config=config,

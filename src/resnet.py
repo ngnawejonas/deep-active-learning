@@ -101,7 +101,7 @@ class ResNet(nn.Module):
         out = self.layer4(out)
         out = F.avg_pool2d(out, 4)
         return out
-    
+
     def forward(self, x):
         self.e1 = self.embedding(x)
         out = self.e1.view(self.e1.size(0), -1)

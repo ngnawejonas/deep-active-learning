@@ -3,6 +3,7 @@ from .strategy import Strategy
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
+
 class KCenterGreedy(Strategy):
     def __init__(self, dataset, net, **kwargs):
         super().__init__(dataset, net, **kwargs)
@@ -27,6 +28,7 @@ class KCenterGreedy(Strategy):
             q_idx = np.arange(self.dataset.n_pool)[~labeled_idxs][q_idx_]
             labeled_idxs[q_idx] = True
             mat = np.delete(mat, q_idx_, 0)
-            mat = np.append(mat, dist_mat[~labeled_idxs, q_idx][:, None], axis=1)
-            
+            mat = np.append(
+                mat, dist_mat[~labeled_idxs, q_idx][:, None], axis=1)
+
         return np.arange(self.dataset.n_pool)[(self.dataset.labeled_idxs ^ labeled_idxs)]

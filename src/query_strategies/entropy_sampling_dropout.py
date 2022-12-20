@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from .strategy import Strategy
 
+
 class EntropySamplingDropout(Strategy):
     def __init__(self, dataset, net, n_drop=10, **kwargs):
         super().__init__(dataset, net, **kwargs)

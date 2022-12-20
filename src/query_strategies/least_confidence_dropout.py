@@ -1,6 +1,7 @@
 import numpy as np
 from .strategy import Strategy
 
+
 class LeastConfidenceDropout(Strategy):
     def __init__(self, dataset, net, n_drop=10, **kwargs):
         super().__init__(dataset, net)

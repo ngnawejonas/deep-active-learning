@@ -66,7 +66,8 @@ def projected_gradient_descent(
         raise ValueError("Norm order must be either np.inf or 2.")
     if eps < 0:
         raise ValueError(
-            "eps must be greater than or equal to 0, got {} instead".format(eps)
+            "eps must be greater than or equal to 0, got {} instead".format(
+                eps)
         )
     if eps == 0:
         return x
@@ -126,6 +127,7 @@ def projected_gradient_descent(
     cumul_dis_2 = 0.
     # Jonas: nb_iter will now act as max number of iterations (supposed very high)
     while i < nb_iter and torch.max(model_fn(x), 1)[1] == y:
+        tmp_x = adv_x.clone()
         adv_x = fast_gradient_method(
             model_fn,
             adv_x,
@@ -136,14 +138,16 @@ def projected_gradient_descent(
             y=y,
             targeted=targeted,
         )
-
+        #
+        delta = adv_x - tmp_x
+        cumul_dis_inf += torch.linalg.norm(
+            torch.ravel(delta.cpu()), ord=np.inf)
+        cumul_dis_2 += torch.linalg.norm(delta.cpu())
         # Clipping perturbation eta to norm norm ball
         eta = adv_x - x
         eta = clip_eta(eta, norm, eps)
         adv_x = x + eta
 
-        cumul_dis_inf += torch.linalg.norm(torch.ravel(eta.cpu()), ord=np.inf)
-        cumul_dis_2 += torch.linalg.norm(eta.cpu()) 
         # Redo the clipping.
         # FGM already did it, but subtracting and re-adding eta can add some
         # small numerical error.
@@ -158,5 +162,5 @@ def projected_gradient_descent(
 
     if sanity_checks:
         assert np.all(asserts)
-    cumul_dis = {'2': cumul_dis_2, 'inf':cumul_dis_inf}
+    cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
     return adv_x, i, cumul_dis

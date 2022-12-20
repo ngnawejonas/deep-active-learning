@@ -52,7 +52,7 @@ AdversarialDeepFool:
   pseudo_labeling: true
   diversity: false
   cumul: false
-  
+
 # General train/test parameters
 train_loader_args:
   batch_size: 128
@@ -96,15 +96,19 @@ advtrain_attack:
     targeted: false
     rand_init: true
 
+# test_attack:
+#   name: 'pgd'
+#   args:
+#     eps: 0.3
+#     eps_iter: 0.1
+#     nb_iter: 20
+#     norm: np.inf
+#     targeted: false
+#     rand_init: true
+
 test_attack:
-  name: 'pgd'
-  args:
-    eps: 0.3
-    eps_iter: 0.1
-    nb_iter: 20
-    norm: np.inf
-    targeted: false
-    rand_init: true
+  name: 'deepfool'
+
 
 dis_test_attack:
   name: 'pgd'

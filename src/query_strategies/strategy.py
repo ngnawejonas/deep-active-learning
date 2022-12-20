@@ -3,8 +3,9 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import get_attack_fn #, log_to_file
+from utils import get_attack_fn, DMAX  # , log_to_file
 # from pgd_adaptive import projected_gradient_descent
+
 
 class Strategy:
     def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
@@ -46,7 +47,7 @@ class Strategy:
     def predict_prob_dropout_split(self, data, n_drop=10):
         probs = self.net.predict_prob_dropout_split(data, n_drop=n_drop)
         return probs
-    
+
     def get_embeddings(self, data):
         embeddings = self.net.get_embeddings(data)
         return embeddings
@@ -68,22 +69,25 @@ class Strategy:
 
     def cal_dis_test(self, x, attack_name, **attack_params):
         attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
-        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **attack_params)
+        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
+            self.net.device), self.max_iter, **attack_params)
 
-        eta  = x - x_adv.cpu()
-        
-        dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
-        dis_2 = torch.linalg.norm(eta)
-        dis = {'2':dis_2, 'inf': dis_inf}
+        if nb_iter < self.max_iter:
+            eta = x - x_adv.cpu()
+            dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
+            dis_2 = torch.linalg.norm(eta)
+        else:
+            dis_inf = DMAX  # max distance
+            dis_2 = DMAX  # max distance
+        dis = {'2': dis_2, 'inf': dis_inf}
         return nb_iter, dis, cumul_dis
-
 
     def eval_test_dis(self):
         self.net.clf.eval()
         attack_name = self.net.params['dis_test_attack']['name']
         attack_params = self.net.params['dis_test_attack']['args']
         if attack_params.get('norm'):
-            attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
+            attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         iter_loader = iter(DataLoader(self.dataset.get_adv_test_data()))
 
         dis_inf_list = np.zeros(self.dataset.n_adv_test)
@@ -98,7 +102,8 @@ class Strategy:
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, dis, cumul_dis = self.cal_dis_test(x, attack_name, **attack_params)
+            nb_iter, dis, cumul_dis = self.cal_dis_test(
+                x, attack_name, **attack_params)
 
             dis_inf_list[i] = dis['inf'].detach().numpy()
             dis_2_list[i] = dis['2'].detach().numpy()

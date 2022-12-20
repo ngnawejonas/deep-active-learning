@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from utils import get_attack_fn
 
+
 def get_optimizer(name):
     if name.lower() == 'rmsprop':
         return torch.optim.RMSprop
@@ -20,6 +21,7 @@ def get_optimizer(name):
         return torch.optim.Adam
     else:
         raise NotImplementedError
+
 
 def get_scheduler(name):
     if name.lower() == 'cycliclr':
@@ -32,13 +34,14 @@ def get_scheduler(name):
         raise NotImplementedError
     return scheduler
 
+
 class Net:
     def __init__(self, net, params, device):
         self.net = net
         self.clf = None
         self.params = params
         self.device = device
-        
+
     def train_step(self, epoch, train_loader, optimizer):
         train_loss = 0.
         for x, y, idxs in train_loader:
@@ -47,7 +50,7 @@ class Net:
                 attack_name = self.params['train_attack']['name']
                 attack_params = self.params['train_attack']['args']
                 if attack_params.get('norm'):
-                    attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
+                    attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
                 attack_fn = get_attack_fn(attack_name)
                 x = attack_fn(self.clf, x, **attack_params)
             optimizer.zero_grad()
@@ -57,7 +60,7 @@ class Net:
             optimizer.step()
 
             train_loss += loss.item()
-        wandb.log({'train loss': train_loss/len(train_loader), 'epoch':epoch})
+        wandb.log({'train loss': train_loss/len(train_loader), 'epoch': epoch})
 
     def val_step(self):
         pass
@@ -69,7 +72,8 @@ class Net:
             **self.params['optimizer']['params'])
         scheduler_ = get_scheduler(self.params["scheduler"]["name"])
         if scheduler_:
-            scheduler = scheduler_(optimizer, **self.params["scheduler"]["params"])
+            scheduler = scheduler_(
+                optimizer, **self.params["scheduler"]["params"])
         else:
             scheduler = None
         return optimizer, scheduler
@@ -82,7 +86,8 @@ class Net:
             #     self.clf = nn.DataParallel(self.clf)
         optimizer, scheduler = self._configure_optimizer()
         self.clf.train()  # set train mode
-        train_loader = DataLoader(data, shuffle=True, **self.params['train_loader_args'])
+        train_loader = DataLoader(
+            data, shuffle=True, **self.params['train_loader_args'])
         for epoch in tqdm(range(1, n_epoch + 1), ncols=100):
             self.train_step(epoch, train_loader, optimizer)
             self.val_step()
@@ -91,7 +96,7 @@ class Net:
         # Clear GPU memory in preparation for next model training
         gc.collect()
         torch.cuda.empty_cache()
-    
+
     def predict_example(self, x):
         if len(x.shape) < 4:
             x = x.unsqueeze(0)
@@ -105,10 +110,11 @@ class Net:
     def predict(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **self.params['train_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['train_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
-            # for x, y in loader:
+                # for x, y in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 out = self.clf(x)
                 pred = out.max(1)[1]
@@ -120,14 +126,15 @@ class Net:
         attack_name = self.params['test_attack']['name']
         attack_params = self.params['test_attack']['args']
         if attack_params.get('norm'):
-            attack_params['norm'] = np.inf if attack_params['norm']=='np.inf' else 2
+            attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         attack_fn = get_attack_fn(attack_name)
 
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         for x, y, idxs in tqdm(loader):
-        # for x, y in loader:
+            # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
             x = attack_fn(self.clf, x, **attack_params)
             out = self.clf(x)
@@ -138,7 +145,8 @@ class Net:
     def predict_prob(self, data):
         self.clf.eval()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -150,7 +158,8 @@ class Net:
     def predict_prob_dropout(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
@@ -164,7 +173,8 @@ class Net:
     def predict_prob_dropout_split(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([n_drop, len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
@@ -177,7 +187,8 @@ class Net:
     def get_embeddings(self, data):
         self.clf.eval()
         embeddings = torch.zeros([len(data), self.clf.get_embedding_dim()])
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -188,7 +199,8 @@ class Net:
     def predict_loss(self, data):
         self.clf.eval()
         loss = 0.
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **
+                            self.params['test_loader_args'])
         num_batches = len(loader)
         with torch.no_grad():
             for x, y, idxs in loader:
@@ -204,7 +216,7 @@ class TORCHVISION_Net(nn.Module):
         super().__init__()
         layers = list(torchv_model.children())
         self.embedding = torch.nn.Sequential(*(layers[:-1]))
-        self.fc_head = torch.nn.Sequential(*(layers[-1:]))  
+        self.fc_head = torch.nn.Sequential(*(layers[-1:]))
         self.e1 = None
 
     def forward(self, x):
@@ -228,8 +240,10 @@ class TORCHVISION_Net(nn.Module):
     #            if hasattr(layer, 'reset_parameters'):
     #                layer.reset_parameters()
 
-#https://blog.paperspace.com/writing-lenet5-from-scratch-in-python/
-#Defining the convolutional neural network 
+# https://blog.paperspace.com/writing-lenet5-from-scratch-in-python/
+# Defining the convolutional neural network
+
+
 class LeNet5(nn.Module):
     def __init__(self):
         super().__init__()
@@ -238,12 +252,12 @@ class LeNet5(nn.Module):
             nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
             nn.BatchNorm2d(6),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 2, stride = 2))
+            nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = nn.Sequential(
             nn.Conv2d(6, 16, kernel_size=5, stride=1, padding=0),
             nn.BatchNorm2d(16),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 2, stride = 2))
+            nn.MaxPool2d(kernel_size=2, stride=2))
         self.fc = nn.Linear(400, 120)
         self.relu = nn.ReLU()
         self.fc1 = nn.Linear(120, 84)
@@ -270,10 +284,10 @@ class LeNet5(nn.Module):
 
 #     def __init__(self):
 #         super().__init__()
-        
+
 #         n_classes = 10
 
-#         self.embedding = nn.Sequential(            
+#         self.embedding = nn.Sequential(
 #             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
 #             nn.Tanh(),
 #             nn.AvgPool2d(kernel_size=2),
@@ -288,7 +302,7 @@ class LeNet5(nn.Module):
 #         self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
 
 #     def forward(self, x):
-#         self.e1 = self.embedding(x) 
+#         self.e1 = self.embedding(x)
 #         x = torch.flatten(self.e1, 1)
 #         x = self.fc_head(x)
 #         return x
@@ -309,6 +323,7 @@ class MNIST_Net(TORCHVISION_Net):
                 3, 3), bias=False)
         super().__init__(model)
 
+
 class SVHN_Net(TORCHVISION_Net):
     def __init__(self):
         n_classes = 10
@@ -322,6 +337,7 @@ class CIFAR10_Net(TORCHVISION_Net):
         model = models.resnet18(num_classes=n_classes)
         # model = ResNet18()
         super().__init__(model)
+
 
 class CIFAR10_Net2(TORCHVISION_Net):
     def __init__(self):
