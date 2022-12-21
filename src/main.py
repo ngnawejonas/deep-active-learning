@@ -277,6 +277,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         config = {
             "strategy_name": args.debug_strategy,
             "seed": 42,
+            "max_iter": 1,
         }
         params['epochs'] = 2
 
