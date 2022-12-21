@@ -30,12 +30,12 @@ max_iter: 50
 #
 advtrain_mode: false
 reset: true
-pseudo_labelling: true
+pseudo_labelling: false
 #strategy parameters
 
 AdversarialPGD: 
   n_subset_ul: 300
-  pseudo_labeling: true
+  pseudo_labeling: false
   diversity: false
   cumul: False
   args:
@@ -49,7 +49,7 @@ AdversarialPGD:
 
 AdversarialDeepFool:
   n_subset_ul: 300
-  pseudo_labeling: true
+  pseudo_labeling: false
   diversity: false
   cumul: false
 
