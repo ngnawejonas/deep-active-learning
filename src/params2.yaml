@@ -6,7 +6,7 @@ strategies:
   - RandomSampling
   - AdversarialPGD
   - MarginSampling
-  - AdversarialDeepFool
+  # - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
@@ -25,7 +25,7 @@ pool_size: 60000
 n_adv_test: 300
 reset: true
 repeat: 0
-max_iter: 100
+max_iter: 50
 
 #
 advtrain_mode: false
@@ -39,9 +39,9 @@ AdversarialPGD:
   diversity: false
   cumul: False
   args:
-    eps: 0.05
-    eps_iter: 0.01
-    nb_iter: 5
+    eps: 0.3
+    eps_iter: 0.1
+    nb_iter: 50
     norm: np.inf
     targeted: false
     rand_init: true
@@ -89,9 +89,9 @@ scheduler:
 advtrain_attack:
   name: 'pgd'
   args:
-    eps: 0.2
-    eps_iter: 0.01
-    nb_iter: 2
+    eps: 0.3
+    eps_iter: 0.1
+    nb_iter: 20
     norm: np.inf
     targeted: false
     rand_init: true
@@ -101,7 +101,7 @@ test_attack:
   args:
     eps: 0.3
     eps_iter: 0.1
-    nb_iter: 20
+    nb_iter: 50
     norm: np.inf
     targeted: false
     rand_init: true
@@ -117,7 +117,7 @@ dis_test_attack:
   args:
     eps: 0.3
     eps_iter: 0.1
-    nb_iter: 100
+    nb_iter: 50
     norm: np.inf
     targeted: false
     rand_init: true
