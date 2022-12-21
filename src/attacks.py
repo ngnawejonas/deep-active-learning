@@ -12,11 +12,11 @@ from pgd_adaptive import projected_gradient_descent as adapted_pgd
 #     return x_adv
 
 
-def test_pgd_attack(model, x, **args):
+def test_pgd_attack(model, x, y, **args):
     # pdb.set_trace()
     assert args['rand_init'] == True
     assert (args['norm'] == np.inf or args['norm'] == 2)
-    return _pgd(model, x, **args)
+    return _pgd(model, x, y=y, **args)
 
 
 def pgd_attack(model, x, max_iter, **args):
@@ -107,7 +107,7 @@ def deepfool_attack(model, x, max_iter, **args):
     return x+ri, i_iter, cumul_dis
 
 
-def test_deepfool_attack(model, x, **args):
+def test_deepfool_attack(model, x, y, **args):
     """DeepFool attack"""
     nx = x.clone()
     nx.requires_grad_()
@@ -115,19 +115,19 @@ def test_deepfool_attack(model, x, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    initial_label = out.max(1)[1]
+    # initial_label = out.max(1)[1]
     pred_nx = out.max(1)[1]
 
     i_iter = 0
 
-    while pred_nx == initial_label and i_iter < args['nb_iter']:
+    while pred_nx == y and i_iter < args['nb_iter']:
         out[0, pred_nx].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
         ri = None
         for i in range(n_class):
-            if i == initial_label:
+            if i == y:
                 continue
 
             nx.grad.data.zero_()
@@ -135,7 +135,7 @@ def test_deepfool_attack(model, x, **args):
             grad_i = nx.grad.data.clone()
 
             wi = grad_i - grad_np
-            fi = out[0, i] - out[0, initial_label]
+            fi = out[0, i] - out[0, y]
             value_i = np.abs(fi.item()) / torch.norm(wi.flatten())
 
             if value_i < value_l:

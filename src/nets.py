@@ -135,7 +135,7 @@ class Net:
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
-            x = attack_fn(self.clf, x, **attack_params)
+            x = attack_fn(self.clf, x, y, **attack_params)
             out = self.clf(x)
             pred = out.max(1)[1]
             preds[idxs] = pred.cpu()
