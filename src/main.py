@@ -61,6 +61,12 @@ def parse_args(args: list) -> argparse.Namespace:
         # required=True,
         type=str,
     )
+    parser.add_argument(
+        "--debug-strategy",
+        help="the strategy to use in debug mode",
+        default="RandomSampling",
+        type=str,
+    )
 
     return parser.parse_args(args)
 
@@ -269,7 +275,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     }
     if args.dry_run:
         config = {
-            "strategy_name": 'RandomSampling',
+            "strategy_name": args.debug_strategy,
             "seed": 42,
         }
         params['epochs'] = 2

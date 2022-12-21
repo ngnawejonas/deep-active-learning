@@ -38,11 +38,10 @@ class AdversarialStrategy(Strategy):
         self.net.clf.eval()
         distances = np.zeros(unlabeled_idxs.shape)
         adv_images = []
-        iter_loader = iter(DataLoader(unlabeled_data))
+        data_loader = DataLoader(unlabeled_data)
         attack_fn = get_attack_fn(self.attack_name, for_dis_cal=True)
-        for i in tqdm(range(len(unlabeled_idxs)), ncols=100):
-            x, y, index = iter_loader.next()
-
+        i = 0
+        for x, y, _ in tqdm(data_loader):
             x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
                 self.net.device), self.max_iter, **self.attack_params)
 
@@ -59,8 +58,8 @@ class AdversarialStrategy(Strategy):
                 distances[i] = dis.numpy()
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
-            adv_images.append(x_adv.squeeze(0).cpu() if x.shape[0] == 1 else x_adv)
-
+            adv_images.append(x_adv.squeeze(0).detach().cpu() if x.shape[0] == 1 else x_adv)
+            i += 1
         ##
         if self.diversity:
             selected_idxs = self.f_diversity(distances, adv_images)
