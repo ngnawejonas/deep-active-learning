@@ -115,9 +115,9 @@ test_attack:
 dis_test_attack:
   name: 'pgd'
   args:
-    eps: 0.05
-    eps_iter: 0.01
-    nb_iter: 5
+    eps: 0.3
+    eps_iter: 0.1
+    nb_iter: 100
     norm: np.inf
     targeted: false
     rand_init: true
