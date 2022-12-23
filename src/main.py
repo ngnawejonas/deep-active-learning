@@ -75,9 +75,9 @@ def parse_args(args: list) -> argparse.Namespace:
 
 
 def get_max_norm_val(name):
-    if name == 'norm inf':
+    if 'norm inf' in name:
         return DMAX_INF
-    elif name == 'norm 2':
+    elif 'norm 2' in name:
         return DMAX_2
     else:
         msg = '{} list is empty after removing np.inf'.format(name)
