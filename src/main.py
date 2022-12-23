@@ -14,7 +14,10 @@ import wandb
 import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
-from utils import log_to_file, DMAX
+from utils import log_to_file
+
+DMAX_INF = 1
+DMAX_2 = 28
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -71,6 +74,15 @@ def parse_args(args: list) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
+def get_max_norm_val(name):
+    if name == 'norm inf':
+        return DMAX_INF
+    elif name == 'norm 2':
+        return DMAX_2
+    else:
+        raise ValueError
+
+
 def set_seeds(seed):
     np.random.seed(seed)
     random.seed(seed)
@@ -86,7 +98,10 @@ def tune_report(no_ray, **args):
         tune.report(**args)
 
 def logdist_metrics(dis_list, name, rd, n_labeled):
-    valid_dis_list = np.array([x for x in dis_list if x!=np.inf])#np.ma.masked_invalid(dis_list)
+    valid_dis_list = np.array([x for x in dis_list if x!=np.inf])
+    if len(valid_dis_list) == 0:
+        DMAX = get_max_norm_val(name)
+        valid_dis_list=np.array([DMAX])
     logdict = {'avg '+name: np.mean(valid_dis_list),
                'min '+name: np.min(valid_dis_list),
                'max '+name: np.max(valid_dis_list),

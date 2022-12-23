@@ -3,8 +3,6 @@ from attacks import test_pgd_attack, pgd_attack, deepfool_attack
 from attacks import test_deepfool_attack, bim_attack, test_bim_attack  # , test_auto_attack
 # from pgd_adaptive import projected_gradient_descent as pgd_attack
 
-DMAX = np.inf
-
 
 def log_to_file(file_name, line):
     filepath = 'results/'+file_name

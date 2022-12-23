@@ -3,7 +3,7 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import get_attack_fn, DMAX  # , log_to_file
+from utils import get_attack_fn  # , log_to_file
 # from pgd_adaptive import projected_gradient_descent
 
 
@@ -77,8 +77,8 @@ class Strategy:
             dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
             dis_2 = torch.linalg.norm(eta)
         else:
-            dis_inf = DMAX  # max distance
-            dis_2 = DMAX  # max distance
+            dis_inf = np.inf
+            dis_2 = np.inf  
         dis = {'2': dis_2, 'inf': dis_inf}
         return nb_iter, dis, cumul_dis
 
