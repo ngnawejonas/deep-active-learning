@@ -85,19 +85,19 @@ def tune_report(no_ray, **args):
     if not no_ray and tune.is_session_enabled():
         tune.report(**args)
 
-def logdist_metrics(dist_list, name, rd, n_labeled):
-    dist_list = np.ma.masked_invalid(dist_list)
-    logdict = {'avg '+name: np.mean(dist_list),
-               'min '+name: np.min(dist_list),
-               'max '+name: np.max(dist_list),
-               'median '+name: np.median(dist_list),
+def logdist_metrics(dis_list, name, rd, n_labeled):
+    dis_list = np.ma.masked_invalid(dis_list)
+    logdict = {'avg '+name: np.mean(dis_list),
+               'min '+name: np.min(dis_list),
+               'max '+name: np.max(dis_list),
+               'median '+name: np.median(dis_list),
                'round ': rd,
                'n_labeled': n_labeled}
     return logdict
 
 
-def logdist_hist(dist_list, name, rd, n_labeled):
-    kdefig = sns.displot(data=dist_list.ravel())
+def logdist_hist(dis_list, name, rd, n_labeled):
+    kdefig = sns.displot(data=dis_list.ravel())
     logdict = {name: kdefig.figure}
     return logdict
 
