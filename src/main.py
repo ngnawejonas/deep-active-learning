@@ -86,7 +86,7 @@ def tune_report(no_ray, **args):
         tune.report(**args)
 
 def logdist_metrics(dist_list, name, rd, n_labeled):
-    dis_list = np.ma.masked_invalid(dis_list)
+    dist_list = np.ma.masked_invalid(dist_list)
     logdict = {'avg '+name: np.mean(dist_list),
                'min '+name: np.min(dist_list),
                'max '+name: np.max(dist_list),
