@@ -80,7 +80,7 @@ def get_max_norm_val(name):
     elif name == 'norm 2':
         return DMAX_2
     else:
-        msg = '{name} list is empty after removing np.inf'
+        msg = '{} list is empty after removing np.inf'.format(name)
         raise ValueError(msg)
 
 
