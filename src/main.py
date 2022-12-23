@@ -80,7 +80,8 @@ def get_max_norm_val(name):
     elif name == 'norm 2':
         return DMAX_2
     else:
-        raise ValueError
+        msg = '{name} list is empty after removing np.inf'
+        raise ValueError(msg)
 
 
 def set_seeds(seed):
@@ -99,9 +100,11 @@ def tune_report(no_ray, **args):
 
 def logdist_metrics(dis_list, name, rd, n_labeled):
     valid_dis_list = np.array([x for x in dis_list if x!=np.inf])
+
     if len(valid_dis_list) == 0:
         DMAX = get_max_norm_val(name)
         valid_dis_list=np.array([DMAX])
+
     logdict = {'avg '+name: np.mean(valid_dis_list),
                'min '+name: np.min(valid_dis_list),
                'max '+name: np.max(valid_dis_list),
