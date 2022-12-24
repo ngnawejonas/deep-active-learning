@@ -8,7 +8,7 @@ from utils import get_attack_fn  # , log_to_file
 
 
 class Strategy:
-    def __init__(self, dataset, net, pseudo_labeling=False, max_iter=100, dist_file_name=None, id_exp=0):
+    def __init__(self, dataset, net, pseudo_labeling=False, max_iter=None, dist_file_name=None, id_exp=0):
         self.dataset = dataset
         self.net = net
         self.pseudo_labeling = pseudo_labeling
@@ -110,7 +110,7 @@ class Strategy:
             cumul_dis_inf_list.append(cumul_dis['inf'].detach().numpy())
             cumul_dis_2_list.append(cumul_dis['2'].detach().numpy())
             i=i+1
-            
+
         dis_list = {'d_inf': dis_inf_list,
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,

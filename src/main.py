@@ -230,8 +230,7 @@ def run_trial(
     xparams['id_exp'] = id_exp
     pprint(xparams)
 
-    strategy = get_strategy(config['strategy_name'])(
-        dataset, net, **xparams)       # load strategy
+    strategy = get_strategy(config['strategy_name'])(dataset, net, **xparams)       # load strategy
 
     if hasattr(strategy, 'n_subset_ul'):
         strategy.check_querying(params['n_query'])

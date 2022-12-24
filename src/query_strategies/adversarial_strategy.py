@@ -11,7 +11,7 @@ from .strategy import Strategy
 class AdversarialStrategy(Strategy):
     def __init__(self, dataset, net,
                  pseudo_labeling=True,
-                 max_iter=10,
+                 max_iter=None,
                  n_subset_ul=None,
                  diversity=False,
                  dist_file_name=None,
