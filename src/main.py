@@ -121,6 +121,7 @@ def logdist_hist(dis_list, name, rd, n_labeled):
 
 
 def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
+    dis_list = np.array(dis_list)
     name = name+'(SUBSET)' if correct_idxs else name+''
     if correct_idxs:
         # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
