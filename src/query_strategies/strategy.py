@@ -71,7 +71,7 @@ class Strategy:
         attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
         x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
             self.net.device), self.max_iter, **attack_params)
-
+        breakpoint()
         if nb_iter < self.max_iter:
             eta = x - x_adv.cpu()
             dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
@@ -90,27 +90,26 @@ class Strategy:
             attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         data_loader = DataLoader(self.dataset.get_adv_test_data())
 
-        dis_inf_list = np.zeros(self.dataset.n_adv_test)
-        dis_2_list = np.zeros(self.dataset.n_adv_test)
-        nb_iter_list = np.zeros(self.dataset.n_adv_test)
-        cumul_dis_inf_list = np.zeros(self.dataset.n_adv_test)
-        cumul_dis_2_list = np.zeros(self.dataset.n_adv_test)
+        dis_inf_list = [] #np.zeros(self.dataset.n_adv_test)
+        dis_2_list = []  # np.zeros(self.dataset.n_adv_test)
+        nb_iter_list = [] #np.zeros(self.dataset.n_adv_test)
+        cumul_dis_inf_list = [] #np.zeros(self.dataset.n_adv_test)
+        cumul_dis_2_list = [] # np.zeros(self.dataset.n_adv_test)
 
         correct_idxs = []
-        i = 0
+
         for x, y, _ in tqdm(data_loader):
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
-            nb_iter, dis, cumul_dis = self.cal_dis_test(
-                x, attack_name, **attack_params)
+            nb_iter, dis, cumul_dis = self.cal_dis_test(x, attack_name, **attack_params)
 
-            dis_inf_list[i] = dis['inf']
-            dis_2_list[i] = dis['2']
-            nb_iter_list[i] = nb_iter
-            cumul_dis_inf_list[i] = cumul_dis['inf'].detach().numpy()
-            cumul_dis_2_list[i] = cumul_dis['2'].detach().numpy()
-            i += 1
+            dis_inf_list.append(dis['inf'])
+            dis_2_list.append(dis['2'])
+            nb_iter_list.append(nb_iter)
+            cumul_dis_inf_list.append(cumul_dis['inf'].detach().numpy())
+            cumul_dis_2_list.append(cumul_dis['2'].detach().numpy())
+
         dis_list = {'d_inf': dis_inf_list,
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,

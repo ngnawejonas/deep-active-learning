@@ -31,8 +31,6 @@ def get_attack_fn(name='pgd', for_dis_cal=False):
             return bim_attack
         elif name == 'pgd':
             return pgd_attack
-        elif name == 'test_pgd':
-            return test_pgd_attack
         elif name == 'deepfool':
             return deepfool_attack
         else:
