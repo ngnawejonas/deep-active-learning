@@ -97,7 +97,7 @@ class Strategy:
         cumul_dis_2_list = [] # np.zeros(self.dataset.n_adv_test)
 
         correct_idxs = []
-
+        i = 0
         for x, y, _ in tqdm(data_loader):
             initial_label = self.net.predict_example(x)
             if y == initial_label:
@@ -109,7 +109,8 @@ class Strategy:
             nb_iter_list.append(nb_iter)
             cumul_dis_inf_list.append(cumul_dis['inf'].detach().numpy())
             cumul_dis_2_list.append(cumul_dis['2'].detach().numpy())
-
+            i=i+1
+            
         dis_list = {'d_inf': dis_inf_list,
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,
