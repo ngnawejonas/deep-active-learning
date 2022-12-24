@@ -225,6 +225,7 @@ def run_trial(
         if xparams.get('norm') and xparams.get('norm') == 'np.inf':
             xparams['norm'] = np.inf
         xparams['pseudo_labeling'] = params['pseudo_labelling']
+        xparams['max_iter'] = params['max_iter']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
