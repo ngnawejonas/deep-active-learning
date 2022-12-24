@@ -107,7 +107,7 @@ def deepfool_attack(model, x, max_iter, **args):
         pred_nx = out.max(1)[1]
         i_iter += 1
 
-    cumul_dis = {'2': cumul_dis_2.detach().numpy(), 'inf': cumul_dis_inf.detach().numpy()}
+    cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
     return x+ri, i_iter, cumul_dis
 
 
