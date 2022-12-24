@@ -74,8 +74,8 @@ class Strategy:
         # breakpoint()
         if nb_iter < self.max_iter:
             eta = x - x_adv.cpu()
-            dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)
-            dis_2 = torch.linalg.norm(eta)
+            dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf).detach().numpy()
+            dis_2 = torch.linalg.norm(eta).detach().numpy()
         else:
             dis_inf = np.inf
             dis_2 = np.inf  
@@ -107,8 +107,8 @@ class Strategy:
             dis_inf_list.append(dis['inf'])
             dis_2_list.append(dis['2'])
             nb_iter_list.append(nb_iter)
-            cumul_dis_inf_list.append(cumul_dis['inf'].detach().numpy())
-            cumul_dis_2_list.append(cumul_dis['2'].detach().numpy())
+            cumul_dis_inf_list.append(cumul_dis['inf'])
+            cumul_dis_2_list.append(cumul_dis['2'])
             i=i+1
 
         dis_list = {'d_inf': dis_inf_list,
