@@ -162,5 +162,5 @@ def projected_gradient_descent(
 
     if sanity_checks:
         assert np.all(asserts)
-    cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
+    cumul_dis = {'2': cumul_dis_2.detach().numpy(), 'inf': cumul_dis_inf.detach().numpy()}
     return adv_x, i, cumul_dis
