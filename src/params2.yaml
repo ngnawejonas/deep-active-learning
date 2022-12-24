@@ -24,15 +24,14 @@ n_final_labeled: 5000
 dataset_name: mnist
 pool_size: 60000
 n_adv_test: 300
-#
+#get net
 reset: true
 repeat: 0
-max_iter: 50
 
-#
 advtrain_mode: false
 reset: true
 pseudo_labelling: false
+max_iter: 50
 #strategy parameters
 
 AdversarialPGD: 
