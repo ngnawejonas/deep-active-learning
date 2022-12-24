@@ -13,7 +13,7 @@ def log_to_file(file_name, line):
     file.close()
 
 
-def get_attack_fn(name='pgd', for_dis_cal=False):
+def get_attack_fn(name=None, for_dis_cal=False):
     if not for_dis_cal:
         # if name == 'autoattack':
         #     return test_auto_attack

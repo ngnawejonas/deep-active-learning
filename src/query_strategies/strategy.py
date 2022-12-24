@@ -71,7 +71,7 @@ class Strategy:
         attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
         x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
             self.net.device), self.max_iter, **attack_params)
-        breakpoint()
+        # breakpoint()
         if nb_iter < self.max_iter:
             eta = x - x_adv.cpu()
             dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf)

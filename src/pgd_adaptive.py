@@ -126,7 +126,7 @@ def projected_gradient_descent(
     cumul_dis_inf = 0.
     cumul_dis_2 = 0.
     # Jonas: nb_iter will now act as max number of iterations (supposed very high)
-    while i < nb_iter and torch.max(model_fn(x), 1)[1] == y:
+    while i < nb_iter and torch.max(model_fn(adv_x), 1)[1] == y:
         tmp_x = adv_x.clone()
         adv_x = fast_gradient_method(
             model_fn,
