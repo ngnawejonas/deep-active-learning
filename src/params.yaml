@@ -32,7 +32,7 @@ repeat: 0
 advtrain_mode: false
 reset: true
 pseudo_labelling: false
-max_iter: 1000
+max_iter: 50
 
 #strategy parameters
 AdversarialPGD: 
@@ -116,7 +116,7 @@ test_attack:
     targeted: false
     rand_init: true
 
-dis_attack:
+dis_test_attack:
   name: 'pgd'
   args:
     eps: 0.0314 #eps = 8/255
