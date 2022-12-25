@@ -110,8 +110,7 @@ class Net:
     def predict(self, data):
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **
-                            self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 # for x, y in loader:
@@ -122,7 +121,6 @@ class Net:
         return preds
 
     def predict_adv(self, data):
-
         attack_name = self.params['test_attack']['name']
         attack_params = self.params['test_attack']['args'] if self.params['test_attack'].get('args') else {}
         if attack_params.get('norm'):
@@ -131,7 +129,7 @@ class Net:
 
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False)
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
