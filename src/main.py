@@ -122,7 +122,7 @@ def logdist_hist(dis_list, name, rd, n_labeled):
 
 def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
     dis_list = np.array(dis_list)
-    name = name+'(SUBSET)' if correct_idxs else name+''
+    # name = name+'(SUBSET)' if correct_idxs else name+''
     if correct_idxs:
         # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list[correct_idxs], name, rd, n_labeled))
@@ -225,8 +225,8 @@ def run_trial(
         xparams = params.get(config['strategy_name'])
         if xparams.get('norm') and xparams.get('norm') == 'np.inf':
             xparams['norm'] = np.inf
-        xparams['pseudo_labeling'] = params['pseudo_labelling']
-        xparams['max_iter'] = params['max_iter']
+    xparams['pseudo_labeling'] = params['pseudo_labelling']
+    xparams['max_iter'] = params['max_iter']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
@@ -332,7 +332,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params2.yaml', 'r') as param_file:
+    with open('./params.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

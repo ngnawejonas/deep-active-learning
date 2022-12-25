@@ -4,7 +4,6 @@ import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from utils import get_attack_fn  # , log_to_file
-# from pgd_adaptive import projected_gradient_descent
 
 
 class Strategy:
@@ -69,8 +68,7 @@ class Strategy:
 
     def cal_dis_test(self, x, attack_name, **attack_params):
         attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
-        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
-            self.net.device), self.max_iter, **attack_params)
+        x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **attack_params)
         # breakpoint()
         if nb_iter < self.max_iter:
             eta = x - x_adv.cpu()

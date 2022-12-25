@@ -41,8 +41,8 @@ AdversarialPGD:
   cumul: False
   args:
     eps: 0.3
-    eps_iter: 0.1
-    nb_iter: 50
+    eps_iter: 0.05
+    nb_iter: 100
     norm: np.inf
     targeted: false
     rand_init: true
