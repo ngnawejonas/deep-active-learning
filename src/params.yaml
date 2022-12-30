@@ -127,6 +127,8 @@ train_attack:
 
 test_attack:
   name: 'deepfool'
+  args:
+    nb_iter: 50
 
 dis_test_attack:
   name: 'deepfool'

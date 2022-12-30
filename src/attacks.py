@@ -79,7 +79,7 @@ def deepfool_attack(model, x, max_iter, **args):
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
-        ri = None
+        # ri = None
         for i in range(n_class):
             if i == initial_label:
                 continue
@@ -119,17 +119,18 @@ def test_deepfool_attack(model, x, y, **args):
 
     out = model(nx+eta)
     n_class = out.shape[1]
-    # initial_label = out.max(1)[1]
+    initial_label = out.max(1)[1]
+    y0 =  y if (initial_label == y).all() else initial_label
     pred_nx = out.max(1)[1]
 
     i_iter = 0
 
-    while pred_nx == y and i_iter < args['nb_iter']:
+    while (pred_nx == y0).all() and i_iter < args['nb_iter']:
         out[0, pred_nx].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
-        ri = None
+        # ri = None
         for i in range(n_class):
             if i == y:
                 continue

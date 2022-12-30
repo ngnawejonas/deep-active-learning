@@ -231,7 +231,8 @@ def run_trial(
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     xparams['id_exp'] = id_exp
     pprint(xparams)
-
+    # if params['test_attack'].get('args'):
+    #     params['test_attack']['args']['nb_iter'] = params['max_iter']
     strategy = get_strategy(config['strategy_name'])(dataset, net, **xparams)       # load strategy
 
     if hasattr(strategy, 'n_subset_ul'):
