@@ -89,7 +89,7 @@ class Strategy:
     def eval_test_dis(self):
         self.net.clf.eval()
         attack_name = self.net.params['dis_test_attack']['name']
-        attack_params = self.net.params['dis_test_attack']['args']
+        attack_params = self.net.params['dis_test_attack']['args'] if self.net.params['dis_test_attack'].get('args') else {}
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         data_loader = DataLoader(self.dataset.get_adv_test_data())
