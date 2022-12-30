@@ -126,10 +126,13 @@ class Net:
         if attack_params.get('norm'):
             attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
         attack_fn = get_attack_fn(attack_name)
-
+        
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        if attack_name == 'deepfool':
+            loader = DataLoader(data, shuffle=False)
+        else:
+            loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
