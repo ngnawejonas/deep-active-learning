@@ -50,7 +50,7 @@ class Net:
                 attack_name = self.params['train_attack']['name']
                 attack_params = self.params['train_attack']['args']
                 if attack_params.get('norm'):
-                    attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
+                    attack_params['norm'] = float(attack_params['norm'])
                 attack_fn = get_attack_fn(attack_name)
                 x = attack_fn(self.clf, x, **attack_params)
             optimizer.zero_grad()
@@ -124,7 +124,7 @@ class Net:
         attack_name = self.params['test_attack']['name']
         attack_params = self.params['test_attack']['args'] if self.params['test_attack'].get('args') else {}
         if attack_params.get('norm'):
-            attack_params['norm'] = np.inf if attack_params['norm'] == 'np.inf' else 2
+            attack_params['norm'] = float(attack_params['norm'])
         attack_fn = get_attack_fn(attack_name)
         
         self.clf.eval()

@@ -22,7 +22,7 @@ class AdversarialStrategy(Strategy):
         self.cumul = cumul
         self.attack_params = kwargs['args'] if kwargs.get('args') else {}
         if self.attack_params.get('norm'):
-            self.attack_params['norm'] = np.inf if self.attack_params['norm'] == 'np.inf' else 2
+            self.attack_params['norm'] = float(self.attack_params['norm'])
 
         self.adv_dist_file_name = "train_"+dist_file_name
         self.attack_name = None

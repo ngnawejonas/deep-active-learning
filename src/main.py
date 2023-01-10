@@ -223,8 +223,8 @@ def run_trial(
     xparams = dict()
     if params.get(config['strategy_name']):
         xparams = params.get(config['strategy_name'])
-        if xparams.get('norm') and xparams.get('norm') == 'np.inf':
-            xparams['norm'] = np.inf
+        if xparams.get('norm'):
+            xparams['norm'] = float(xparams['norm'])
     xparams['pseudo_labeling'] = params['pseudo_labelling']
     xparams['max_iter'] = params['max_iter']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
@@ -259,13 +259,14 @@ def run_trial(
         # query
         print('>querying...')
         extra_data = None
-        if strategy.pseudo_labeling:
-            query_idxs, extra_data = strategy.query(params['n_query'])
-        else:
-            query_idxs = strategy.query(params['n_query'])
-        # update
-        print('>updating...')
-        strategy.update(query_idxs, extra_data)
+        if rd == 0:
+            if strategy.pseudo_labeling:
+                query_idxs, extra_data = strategy.query(params['n_query'])
+            else:
+                query_idxs = strategy.query(params['n_query'])
+            # update
+            print('>updating...')
+            strategy.update(query_idxs, extra_data)
 
         print('training...')
         strategy.train()
@@ -279,7 +280,7 @@ def run_trial(
 
     rd, test_acc = active_round(0)
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
-        rd, test_acc = active_round(rd, strategy)
+        rd, test_acc = active_round(rd)
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
