@@ -279,7 +279,7 @@ def run_trial(
 
     rd, test_acc = active_round(0)
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
-        rd, test_acc, strategy = active_round(rd, strategy)
+        rd, test_acc = active_round(rd, strategy)
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
