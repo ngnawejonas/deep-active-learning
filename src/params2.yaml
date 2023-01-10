@@ -43,7 +43,7 @@ AdversarialPGD:
     eps: 0.3
     eps_iter: 0.05
     nb_iter: 100
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true
 
@@ -93,7 +93,7 @@ advtrain_attack:
     eps: 0.3
     eps_iter: 0.1
     nb_iter: 20
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true
 
@@ -103,7 +103,7 @@ test_attack:
     eps: 0.3
     eps_iter: 0.1
     nb_iter: 20
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true
 
@@ -119,6 +119,6 @@ dis_test_attack:
     eps: 0.3
     eps_iter: 0.1
     nb_iter: 20
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true

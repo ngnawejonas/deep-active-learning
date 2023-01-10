@@ -256,10 +256,12 @@ def run_trial(
     # print("round 0 time: {:.2f} s".format(time.time() - t))
     def active_round(rd):
         print(f"Round {rd}")
-        # query
-        print('>querying...')
-        extra_data = None
-        if rd == 0:
+        
+        if rd != 0:
+            # query
+            print('>querying...')
+            extra_data = None
+
             if strategy.pseudo_labeling:
                 query_idxs, extra_data = strategy.query(params['n_query'])
             else:
