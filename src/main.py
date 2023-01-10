@@ -306,7 +306,7 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
             "seed": 42,
             "max_iter": 1,
         }
-        params['epochs'] = 2
+        params['epochs'] = 10
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     gpus_per_trial = 1 if use_cuda else 0
