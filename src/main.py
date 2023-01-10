@@ -245,18 +245,17 @@ def run_trial(
     print(f"size of testing pool: {dataset.n_test}")
     print()
     start = time.time()
-    # round 0 accuracy
-    rd = 0
-    print("Round 0")
-    t = time.time()
-    strategy.train()
-    print("train time: {:.2f} s".format(time.time() - t))
-    print('testing...')
-    test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
-    print("round 0 time: {:.2f} s".format(time.time() - t))
-
-    while strategy.dataset.n_labeled() < params['n_final_labeled']:
-        rd = rd + 1
+    # round 0
+    # rd = 0
+    # print("Round 0")
+    # t = time.time()
+    # strategy.train()
+    # print("train time: {:.2f} s".format(time.time() - t))
+    # print('testing...')
+    # test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
+    # print("round 0 time: {:.2f} s".format(time.time() - t))
+    def active_round(rd):
+        print(f"Round {rd}")
         # query
         print('>querying...')
         extra_data = None
@@ -275,6 +274,12 @@ def run_trial(
         print('evaluation...')
 
         test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
+        rd = rd + 1
+        return rd, test_acc
+
+    rd, test_acc = active_round(0)
+    while strategy.dataset.n_labeled() < params['n_final_labeled']:
+        rd, test_acc, strategy = active_round(rd, strategy)
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')
@@ -333,7 +338,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params.yaml', 'r') as param_file:
+    with open('./params2.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

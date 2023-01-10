@@ -1,1 +1,9 @@
 *.pyc
+src/data/MNIST/MNIST/raw/t10k-images-idx3-ubyte
+src/data/MNIST/MNIST/raw/t10k-images-idx3-ubyte.gz
+src/data/MNIST/MNIST/raw/t10k-labels-idx1-ubyte
+src/data/MNIST/MNIST/raw/t10k-labels-idx1-ubyte.gz
+src/data/MNIST/MNIST/raw/train-images-idx3-ubyte
+src/data/MNIST/MNIST/raw/train-images-idx3-ubyte.gz
+src/data/MNIST/MNIST/raw/train-labels-idx1-ubyte
+src/data/MNIST/MNIST/raw/train-labels-idx1-ubyte.gz
