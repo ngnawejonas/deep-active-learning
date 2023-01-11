@@ -72,17 +72,12 @@ class Strategy:
         # breakpoint()
         if nb_iter < self.max_iter:
             eta = x - x_adv.cpu()
-            dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf).detach().numpy()
-            dis_2 = torch.linalg.norm(eta).detach().numpy()
+            dis = compute_norm(eta, attack_params['norm'])
         else:
-            dis_inf = np.inf
-            dis_2 = np.inf  
-        dis = {'2': dis_2, 'inf': dis_inf}
+            dis = np.inf
 
-        if torch.is_tensor(cumul_dis['2']):
-            cumul_dis['2'] = cumul_dis['2'].detach().numpy()
-        if torch.is_tensor(cumul_dis['inf']):
-            cumul_dis['inf'] = cumul_dis['inf'].detach().numpy()
+        if torch.is_tensor(cumul_dis):
+            cumul_dis = cumul_dis.detach().numpy()
        
         return nb_iter, dis, cumul_dis
 
@@ -94,11 +89,9 @@ class Strategy:
             attack_params['norm'] = float(attack_params['norm'])
         data_loader = DataLoader(self.dataset.get_adv_test_data())
 
-        dis_inf_list = [] #np.zeros(self.dataset.n_adv_test)
-        dis_2_list = []  # np.zeros(self.dataset.n_adv_test)
+        dis_list = [] #np.zeros(self.dataset.n_adv_test)
         nb_iter_list = [] #np.zeros(self.dataset.n_adv_test)
-        cumul_dis_inf_list = [] #np.zeros(self.dataset.n_adv_test)
-        cumul_dis_2_list = [] # np.zeros(self.dataset.n_adv_test)
+        cumul_dis_list = [] #np.zeros(self.dataset.n_adv_test)
 
         correct_idxs = []
         i = 0
@@ -108,15 +101,18 @@ class Strategy:
                 correct_idxs.append(i)
             nb_iter, dis, cumul_dis = self.cal_dis_test(x, attack_name, **attack_params)
 
-            dis_inf_list.append(dis['inf'])
-            dis_2_list.append(dis['2'])
+            dis_list.append(dis)
             nb_iter_list.append(nb_iter)
-            cumul_dis_inf_list.append(cumul_dis['inf'])
-            cumul_dis_2_list.append(cumul_dis['2'])
+            cumul_dis_list.append(cumul_dis)
             i=i+1
 
-        dis_list = {'d_inf': dis_inf_list,
-                    'd_2': dis_2_list,
-                    'cumul_inf': cumul_dis_inf_list,
-                    'cumul_2': cumul_dis_2_list}
-        return dis_list, nb_iter_list, correct_idxs
+        return dis_list, cumul_dis_list, nb_iter_list, correct_idxs
+
+
+def compute_norm(x, norm):
+    if norm == np.inf:
+        return torch.linalg.norm(torch.ravel(x), ord=np.inf).detach().numpy()
+    elif norm == 2:
+        return torch.linalg.norm(x).detach().numpy()
+    else:
+        raise NotImplementedError

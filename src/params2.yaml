@@ -1,7 +1,7 @@
 seeds:
   - 139937
-  # - 973000
-  # - 663829
+  - 973000
+  - 663829
 strategies: 
   - RandomSampling
   - AdversarialPGD
@@ -17,9 +17,9 @@ strategies:
   # - BALDDropout
   # - AdversarialBIM
 #
-n_init_labeled: 100
-n_query: 100
-n_final_labeled: 5000
+n_init_labeled: 150
+n_query: 150
+n_final_labeled: 10000
 #get dataset
 dataset_name: mnist
 pool_size: 60000
@@ -28,15 +28,16 @@ n_adv_test: 300
 reset: true
 repeat: 0
 
+
 advtrain_mode: false
 reset: true
 pseudo_labelling: false
 max_iter: 20
-#strategy parameters
 
+#strategy parameters
 AdversarialPGD: 
   n_subset_ul: 300
-  pseudo_labeling: false
+  pseudo_labeling: true
   diversity: false
   cumul: False
   args:

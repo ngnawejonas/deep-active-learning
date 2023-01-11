@@ -134,16 +134,13 @@ def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
     print("___dis_eval_and_report___")
-    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
-
+    dis_list, cumul_dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
+    attack_params = strategy.net.params['dis_test_attack']['args'] if strategy.net.params['dis_test_attack'].get('args') else {}
+    norm_name  = 'norm {}'.format(attack_params['norm'])
     def dis_report_wrap(correct_idxs=None):
-        dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, correct_idxs)
-        dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, correct_idxs)
+        dis_report(dis_list, norm_name, rd, n_labeled, correct_idxs)
         dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
-        dis_report(dis_list['cumul_inf'], 'cumul norm inf',
-                   rd, n_labeled, correct_idxs)
-        dis_report(dis_list['cumul_2'], 'cumul norm 2',
-                   rd, n_labeled, correct_idxs)
+        dis_report(cumul_dis_list, 'cumul '+norm_name, rd, n_labeled, correct_idxs)
     # dis_report_wrap()
     dis_report_wrap(correct_idxs)
 
@@ -256,13 +253,14 @@ def run_trial(
     # print("round 0 time: {:.2f} s".format(time.time() - t))
     def active_round(rd):
         print(f"Round {rd}")
-        
+
         if rd != 0:
             # query
             print('>querying...')
             extra_data = None
 
             if strategy.pseudo_labeling:
+                # breakpoint()
                 query_idxs, extra_data = strategy.query(params['n_query'])
             else:
                 query_idxs = strategy.query(params['n_query'])
