@@ -19,7 +19,7 @@ strategies:
 #
 n_init_labeled: 150
 n_query: 150
-n_final_labeled: 10000
+n_final_labeled: 5000
 #get dataset
 dataset_name: mnist
 pool_size: 60000
@@ -118,8 +118,8 @@ dis_test_attack:
   name: 'pgd'
   args:
     eps: 0.3
-    eps_iter: 0.01
-    nb_iter: 20
+    eps_iter: 0.005
+    nb_iter: 50
     norm: inf
     targeted: false
     rand_init: true

@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.models as models
-import wandb
+# import wandb
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from utils import get_attack_fn
@@ -60,7 +60,7 @@ class Net:
             optimizer.step()
 
             train_loss += loss.item()
-        wandb.log({'train loss': train_loss/len(train_loader), 'epoch': epoch})
+        # wandb.log({'train loss': train_loss/len(train_loader), 'epoch': epoch})
 
     def val_step(self):
         pass
