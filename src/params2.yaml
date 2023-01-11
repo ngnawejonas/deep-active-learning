@@ -118,7 +118,7 @@ dis_test_attack:
   name: 'pgd'
   args:
     eps: 0.3
-    eps_iter: 0.1
+    eps_iter: 0.01
     nb_iter: 20
     norm: inf
     targeted: false
