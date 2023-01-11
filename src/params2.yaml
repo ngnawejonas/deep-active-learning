@@ -3,8 +3,8 @@ seeds:
   - 973000
   - 663829
 strategies: 
-  - RandomSampling
   - AdversarialPGD
+  - RandomSampling
   - MarginSampling
   # - AdversarialDeepFool
   # - LeastConfidence
@@ -39,7 +39,7 @@ AdversarialPGD:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: False
+  cumul: true
   args:
     eps: 0.3
     eps_iter: 0.05
