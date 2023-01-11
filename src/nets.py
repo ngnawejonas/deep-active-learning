@@ -129,10 +129,10 @@ class Net:
         
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
-        if attack_name == 'deepfool':
-            loader = DataLoader(data, shuffle=False)
-        else:
-            loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        # if attack_name == 'deepfool':
+        loader = DataLoader(data, shuffle=False)
+        # else:
+        #     loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)

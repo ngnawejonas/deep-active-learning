@@ -140,8 +140,7 @@ def projected_gradient_descent(
         )
         #
         delta = adv_x - tmp_x
-        cumul_dis_inf += torch.linalg.norm(
-            torch.ravel(delta.cpu()), ord=np.inf)
+        cumul_dis_inf += torch.linalg.norm(torch.ravel(delta.cpu()), ord=np.inf)
         cumul_dis_2 += torch.linalg.norm(delta.cpu())
         # Clipping perturbation eta to norm norm ball
         eta = adv_x - x
