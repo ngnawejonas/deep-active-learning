@@ -46,7 +46,9 @@ class AdversarialStrategy(Strategy):
                 self.net.device), self.max_iter, **self.attack_params)
 
             if self.cumul:
-                distances[i] = cumul_dis.numpy()
+                if torch.is_tensor(cumul_dis):
+                    cumul_dis = cumul_dis.detach().numpy()
+                distances[i] = cumul_dis
             else:
                 if self.attack_params.get('norm'):
                     dis = torch.linalg.norm(torch.ravel(
