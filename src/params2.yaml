@@ -1,10 +1,11 @@
 seeds:
-  - 139937
-  - 973000
-  - 663829
+  - 1380
+  # - 1637
+  # - 1549
 strategies: 
   - AdversarialPGD
-  # - RandomSampling
+  - AdversarialBIM
+  - RandomSampling
   # - MarginSampling
   # - AdversarialDeepFool
   # - LeastConfidence
@@ -17,8 +18,8 @@ strategies:
   # - BALDDropout
   # - AdversarialBIM
 #
-n_init_labeled: 150
-n_query: 150
+n_init_labeled: 100
+n_query: 100
 n_final_labeled: 5000
 #get dataset
 dataset_name: mnist
@@ -32,7 +33,7 @@ repeat: 0
 advtrain_mode: false
 reset: true
 pseudo_labelling: false
-max_iter: 20
+max_iter: 100
 
 #strategy parameters
 AdversarialPGD: 
@@ -42,16 +43,31 @@ AdversarialPGD:
   cumul: true
   args:
     eps: 0.3
-    eps_iter: 0.05
+    eps_iter: 0.005
     nb_iter: 100
     norm: inf
     targeted: false
     rand_init: true
+    rand_minmax: 0.1
 
+#strategy parameters
+AdversarialBIM: 
+  n_subset_ul: 300
+  pseudo_labeling: true
+  diversity: false
+  cumul: true
+  args:
+    eps: 0.3
+    eps_iter: 0.005
+    nb_iter: 100
+    norm: inf
+    targeted: false
+    rand_init: false
+    rand_minmax: 0.1
 
 AdversarialDeepFool:
   n_subset_ul: 300
-  pseudo_labeling: false
+  pseudo_labeling: true
   diversity: false
   cumul: false
 
@@ -107,6 +123,7 @@ test_attack:
     norm: inf
     targeted: false
     rand_init: true
+    rand_minmax: 0.1
 
 # test_attack:
 #   name: 'deepfool'
@@ -119,7 +136,8 @@ dis_test_attack:
   args:
     eps: 0.3
     eps_iter: 0.005
-    nb_iter: 50
+    nb_iter: 100
     norm: inf
     targeted: false
     rand_init: true
+    rand_minmax: 0.1
