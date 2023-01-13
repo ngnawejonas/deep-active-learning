@@ -23,6 +23,7 @@ def test_pgd_attack(model, x, y, **args):
 def pgd_attack(model, x, max_iter, **args):
     args['nb_iter'] = max_iter
     return adaptive_pgd(model, x, **args)
+    
 # def pgd_attack(model, x, max_iter, **args):
 #     # pdb.set_trace()
 #     assert args['rand_init'] == True
@@ -49,15 +50,17 @@ def pgd_attack(model, x, max_iter, **args):
 #     cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
 #     return nx, i_iter, cumul_dis
 
-
-def bim_attack(model, x, **args):
+def test_bim_attack(model, x, y, **args):
+    # pdb.set_trace()
     assert args['rand_init'] == False
-    return _pgd(model, x, **args)
+    assert (args['norm'] == np.inf or args['norm'] == 2)
+    return _pgd(model, x, y=y, **args)
 
 
-def test_bim_attack(model, x, **args):
+def bim_attack(model, x, max_iter, **args):
+    args['nb_iter'] = max_iter
     assert args['rand_init'] == False
-    return _pgd(model, x, **args)
+    return adaptive_pgd(model, x, **args)
 
 
 def deepfool_attack(model, x, max_iter, **args):
