@@ -4,10 +4,10 @@ seeds:
   # - 1549
 strategies: 
   - AdversarialPGD
-  - AdversarialBIM
+  # - AdversarialBIM
   - RandomSampling
   # - MarginSampling
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
   # - LeastConfidence
   # - EntropySampling
   # - LeastConfidenceDropout
@@ -40,7 +40,7 @@ AdversarialPGD:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: true
+  cumul: false
   args:
     eps: 0.3
     eps_iter: 0.005
@@ -63,7 +63,6 @@ AdversarialBIM:
     norm: inf
     targeted: false
     rand_init: false
-    rand_minmax: 0.1
 
 AdversarialDeepFool:
   n_subset_ul: 300
