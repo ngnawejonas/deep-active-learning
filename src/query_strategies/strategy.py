@@ -3,7 +3,7 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import get_attack_fn  # , log_to_file
+from utils import DMAX_2, DMAX_INF, compute_norm, get_attack_fn  # , log_to_file
 
 
 class Strategy:
@@ -71,12 +71,11 @@ class Strategy:
         x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **attack_params)
         # breakpoint()
         if nb_iter < self.max_iter:
-            eta = x - x_adv.cpu()
-            dis_inf = torch.linalg.norm(torch.ravel(eta), ord=np.inf).detach().numpy()
-            dis_2 = torch.linalg.norm(eta).detach().numpy()
+            dis_inf = compute_norm( x - x_adv.cpu(), np.inf)
+            dis_2 = compute_norm( x - x_adv.cpu(), 2)
         else:
-            dis_inf = np.inf
-            dis_2 = np.inf  
+            dis_inf = DMAX_INF
+            dis_2 = DMAX_2
         dis = {'2': dis_2, 'inf': dis_inf}
 
         if torch.is_tensor(cumul_dis['2']):
@@ -121,12 +120,3 @@ class Strategy:
                     'cumul_inf': cumul_dis_inf_list,
                     'cumul_2': cumul_dis_2_list}
         return dis_list, nb_iter_list, correct_idxs
-
-
-def compute_norm(x, norm):
-    if norm == np.inf:
-        return torch.linalg.norm(torch.ravel(x), ord=np.inf).detach().numpy()
-    elif norm == 2:
-        return torch.linalg.norm(x).detach().numpy()
-    else:
-        raise NotImplementedError

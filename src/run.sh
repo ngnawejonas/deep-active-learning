@@ -6,4 +6,4 @@ cd src
 # Run experiment
 python3 main.py \
     --cpus-per-trial 4 \
-    --project-name aal_jan_13_20h
+    --project-name aal_jan_baseline

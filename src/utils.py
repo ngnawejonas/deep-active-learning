@@ -1,8 +1,19 @@
 import numpy as np
+import torch
 from attacks import test_pgd_attack, pgd_attack, deepfool_attack
 from attacks import test_deepfool_attack, bim_attack, test_bim_attack  # , test_auto_attack
 # from pgd_adaptive import projected_gradient_descent as pgd_attack
 
+DMAX_INF = 1
+DMAX_2 = 28
+
+def compute_norm(x, norm):
+    if norm == np.inf:
+        return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf)
+    elif norm == 2:
+        return torch.linalg.norm(x.cpu())
+    else:
+        raise NotImplementedError
 
 def log_to_file(file_name, line):
     filepath = 'results/'+file_name

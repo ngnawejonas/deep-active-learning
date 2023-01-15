@@ -1,11 +1,17 @@
 import numpy as np
 import torch
-import pdb
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as _pgd
 from pgd_adaptive import projected_gradient_descent as adaptive_pgd
 # from autoattack import AutoAttack
 
-from pgd_adaptive import projected_gradient_descent as adapted_pgd
+def compute_norm(x, norm):
+    if norm == np.inf:
+        return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf)
+    elif norm == 2:
+        return torch.linalg.norm(x.cpu())
+    else:
+        raise NotImplementedError
+
 
 # def test_auto_attack(model, x, **args):
 #     adversary = AutoAttack(model, **args)
@@ -13,7 +19,7 @@ from pgd_adaptive import projected_gradient_descent as adapted_pgd
 #     return x_adv
 
 
-def test_pgd_attack(model, x, y, **args):
+def test_pgd_attack(model, x, y=None, **args):
     # pdb.set_trace()
     assert args['rand_init'] == True
     assert (args['norm'] == np.inf or args['norm'] == 2)
@@ -82,7 +88,6 @@ def deepfool_attack(model, x, max_iter, **args):
         grad_np = nx.grad.data.clone()
         value_l = np.inf
         w_l = None
-        # ri = None
         for i in range(n_class):
             if i == initial_label:
                 continue
@@ -101,8 +106,8 @@ def deepfool_attack(model, x, max_iter, **args):
 
         ri = value_l/torch.norm(w_l.flatten()) * w_l
         #
-        cumul_dis_inf += torch.linalg.norm(torch.ravel(ri.cpu()), ord=np.inf)
-        cumul_dis_2 += torch.linalg.norm(ri.cpu())
+        cumul_dis_inf += compute_norm(ri, norm=np.inf)
+        cumul_dis_2 += compute_norm(ri, norm=2)
         #
         eta += ri.clone()
         nx.grad.data.zero_()
@@ -114,21 +119,21 @@ def deepfool_attack(model, x, max_iter, **args):
     return x+ri, i_iter, cumul_dis
 
 
-def test_deepfool_attack(model, x, y, **args):
+def test_deepfool_attack(model, x, y=None, **args):
     """DeepFool attack"""
     nx = x.clone()
     nx.requires_grad_()
-    eta = torch.zeros(nx.shape).cuda()
-
-    out = model(nx+eta)
-    n_class = out.shape[1]
-    initial_label = out.max(1)[1]
-    y0 =  y if (initial_label == y).all() else initial_label
+    eta = torch.zeros(nx.shape).cuda() if torch.cuda.is_available() else torch.zeros(nx.shape)
+    initial_label = y
+    if initial_label is None:
+        out = model(nx+eta)
+        n_class = out.shape[1]
+        initial_label = out.max(1)[1]
     pred_nx = out.max(1)[1]
 
     i_iter = 0
 
-    while (pred_nx == y0).all() and i_iter < args['nb_iter']:
+    while pred_nx == initial_label and i_iter < args['nb_iter']:
         out[0, pred_nx].backward(retain_graph=True)
         grad_np = nx.grad.data.clone()
         value_l = np.inf

@@ -14,11 +14,9 @@ import wandb
 import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
-from utils import log_to_file
-from query_strategies import AdversarialDeepFool, RandomSampling
+from utils import log_to_file, DMAX_INF, DMAX_2
 
-DMAX_INF = 1
-DMAX_2 = 28
+from query_strategies import AdversarialDeepFool, RandomSampling
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -123,10 +121,12 @@ def logdist_hist(dis_list, name, rd, n_labeled):
 
 def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
     dis_list = np.array(dis_list)
-    # name = name+'(SUBSET)' if correct_idxs else name+''
     if correct_idxs:
         # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
-        wandb.log(logdist_metrics(dis_list[correct_idxs], name, rd, n_labeled))
+        wandb.log(logdist_metrics(dis_list[correct_idxs], name+'(Cor. Subset)', rd, n_labeled))
+        mask = np.ones(len(dis_list), dtype=bool)
+        mask[correct_idxs] = False 
+        wandb.log(logdist_metrics(dis_list[mask], name+'(InCor. Subset)', rd, n_labeled))
     else:
         # wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
         wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
@@ -145,7 +145,7 @@ def dis_eval_and_report(strategy, rd):
                    rd, n_labeled, correct_idxs)
         dis_report(dis_list['cumul_2'], 'cumul norm 2',
                    rd, n_labeled, correct_idxs)
-    # dis_report_wrap()
+    dis_report_wrap()
     dis_report_wrap(correct_idxs)
 
 def acc_eval_and_report(strategy, rd, logfile, id_exp):

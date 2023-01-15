@@ -7,7 +7,7 @@ import torch
 
 from cleverhans.torch.attacks.fast_gradient_method import fast_gradient_method
 from cleverhans.torch.utils import clip_eta
-
+# from utils import compute_norm
 
 def compute_norm(x, norm):
     if norm == np.inf:
@@ -16,6 +16,7 @@ def compute_norm(x, norm):
         return torch.linalg.norm(x.cpu())
     else:
         raise NotImplementedError
+
 
 def projected_gradient_descent(
     model_fn,

@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from utils import get_attack_fn, log_to_file
+from utils import compute_norm, get_attack_fn, log_to_file
 
 from .strategy import Strategy
 
@@ -15,14 +15,16 @@ class AdversarialStrategy(Strategy):
                  n_subset_ul=None,
                  diversity=False,
                  dist_file_name=None,
-                 id_exp=0, cumul=False, **kwargs):
+                 id_exp=0, cumul=False, norm=None, **kwargs):
         super().__init__(dataset, net, pseudo_labeling, max_iter, dist_file_name, id_exp)
         self.diversity = diversity
         self.n_subset_ul = n_subset_ul  # number of unlabeled data to attack
         self.cumul = cumul
+        self.norm = float(norm)
         self.attack_params = kwargs['args'] if kwargs.get('args') else {}
         if self.attack_params.get('norm'):
             self.attack_params['norm'] = float(self.attack_params['norm'])
+            assert self.norm == self.attack_params['norm']
 
         self.adv_dist_file_name = "train_"+dist_file_name
         self.attack_name = None
@@ -45,18 +47,12 @@ class AdversarialStrategy(Strategy):
             x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(
                 self.net.device), self.max_iter, **self.attack_params)
 
-            if self.cumul:
+            if self.cumul: # to be debugged
                 if torch.is_tensor(cumul_dis):
                     cumul_dis = cumul_dis.detach().numpy()
                 distances[i] = cumul_dis
             else:
-                if self.attack_params.get('norm'):
-                    dis = torch.linalg.norm(torch.ravel(
-                        x - x_adv.cpu()), ord=self.attack_params['norm']).detach()
-                else:  # default
-                    dis = torch.linalg.norm(torch.ravel(
-                        x - x_adv.cpu()), ord=2).detach()
-                # dis_2 = torch.linalg.norm(x - x_adv)
+                dis = compute_norm(x - x_adv.cpu(), self.norm)
                 distances[i] = dis.numpy()
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
