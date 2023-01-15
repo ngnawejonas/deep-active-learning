@@ -15,6 +15,7 @@ import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
 from utils import log_to_file
+from query_strategies import AdversarialDeepFool, RandomSampling
 
 DMAX_INF = 1
 DMAX_2 = 28
@@ -134,16 +135,18 @@ def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
     print("___dis_eval_and_report___")
-    dis_list, cumul_dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
-    attack_params = strategy.net.params['dis_test_attack']['args'] if strategy.net.params['dis_test_attack'].get('args') else {}
-    norm_name  = 'norm {}'.format(attack_params['norm'])
+    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
+
     def dis_report_wrap(correct_idxs=None):
-        dis_report(dis_list, norm_name, rd, n_labeled, correct_idxs)
+        dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, correct_idxs)
+        dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, correct_idxs)
         dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
-        dis_report(cumul_dis_list, 'cumul '+norm_name, rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_inf'], 'cumul norm inf',
+                   rd, n_labeled, correct_idxs)
+        dis_report(dis_list['cumul_2'], 'cumul norm 2',
+                   rd, n_labeled, correct_idxs)
     # dis_report_wrap()
     dis_report_wrap(correct_idxs)
-
 
 def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
@@ -166,7 +169,8 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
 def eval_and_report(strategy, rd, logfile, id_exp, no_ray=False):
     tune_report(no_ray, round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
-    dis_eval_and_report(strategy, rd)
+    if isinstance(strategy, RandomSampling) or isinstance(strategy, AdversarialDeepFool):
+        dis_eval_and_report(strategy, rd)
     return test_acc
 
 
@@ -251,7 +255,7 @@ def run_trial(
     # print('testing...')
     # test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
     # print("round 0 time: {:.2f} s".format(time.time() - t))
-    def active_round(rd):
+    def active_learning_round(rd):
         print(f"Round {rd}")
 
         if rd != 0:
@@ -275,12 +279,14 @@ def run_trial(
         print('evaluation...')
 
         test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
-        rd = rd + 1
-        return rd, test_acc
 
-    rd, test_acc = active_round(0)
+        return test_acc
+
+    # rd, test_acc = active_learning_round(0)
+    rd = 0
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
-        rd, test_acc = active_round(rd)
+        test_acc = active_learning_round(rd)
+        rd  = rd + 1
 
     T = time.time() - start
     print(f'Total time: {T/60:.2f} mins.')

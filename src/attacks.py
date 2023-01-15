@@ -67,7 +67,7 @@ def deepfool_attack(model, x, max_iter, **args):
     """DeepFool attack"""
     nx = x.clone()
     nx.requires_grad_()
-    eta = torch.zeros(nx.shape).cuda()
+    eta = torch.zeros(nx.shape).cuda() if torch.cuda.is_available() else torch.zeros(nx.shape)
 
     out = model(nx+eta)
     n_class = out.shape[1]

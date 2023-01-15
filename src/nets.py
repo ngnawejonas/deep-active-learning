@@ -145,8 +145,7 @@ class Net:
     def predict_prob(self, data):
         self.clf.eval()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **
-                            self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -154,12 +153,11 @@ class Net:
                 prob = F.softmax(out, dim=1)
                 probs[idxs] = prob.cpu()
         return probs
-
+    
     def predict_prob_dropout(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **
-                            self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
@@ -169,18 +167,17 @@ class Net:
                     probs[idxs] += prob.cpu()
         probs /= n_drop
         return probs
-
+    
     def predict_prob_dropout_split(self, data, n_drop=10):
         self.clf.train()
         probs = torch.zeros([n_drop, len(data), len(np.unique(data.Y))])
-        loader = DataLoader(data, shuffle=False, **
-                            self.params['test_loader_args'])
+        loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for i in range(n_drop):
             with torch.no_grad():
                 for x, y, idxs in loader:
                     x, y = x.to(self.device), y.to(self.device)
                     out = self.clf(x)
-                    probs = F.softmax(out, dim=1)
+                    # prob = F.softmax(out, dim=1)
                     probs[i][idxs] += F.softmax(out, dim=1).cpu()
         return probs
 
@@ -192,7 +189,7 @@ class Net:
         with torch.no_grad():
             for x, y, idxs in loader:
                 x, y = x.to(self.device), y.to(self.device)
-                out = self.clf(x)
+                _ = self.clf(x) # forward pass call, embeddings will be computed
                 embeddings[idxs] = self.clf.get_embedding().cpu()
         return embeddings
 
@@ -282,33 +279,33 @@ class LeNet5(nn.Module):
 # https://towardsdatascience.com/implementing-yann-lecuns-lenet-5-in-pytorch-5e05a0911320
 # class LeNet5(nn.Module):
 
-#     def __init__(self):
-#         super().__init__()
+    def __init__(self):
+        super().__init__()
 
-#         n_classes = 10
+        n_classes = 10
 
-#         self.embedding = nn.Sequential(
-#             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
-#             nn.Tanh(),
-#             nn.AvgPool2d(kernel_size=2),
-#             nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1),
-#             nn.Tanh(),
-#             nn.AvgPool2d(kernel_size=2),
-#             nn.Conv2d(in_channels=16, out_channels=120, kernel_size=5, stride=1),
-#             nn.Tanh(),
-#             nn.Linear(in_features=120, out_features=84),
-#             nn.Tanh()
-#         )
-#         self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
+        self.embedding = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(in_channels=16, out_channels=120, kernel_size=5, stride=1),
+            nn.Tanh(),
+            nn.Linear(in_features=120, out_features=84),
+            nn.Tanh()
+        )
+        self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
 
-#     def forward(self, x):
-#         self.e1 = self.embedding(x)
-#         x = torch.flatten(self.e1, 1)
-#         x = self.fc_head(x)
-#         return x
+    def forward(self, x):
+        self.e1 = self.embedding(x)
+        x = torch.flatten(self.e1, 1)
+        x = self.fc_head(x)
+        return x
 
-#     def get_embedding_dim(self):
-#         return self.fc_head[0].in_features
+    def get_embedding_dim(self):
+        return self.fc_head[0].in_features
 
 
 class MNIST_Net(TORCHVISION_Net):
