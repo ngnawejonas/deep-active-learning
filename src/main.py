@@ -67,7 +67,7 @@ def parse_args(args: list) -> argparse.Namespace:
     parser.add_argument(
         "--debug-strategy",
         help="the strategy to use in debug mode",
-        default="RandomSampling",
+        default="Random",
         type=str,
     )
 

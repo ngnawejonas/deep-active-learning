@@ -52,13 +52,13 @@ def get_net(params, device):
 
 
 def get_strategy(name):
-    if name.lower() == "randomsampling":
+    if name.lower() == "random":
         strategy = RandomSampling
     elif name.lower() == "leastconfidence":
         strategy = LeastConfidence
-    elif name.lower() == "marginsampling":
+    elif name.lower() == "margin":
         strategy = MarginSampling
-    elif name.lower() == "entropysampling":
+    elif name.lower() == "entropy":
         strategy = EntropySampling
     elif name.lower() == "leastconfidencedropout":
         strategy = LeastConfidenceDropout
@@ -66,11 +66,11 @@ def get_strategy(name):
         strategy = MarginSamplingDropout
     elif name.lower() == "entropysamplingdropout":
         strategy = EntropySamplingDropout
-    elif name.lower() == "kmeanssampling":
+    elif name.lower() == "kmeans":
         strategy = KMeansSampling
-    elif name.lower() == "kcentergreedy":
+    elif name.lower() == "coreset":
         strategy = KCenterGreedy
-    elif name.lower() == "balddropout":
+    elif name.lower() == "bald":
         strategy = BALDDropout
     elif name.lower() == "adversarialbim":
         strategy = AdversarialBIM

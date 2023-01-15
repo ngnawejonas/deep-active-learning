@@ -3,20 +3,19 @@ seeds:
   # - 1637
   # - 1549
 strategies: 
-  - AdversarialPGD
+  # - AdversarialPGD
   # - AdversarialBIM
-  - RandomSampling
-  # - MarginSampling
+  - Random
+  - Margin
   - AdversarialDeepFool
-  # - LeastConfidence
-  # - EntropySampling
+  - LeastConfidence
+  - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - KCenterGreedy
-  # - BALDDropout
-  # - AdversarialBIM
+  - CoreSet
+  - BALD
 #
 n_init_labeled: 100
 n_query: 100
