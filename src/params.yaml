@@ -18,13 +18,13 @@ strategies:
   - BALD
 
 #
-n_init_labeled: 250
-n_query: 250
-n_final_labeled: 10000
+n_init_labeled: 10
+n_query: 10
+n_final_labeled: 100
 
 dataset_name: cifar10
 pool_size: 50000
-n_adv_test: 500
+n_adv_test: 300
 
 reset: true
 repeat: 0
@@ -52,10 +52,10 @@ AdversarialPGD:
 
 AdversarialDeepFool:
   n_subset_ul: 500
-  pseudo_labeling: false
+  pseudo_labeling: true
   diversity: false
   cumul: false
-
+  norm: inf
 
 # General train/test parameters
 train_loader_args:
@@ -107,30 +107,35 @@ train_attack:
 #     eps: 0.1
 #     version: standard
 
+
+test_attack:
+  name: 'pgd'
+  args:
+    eps: 0.3
+    eps_iter: 0.1
+    nb_iter: 20
+    norm: inf
+    targeted: false
+    rand_init: true
+    rand_minmax: 0.1
+
 # test_attack:
-#   name: 'pgd'
+#   name: 'deepfool'
 #   args:
-#     eps: 0.0314 #eps = 8/255
-#     eps_iter: 0.006 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
-#     nb_iter: 50
-#     norm: np.inf
-#     targeted: false
-#     rand_init: true
+#     nb_iter: 20
+
+dis_test_attack:
+  name: 'deepfool'
+  args:
+    nb_iter: 100
 
 # dis_test_attack:
 #   name: 'pgd'
 #   args:
-#     eps: 0.0314 #eps = 8/255
-#     eps_iter: 0.001 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
+#     eps: 0.3
+#     eps_iter: 0.01
 #     nb_iter: 50
-#     norm: np.inf
+#     norm: inf
 #     targeted: false
 #     rand_init: true
-
-test_attack:
-  name: 'deepfool'
-  args:
-    nb_iter: 50
-
-dis_test_attack:
-  name: 'deepfool'
+#     rand_minmax: 0.1
