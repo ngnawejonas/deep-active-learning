@@ -4,7 +4,7 @@ import torch
 from cifar10_autoattack import ResNet18, get_CIFAR10, set_seeds
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as pgd
 
-#Load:
+#Load
 model = ResNet18()
 model.load_state_dict(torch.load('./cifarmodel'), strict=False)
 
