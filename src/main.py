@@ -221,21 +221,21 @@ def run_trial(
     # print('dataset loaded')
     net = get_net(params, device)
 
-    xparams = dict()
+    strategy_params = dict()
     if params.get(config['strategy_name']):
-        xparams = params.get(config['strategy_name'])
-        if xparams.get('norm'):
-            xparams['norm'] = float(xparams['norm'])
+        strategy_params = params.get(config['strategy_name'])
+        if strategy_params.get('norm'):
+            strategy_params['norm'] = float(strategy_params['norm'])
     else:
-        xparams['pseudo_labeling'] = params['pseudo_labelling']
-    xparams['max_iter'] = params['max_iter']
-    xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
+        strategy_params['pseudo_labeling'] = params['pseudo_labelling']
+    strategy_params['max_iter'] = params['max_iter']
+    strategy_params['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
-    xparams['id_exp'] = id_exp
-    pprint(xparams)
+    strategy_params['id_exp'] = id_exp
+    pprint(strategy_params)
     # if params['test_attack'].get('args'):
     #     params['test_attack']['args']['nb_iter'] = params['max_iter']
-    strategy = get_strategy(config['strategy_name'])(dataset, net, **xparams)       # load strategy
+    strategy = get_strategy(config['strategy_name'])(dataset, net, **strategy_params)       # load strategy
 
     if hasattr(strategy, 'n_subset_ul'):
         strategy.check_querying(params['n_query'])
