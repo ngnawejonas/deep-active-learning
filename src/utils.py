@@ -8,12 +8,13 @@ DMAX_INF = 1
 DMAX_2 = 28
 
 def compute_norm(x, norm):
-    if norm == np.inf:
-        return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf)
-    elif norm == 2:
-        return torch.linalg.norm(x.cpu())
-    else:
-        raise NotImplementedError
+    with torch.no_grad():
+        if norm == np.inf:
+            return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf).numpy()
+        elif norm == 2:
+            return torch.linalg.norm(x.cpu()).numpy()
+        else:
+            raise NotImplementedError
 
 def log_to_file(file_name, line):
     filepath = 'results/'+file_name

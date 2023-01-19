@@ -77,11 +77,6 @@ class Strategy:
             dis_inf = DMAX_INF
             dis_2 = DMAX_2
         dis = {'2': dis_2, 'inf': dis_inf}
-
-        if torch.is_tensor(cumul_dis['2']):
-            cumul_dis['2'] = cumul_dis['2'].detach().numpy()
-        if torch.is_tensor(cumul_dis['inf']):
-            cumul_dis['inf'] = cumul_dis['inf'].detach().numpy()
        
         return nb_iter, dis, cumul_dis
 

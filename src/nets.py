@@ -274,9 +274,15 @@ class LeNet5(nn.Module):
         self.e1 = self.embedding(x)
         out = self.fc_head(self.e1)
         return out
-        
+    
+    def get_embedding(self):
+        if self.e1 is not None:
+            return self.e1.squeeze()
+        else:
+            raise ValueError('Forward should be executed first')
+
     def get_embedding_dim(self):
-        return self.fc_head[0].in_features
+        return self.fc_head.in_features
 
 class BinaryLeNet5(LeNet5):
     def __init__(self) -> None:

@@ -48,12 +48,9 @@ class AdversarialStrategy(Strategy):
                 self.net.device), self.max_iter, **self.attack_params)
 
             if self.cumul: # to be debugged
-                if torch.is_tensor(cumul_dis):
-                    cumul_dis = cumul_dis.detach().numpy()
-                distances[i] = cumul_dis
+                distances[i] = cumul_dis[str(self.norm)]
             else:
-                dis = compute_norm(x - x_adv.cpu(), self.norm)
-                distances[i] = dis.numpy()
+                distances[i] = compute_norm(x - x_adv.cpu(), self.norm)
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0).detach().cpu() if x.shape[0] == 1 else x_adv)
@@ -82,8 +79,8 @@ class AdversarialStrategy(Strategy):
         dist = []
         for i in range(self.n_subset_ul):
             for j in range(self.n_subset_ul):
-                adv_dist = torch.norm(sortedAdv[i]-sortedAdv[j])
-                dist.append(adv_dist.cpu().numpy())
+                adv_dist = compute_norm(sortedAdv[i]-sortedAdv[j], self.norm)
+                dist.append(adv_dist)
 
         median_dist = np.median(np.unique(dist))
         selected_idxs = []

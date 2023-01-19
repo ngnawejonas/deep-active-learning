@@ -10,12 +10,13 @@ from cleverhans.torch.utils import clip_eta
 # from utils import compute_norm
 
 def compute_norm(x, norm):
-    if norm == np.inf:
-        return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf)
-    elif norm == 2:
-        return torch.linalg.norm(x.cpu())
-    else:
-        raise NotImplementedError
+    with torch.no_grad():
+        if norm == np.inf:
+            return torch.linalg.norm(torch.ravel(x.cpu()), ord=np.inf).numpy()
+        elif norm == 2:
+            return torch.linalg.norm(x.cpu()).numpy()
+        else:
+            raise NotImplementedError
 
 
 def projected_gradient_descent(
@@ -132,7 +133,8 @@ def projected_gradient_descent(
         _, y = torch.max(model_fn(x), 1)
 
     i = 0
-    cumul_dis = 0.
+    cumul_dis_inf = 0.
+    cumul_dis_2 = 0.
     # Jonas: nb_iter will now act as max number of iterations (supposed very high)
     while i < nb_iter and torch.max(model_fn(adv_x), 1)[1] == y:
         tmp_x = adv_x.clone()
@@ -148,7 +150,8 @@ def projected_gradient_descent(
         )
         #
         delta = adv_x - tmp_x
-        cumul_dis += compute_norm(delta, norm)
+        cumul_dis_inf += compute_norm(delta, np.inf)
+        cumul_dis_2 += compute_norm(delta, 2)
         # Clipping perturbation eta to norm norm ball
         eta = adv_x - x
         eta = clip_eta(eta, norm, eps)
@@ -168,5 +171,5 @@ def projected_gradient_descent(
 
     if sanity_checks:
         assert np.all(asserts)
-
+    cumul_dis = {'2': cumul_dis_2, 'inf': cumul_dis_inf}
     return adv_x, i, cumul_dis

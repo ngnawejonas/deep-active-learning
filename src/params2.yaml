@@ -3,23 +3,24 @@ seeds:
   # - 1637
   # - 1549
 strategies: 
-  - AdversarialPGD
-  - AdversarialBIM
-  # - Random
-  # - Margin
-  # - AdversarialDeepFool
-  # - LeastConfidence
-  # - Entropy
+  - Random
+  - Margin
+  - AdversarialDeepFool
+  - LeastConfidence
+  - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
-  - KMeansSampling
+  - KMeans
   - CoreSet
-  # - BALD
+  - BALD
+  - AdversarialPGD
+  - AdversarialBIM
+
 #
 n_init_labeled: 100
 n_query: 100
-n_final_labeled: 10000
+n_final_labeled: 5000
 #get dataset
 dataset_name: mnist
 pool_size: 55000
@@ -56,7 +57,7 @@ AdversarialBIM:
   pseudo_labeling: true
   diversity: false
   cumul: false
-  norm: inf
+  norm: inf  # norm for the selection
   args:
     eps: 0.3
     eps_iter: 0.005
@@ -139,8 +140,8 @@ dis_test_attack:
 #   name: 'pgd'
 #   args:
 #     eps: 0.3
-#     eps_iter: 0.01
-#     nb_iter: 50
+#     eps_iter: 0.005
+#     nb_iter: 100
 #     norm: inf
 #     targeted: false
 #     rand_init: true
