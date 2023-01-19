@@ -168,9 +168,15 @@ def get_CIFAR10(handler, pool_size, n_adv_test):
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
     return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
 
-def get_binary_MNIST(x_fn, handler, pool_size, n_adv_test):
-    raw_train = x_fn(root='./data/MNIST', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='./data/MNIST', train=False, download=True, transform=ToTensor())
+def get_binary_MNIST(handler, pool_size, n_adv_test):
+    raw_train = datasets.FashionMNIST(root='./data/MNIST', train=True, download=True, transform=transforms.Compose([
+                                                      transforms.Resize((32,32)),
+                                                      transforms.ToTensor(),
+                                                      transforms.Normalize(mean = (0.1307,), std = (0.3081,))]))
+    raw_test = datasets.FashionMNIST(root='./data/MNIST', train=False, download=True, transform=transforms.Compose([
+                                                      transforms.Resize((32,32)),
+                                                      transforms.ToTensor(),
+                                                      transforms.Normalize(mean = (0.1307,), std = (0.3081,))]))
 
     dtl = DataLoader(raw_train, batch_size=len(raw_train))
     for X,y in dtl:

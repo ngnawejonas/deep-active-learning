@@ -3,19 +3,19 @@ seeds:
   # - 1637
   # - 1549
 strategies: 
-  # - AdversarialPGD
-  # - AdversarialBIM
-  - Random
-  - Margin
-  - AdversarialDeepFool
-  - LeastConfidence
-  - Entropy
+  - AdversarialPGD
+  - AdversarialBIM
+  # - Random
+  # - Margin
+  # - AdversarialDeepFool
+  # - LeastConfidence
+  # - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
-  # - KMeansSampling
-  - CoreSet
-  - BALD
+  - KMeansSampling
+  # - CoreSet
+  # - BALD
 #
 n_init_labeled: 100
 n_query: 100
@@ -32,7 +32,7 @@ repeat: 0
 advtrain_mode: false
 reset: true
 pseudo_labelling: false
-max_iter: 50
+max_iter: 100
 
 #strategy parameters
 AdversarialPGD: 
@@ -55,7 +55,7 @@ AdversarialBIM:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: true
+  cumul: false
   norm: inf
   args:
     eps: 0.3
