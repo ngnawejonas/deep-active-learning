@@ -14,7 +14,7 @@ strategies:
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   - KMeansSampling
-  # - CoreSet
+  - CoreSet
   # - BALD
 #
 n_init_labeled: 100
