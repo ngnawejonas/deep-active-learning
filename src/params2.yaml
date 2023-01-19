@@ -5,24 +5,24 @@ seeds:
 strategies: 
   # - AdversarialPGD
   # - AdversarialBIM
-  # - Random
-  # - Margin
+  - Random
+  - Margin
   - AdversarialDeepFool
-  # - LeastConfidence
-  # - Entropy
+  - LeastConfidence
+  - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeansSampling
-  # - CoreSet
-  # - BALD
+  - CoreSet
+  - BALD
 #
 n_init_labeled: 100
 n_query: 100
-n_final_labeled: 5000
+n_final_labeled: 10000
 #get dataset
 dataset_name: mnist
-pool_size: 60000
+pool_size: 55000
 n_adv_test: 300
 #get net
 reset: true
@@ -31,7 +31,7 @@ repeat: 0
 
 advtrain_mode: false
 reset: true
-pseudo_labelling: true
+pseudo_labelling: false
 max_iter: 50
 
 #strategy parameters

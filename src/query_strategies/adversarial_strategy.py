@@ -66,10 +66,10 @@ class AdversarialStrategy(Strategy):
 
         # breakpoint()
         extra_data = None
-        if self.pseudo_labeling:
-            if len(adv_images) > 0:
-                extra_data = torch.stack(adv_images)[selected_idxs]
-
+        if self.pseudo_labeling and len(adv_images) > 0:
+            extra_data = torch.stack(adv_images)[selected_idxs]
+            if extra_data.shape[1:] == (3,32,32): # for cifar 10 extras
+                extra_data = torch.reshape(extra_data, (-1,32,32,3))
         return unlabeled_idxs[selected_idxs], extra_data
 
     def f_diversity(self, distances, adv_images):

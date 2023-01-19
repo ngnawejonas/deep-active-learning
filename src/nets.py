@@ -238,13 +238,11 @@ class TORCHVISION_Net(nn.Module):
     #                layer.reset_parameters()
 
 # https://blog.paperspace.com/writing-lenet5-from-scratch-in-python/
-# Defining the convolutional neural network
-
-
+# Defining the convolutional neural network        
 class LeNet5(nn.Module):
-    def __init__(self):
+    def __init__(self, num_classes=10):
         super().__init__()
-        num_classes = 10
+        # num_classes = 10
         self.layer1 = nn.Sequential(
             nn.Conv2d(1, 6, kernel_size=5, stride=1, padding=0),
             nn.BatchNorm2d(6),
@@ -276,49 +274,52 @@ class LeNet5(nn.Module):
         out = self.fc_head(self.e1)
         return out
 
+class BinaryLeNet5(LeNet5):
+    def __init__(self) -> None:
+        super().__init__(2)
 # https://towardsdatascience.com/implementing-yann-lecuns-lenet-5-in-pytorch-5e05a0911320
 # class LeNet5(nn.Module):
 
-    def __init__(self):
-        super().__init__()
+#     def __init__(self):
+#         super().__init__()
 
-        n_classes = 10
+#         n_classes = 10
 
-        self.embedding = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
-            nn.Tanh(),
-            nn.AvgPool2d(kernel_size=2),
-            nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1),
-            nn.Tanh(),
-            nn.AvgPool2d(kernel_size=2),
-            nn.Conv2d(in_channels=16, out_channels=120, kernel_size=5, stride=1),
-            nn.Tanh(),
-            nn.Linear(in_features=120, out_features=84),
-            nn.Tanh()
-        )
-        self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
+#         self.embedding = nn.Sequential(
+#             nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5, stride=1),
+#             nn.Tanh(),
+#             nn.AvgPool2d(kernel_size=2),
+#             nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5, stride=1),
+#             nn.Tanh(),
+#             nn.AvgPool2d(kernel_size=2),
+#             nn.Conv2d(in_channels=16, out_channels=120, kernel_size=5, stride=1),
+#             nn.Tanh(),
+#             nn.Linear(in_features=120, out_features=84),
+#             nn.Tanh()
+#         )
+#         self.fc_head = nn.Linear(in_features=84, out_features=n_classes)
 
-    def forward(self, x):
-        self.e1 = self.embedding(x)
-        x = torch.flatten(self.e1, 1)
-        x = self.fc_head(x)
-        return x
+#     def forward(self, x):
+#         self.e1 = self.embedding(x)
+#         x = torch.flatten(self.e1, 1)
+#         x = self.fc_head(x)
+#         return x
 
-    def get_embedding_dim(self):
-        return self.fc_head[0].in_features
+#     def get_embedding_dim(self):
+#         return self.fc_head[0].in_features
 
 
-class MNIST_Net(TORCHVISION_Net):
-    def __init__(self):
-        n_classes = 10
-        # img_size = (1, 28, 28)  # CHW
-        model = models.resnet18(num_classes=n_classes)
-        model.conv1 = nn.Conv2d(
-            1, 64, kernel_size=(
-                7, 7), stride=(
-                2, 2), padding=(
-                3, 3), bias=False)
-        super().__init__(model)
+# class MNIST_Net(TORCHVISION_Net):
+#     def __init__(self):
+#         n_classes = 10
+#         # img_size = (1, 28, 28)  # CHW
+#         model = models.resnet18(num_classes=n_classes)
+#         model.conv1 = nn.Conv2d(
+#             1, 64, kernel_size=(
+#                 7, 7), stride=(
+#                 2, 2), padding=(
+#                 3, 3), bias=False)
+#         super().__init__(model)
 
 
 class SVHN_Net(TORCHVISION_Net):

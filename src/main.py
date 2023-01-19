@@ -226,7 +226,8 @@ def run_trial(
         xparams = params.get(config['strategy_name'])
         if xparams.get('norm'):
             xparams['norm'] = float(xparams['norm'])
-    xparams['pseudo_labeling'] = params['pseudo_labelling']
+    else:
+        xparams['pseudo_labeling'] = params['pseudo_labelling']
     xparams['max_iter'] = params['max_iter']
     xparams['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
@@ -345,7 +346,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params.yaml', 'r') as param_file:
+    with open('./params2.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

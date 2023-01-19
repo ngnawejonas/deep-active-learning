@@ -58,6 +58,9 @@ class Data:
             else:
                 X_train_extra = self.X_train_extra
             # breakpoint()
+            if torch.is_tensor(X_train_extra):
+                self.X_train = torch.tensor(self.X_train)
+                
             X = torch.vstack((self.X_train[labeled_idxs], X_train_extra))
             Y = torch.hstack([self.Y_train[labeled_idxs], self.Y_train_extra])
         else:
@@ -101,8 +104,14 @@ class Data:
 #     return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
 
 def get_xMNIST(x_fn, handler, pool_size, n_adv_test, pref = ''):
-    raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=ToTensor())
-    raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=ToTensor())
+    raw_train = x_fn(root='./data/'+pref+'MNIST', train=True, download=True, transform=transforms.Compose([
+                                                      transforms.Resize((32,32)),
+                                                      transforms.ToTensor(),
+                                                      transforms.Normalize(mean = (0.1307,), std = (0.3081,))]))
+    raw_test = x_fn(root='./data/'+pref+'MNIST', train=False, download=True, transform=transforms.Compose([
+                                                      transforms.Resize((32,32)),
+                                                      transforms.ToTensor(),
+                                                      transforms.Normalize(mean = (0.1307,), std = (0.3081,))]))
 
     dtl = DataLoader(raw_train, batch_size=len(raw_train))
     for X,y in dtl:
@@ -158,3 +167,18 @@ def get_CIFAR10(handler, pool_size, n_adv_test):
     data_train = datasets.CIFAR10('./data/CIFAR10', train=True, download=True)
     data_test = datasets.CIFAR10('./data/CIFAR10', train=False, download=True)
     return Data(data_train.data[:pool_size], torch.LongTensor(data_train.targets)[:pool_size], data_test.data[:pool_size], torch.LongTensor(data_test.targets)[:pool_size], handler, n_adv_test)
+
+def get_binary_MNIST(x_fn, handler, pool_size, n_adv_test):
+    raw_train = x_fn(root='./data/MNIST', train=True, download=True, transform=ToTensor())
+    raw_test = x_fn(root='./data/MNIST', train=False, download=True, transform=ToTensor())
+
+    dtl = DataLoader(raw_train, batch_size=len(raw_train))
+    for X,y in dtl:
+        X_train = X
+        Y_train = torch.tensor(y <= 4, dtype=torch.int64)
+
+    dtl = DataLoader(raw_test, batch_size=len(raw_test))
+    for X,y in dtl:
+        X_test = X
+        Y_test = torch.tensor(y <= 4, dtype=torch.int64)
+    return Data(X_train[:pool_size], Y_train[:pool_size], X_test, Y_test, handler, n_adv_test)
