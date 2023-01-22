@@ -283,10 +283,9 @@ def run_trial(
 
         return test_acc
 
-    # rd, test_acc = active_learning_round(0)
-    rd = 0
-    test_acc = active_learning_round(rd)
+    test_acc = active_learning_round(0)
     #from round 1
+    rd = 1
     while strategy.dataset.n_labeled() < params['n_final_labeled']:
         test_acc = active_learning_round(rd)
         rd  = rd + 1
