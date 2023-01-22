@@ -346,7 +346,7 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params2.yaml', 'r') as param_file:
+    with open('./params.yaml', 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
     # print(params)
     run_experiment(params, args)

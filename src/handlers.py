@@ -69,14 +69,15 @@ class CIFAR10_Handler(Dataset):
 
     def __getitem__(self, index):
         x, y = self.X[index], self.Y[index]
-        breakpoint()
-        if torch.is_tensor(x):
-            x = Image.fromarray(x)
-            x = self.transform(x)
-        breakpoint()
-        if x.shape[-1] == 3:
-            x = torch.transpose(x, -1, -3)
-        breakpoint()
+        # breakpoint()
+        # if torch.is_tensor(x):
+        x = Image.fromarray(x)
+        # breakpoint()
+        x = self.transform(x)
+        # breakpoint()
+        # if x.shape[-1] == 3:
+        #     x = torch.transpose(x, -1, -3)
+        # breakpoint()
         return x, y, index
 
     def __len__(self):

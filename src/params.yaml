@@ -20,7 +20,7 @@ strategies:
 #
 n_init_labeled: 10
 n_query: 3
-n_final_labeled: 100
+n_final_labeled: 16
 
 dataset_name: cifar10
 pool_size: 50000
