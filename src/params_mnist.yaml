@@ -18,13 +18,13 @@ strategies:
   - AdversarialBIM
 
 #
-n_init_labeled: 2
-n_query: 2
-n_final_labeled: 10
+n_init_labeled: 100
+n_query: 100
+n_final_labeled: 10000
 #get dataset
 dataset_name: mnist
 pool_size: 55000
-n_adv_test: 3
+n_adv_test: 300
 #get net
 reset: true
 repeat: 0
@@ -67,7 +67,7 @@ AdversarialBIM:
     rand_init: false
 
 AdversarialDeepFool:
-  n_subset_ul: 3
+  n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
   cumul: false

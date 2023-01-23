@@ -35,7 +35,7 @@ class Data:
         self.labeled_idxs[tmp_idxs[:num]] = True
 
     def add_extra_data(self, pos_idxs, extra_data):
-        if self.X_train_extra:
+        if self.X_train_extra is not None:
             self.X_train_extra = torch.vstack([self.X_train_extra, extra_data])
             self.Y_train_extra = torch.hstack([self.Y_train_extra, self.Y_train[pos_idxs]])
         else:
@@ -44,17 +44,9 @@ class Data:
 
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
-        X_extra = None
-        if self.X_train_extra is not None:
-            if len(self.X_train_extra.shape) - len(self.X_train.shape) == -1:
-                X_extra = self.X_train_extra.unsqueeze(1)
-            elif len(self.X_train_extra.shape) - len(self.X_train.shape) == 1:
-                X_extra = self.X_train_extra.squeeze(1)
-            else:
-                X_extra = self.X_train_extra 
         X = self.X_train[labeled_idxs] 
         Y = self.Y_train[labeled_idxs]
-        return labeled_idxs, self.handler(X, Y, X_extra, self.Y_train_extra)
+        return labeled_idxs, self.handler(X, Y, self.X_train_extra, self.Y_train_extra)
 
     def n_labeled(self):
         xlen = len(self.X_train_extra) if self.X_train_extra is not None else 0
