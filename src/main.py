@@ -273,11 +273,11 @@ def run_trial(
             print('>updating...')
             strategy.update(query_idxs, extra_data)
 
-        print('training...')
+        print('>training...')
         strategy.train()
 
         # calculate accuracy
-        print('evaluation...')
+        print('>evaluation...')
 
         test_acc = eval_and_report(strategy, rd, ACC_FILENAME, id_exp)
 
@@ -312,9 +312,9 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         config = {
             "strategy_name": args.debug_strategy,
             "seed": 42,
-            "max_iter": 1,
         }
-        params['epochs'] = 10
+        params['epochs'] = 5
+        params['max_iter'] = 2
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     gpus_per_trial = 1 if use_cuda else 0

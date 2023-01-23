@@ -7,3 +7,4 @@ cd src
 python3 main.py \
     --cpus-per-trial 4 \
     --project-name aal_baseline
+# python3 main.py  --cpus-per-trial 4 --project-name aal_baseline
