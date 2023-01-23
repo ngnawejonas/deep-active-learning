@@ -29,7 +29,7 @@ class MNIST_Handler(Dataset):
         x = self.transform(x)
       else:
         idx = index - len(self.X)
-        x , y = self.Xe[idx], self.Ye[idx]
+        x , y = self.X_extra[idx], self.Y_extra[idx]
       return x, y, index
 
     def __len__(self):
