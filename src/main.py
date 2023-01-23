@@ -175,8 +175,8 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
 def eval_and_report(strategy, rd, logfile, id_exp, no_ray=False):
     tune_report(no_ray, round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
-    if isinstance(strategy, RandomSampling) or isinstance(strategy, AdversarialDeepFool):
-        dis_eval_and_report(strategy, rd)
+    # if isinstance(strategy, RandomSampling) or isinstance(strategy, AdversarialDeepFool):
+    dis_eval_and_report(strategy, rd)
     return test_acc
 
 

@@ -4,15 +4,15 @@ seeds:
   # - 1549
 strategies: 
   - Random
-  - AdversarialDeepFool
   - BALD
+  - AdversarialDeepFool
+  - Margin
   - LeastConfidence
   - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
-  - Margin
-  - KMeans
+  # - KMeans
   - CoreSet
   - AdversarialPGD
   - AdversarialBIM
@@ -109,7 +109,7 @@ train_attack:
 
 
 test_attack:
-  name: 'pgd'
+  name: 'pgd' #choosing pgd to check adv acc (ideally autoattack)
   args:
     eps: 0.3
     eps_iter: 0.1
@@ -125,7 +125,7 @@ test_attack:
 #     nb_iter: 20
 
 dis_test_attack:
-  name: 'deepfool'
+  name: 'deepfool' #choosing deepfool to be neutral
   args:
     nb_iter: 100
 
