@@ -45,7 +45,7 @@ class Data:
     def get_labeled_data(self):
         labeled_idxs = np.arange(self.n_pool)[self.labeled_idxs]
         X_extra = None
-        if self.X_train_extra:
+        if self.X_train_extra is not None:
             if len(self.X_train_extra.shape) - len(self.X_train.shape) == -1:
                 X_extra = self.X_train_extra.unsqueeze(1)
             elif len(self.X_train_extra.shape) - len(self.X_train.shape) == 1:
@@ -57,7 +57,7 @@ class Data:
         return labeled_idxs, self.handler(X, Y, X_extra, self.Y_train_extra)
 
     def n_labeled(self):
-        xlen = len(self.X_train_extra) if self.X_train_extra else 0
+        xlen = len(self.X_train_extra) if self.X_train_extra is not None else 0
         return sum(self.labeled_idxs) + xlen
 
     def get_unlabeled_data(self, n_subset=None):

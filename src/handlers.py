@@ -33,7 +33,7 @@ class MNIST_Handler(Dataset):
       return x, y, index
 
     def __len__(self):
-        xlen = len(self.X_extra) if self.X_extra else 0
+        xlen = len(self.X_extra) if self.X_extra is not None else 0
         return len(self.X) + xlen
 
 
@@ -94,5 +94,5 @@ class CIFAR10_Handler(Dataset):
         return x, y, index
 
     def __len__(self):
-        xlen = len(self.X_extra) if self.X_extra else 0
+        xlen = len(self.X_extra) if self.X_extra is not None else 0
         return len(self.X) + xlen
