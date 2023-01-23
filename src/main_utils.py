@@ -1,6 +1,6 @@
 # from torchvision import transforms
 from handlers import MNIST_Handler, SVHN_Handler, CIFAR10_Handler
-from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10, get_binary_MNIST
+from data import get_MNIST, get_FashionMNIST, get_SVHN, get_CIFAR10
 from nets import Net, BinaryLeNet5, LeNet5
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
@@ -23,8 +23,6 @@ def get_handler(name):
 
 
 def get_dataset(name, pool_size, n_adv_test):
-    if name.lower() == 'binarymnist':
-        return get_binary_MNIST(get_handler('mnist'), pool_size, n_adv_test)
     if name.lower() == 'mnist':
         return get_MNIST(get_handler(name), pool_size, n_adv_test)
     elif name.lower() == 'fashionmnist':

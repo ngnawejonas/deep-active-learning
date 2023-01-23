@@ -18,13 +18,13 @@ strategies:
   - AdversarialBIM
 
 #
-n_init_labeled: 100
-n_query: 100
-n_final_labeled: 5000
+n_init_labeled: 2
+n_query: 2
+n_final_labeled: 10
 #get dataset
 dataset_name: mnist
 pool_size: 55000
-n_adv_test: 300
+n_adv_test: 3
 #get net
 reset: true
 repeat: 0
@@ -67,7 +67,7 @@ AdversarialBIM:
     rand_init: false
 
 AdversarialDeepFool:
-  n_subset_ul: 300
+  n_subset_ul: 3
   pseudo_labeling: true
   diversity: false
   cumul: false
@@ -90,15 +90,6 @@ optimizer:
     # weight_decay: 0.0005
     # momentum: 0.5 #0.9
     lr: 0.001 # initial_lr
-
-# LR scheduling parameters
-# scheduler: 
-#   name: CyclicLR
-#   params:
-#     base_lr: 0.001
-#     max_lr: 0.1
-#     step_size_up: 20
-#     mode: triangular2
 
 scheduler: 
   name: None #CosineAnnealingLR

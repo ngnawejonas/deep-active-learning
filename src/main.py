@@ -64,6 +64,12 @@ def parse_args(args: list) -> argparse.Namespace:
         type=str,
     )
     parser.add_argument(
+        "--dataset",
+        help="dataset used",
+        required=True,
+        type=str,
+    )
+    parser.add_argument(
         "--debug-strategy",
         help="the strategy to use in debug mode",
         default="Random",
@@ -347,9 +353,9 @@ def main(args: list) -> None:
     :param args: command line parameters as list of strings.
     """
     args = parse_args(args)
-    with open('./params.yaml', 'r') as param_file:
+    paramsfilename = f'./params_{args.dataset}.yaml'
+    with open(paramsfilename, 'r') as param_file:
         params = yaml.load(param_file, Loader=yaml.SafeLoader)
-    # print(params)
     run_experiment(params, args)
 
 
