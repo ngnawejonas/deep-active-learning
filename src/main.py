@@ -94,7 +94,7 @@ def tune_report(no_ray, **args):
         tune.report(**args)
 
 def logdist_metrics(dis_list, name, rd, n_labeled):
-    
+
     logdict = {'avg '+name: np.mean(dis_list),
                'min '+name: np.min(dis_list),
                'max '+name: np.max(dis_list),
@@ -220,6 +220,7 @@ def run_trial(
     else:
         strategy_params['pseudo_labeling'] = params['pseudo_labelling']
     strategy_params['max_iter'] = params['max_iter']
+    assert strategy_params['max_iter'] is not None
     strategy_params['dist_file_name'] = 'dist_'+ACC_FILENAME
     id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     strategy_params['id_exp'] = id_exp

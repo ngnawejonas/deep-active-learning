@@ -108,6 +108,15 @@ class ResNet(nn.Module):
         out = self.linear(out)
         return out
 
+    def get_embedding(self):
+        if self.e1 is not None:
+            return self.e1.squeeze()
+        else:
+            raise ValueError('Forward should be executed first')
+
+    def get_embedding_dim(self):
+        return self.e1.size(1)
+
 
 def ResNet18():
     return ResNet(BasicBlock, [2, 2, 2, 2])

@@ -45,10 +45,23 @@ AdversarialPGD:
     eps: 0.0314 #eps = 8/255
     eps_iter: 0.001 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
     nb_iter: 100
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true
 
+AdversarialBIM: 
+  n_subset_ul: 500
+  pseudo_labeling: true
+  diversity: false
+  cumul: false
+  norm: inf
+  args:
+    eps: 0.0314 #eps = 8/255
+    eps_iter: 0.001 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
+    nb_iter: 100
+    norm: inf
+    targeted: false
+    rand_init: false
 
 AdversarialDeepFool:
   n_subset_ul: 500
@@ -96,7 +109,7 @@ train_attack:
     eps: 0.05
     eps_iter: 0.005
     nb_iter: 5
-    norm: np.inf
+    norm: inf
     targeted: false
     rand_init: true
 

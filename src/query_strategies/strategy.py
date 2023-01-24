@@ -3,7 +3,7 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import DMAX_2, DMAX_INF, compute_norm, get_attack_fn  # , log_to_file
+from utils import compute_norm, get_attack_fn  # , log_to_file
 
 
 class Strategy:
