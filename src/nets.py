@@ -10,6 +10,7 @@ import torchvision.models as models
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from utils import get_attack_fn
+from resnet import ResNet18
 
 
 def get_optimizer(name):
