@@ -91,12 +91,17 @@ class Strategy:
         cumul_dis_2_list = [] # np.zeros(self.dataset.n_adv_test)
 
         correct_idxs = []
+        success_attack_idxs = []
         i = 0
         for x, y, _ in tqdm(data_loader):
             initial_label = self.net.predict_example(x)
             if y == initial_label:
                 correct_idxs.append(i)
+
             nb_iter, dis, cumul_dis = self.cal_dis_test(x, attack_name, **attack_params)
+
+            if nb_iter < self.max_iter:
+                success_attack_idxs.append(i)
 
             dis_inf_list.append(dis['inf'])
             dis_2_list.append(dis['2'])
@@ -110,4 +115,6 @@ class Strategy:
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,
                     'cumul_2': cumul_dis_2_list}
-        return dis_list, nb_iter_list, correct_idxs
+
+        filter_idxs = {'initial_correct': correct_idxs, 'success': success_attack_idxs}
+        return dis_list, nb_iter_list, filter_idxs

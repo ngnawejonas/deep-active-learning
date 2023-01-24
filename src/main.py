@@ -110,34 +110,60 @@ def logdist_hist(dis_list, name, rd, n_labeled):
     return logdict
 
 
-def dis_report(dis_list, name, rd, n_labeled, correct_idxs=None):
+def dis_report(dis_list, name, rd, n_labeled, filter_idxs=None):
     dis_list = np.array(dis_list)
-    if correct_idxs:
+    # wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
+    wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
+    if filter_idxs is not None:
         # wandb.log(logdist_hist(dis_list[correct_idxs], name, rd, n_labeled))
-        wandb.log(logdist_metrics(dis_list[correct_idxs], name+'(Cor. Subset)', rd, n_labeled))
-        mask = np.ones(len(dis_list), dtype=bool)
-        mask[correct_idxs] = False 
-        wandb.log(logdist_metrics(dis_list[mask], name+'(InCor. Subset)', rd, n_labeled))
-    else:
-        # wandb.log(logdist_hist(dis_list, name, rd, n_labeled))
-        wandb.log(logdist_metrics(dis_list, name, rd, n_labeled))
+        tags_dlists_pairs = []
+        tag1 = name+'(Init_Correct)'
+        dlist1 = dis_list[filter_idxs['initial_correct']]
+        tags_dlists_pairs.append((tag1, dlist1))
+
+        tag2 = name+'(Success)'
+        dlist2 = dis_list[filter_idxs['success']]
+        tags_dlists_pairs.append((tag2, dlist2))
+        
+        tag3 = name+'(Init_Incorrect)'
+        mask_not_tag1 = np.ones(len(dis_list), dtype=bool)
+        mask_not_tag1[filter_idxs['initial_correct']] = False
+        dlist3  = dis_list[mask_not_tag1]
+        tags_dlists_pairs.append((tag3, dlist3))
+
+        tag4 = name+'(Fail)'
+        mask_not_tag2 = np.ones(len(dis_list), dtype=bool)
+        mask_not_tag2[filter_idxs['success']] = False
+        dlist4  = dis_list[mask_not_tag2]
+        tags_dlists_pairs.append((tag4, dlist4))
+
+        tag5 = name+'(Init_Correct and Success)'
+        mask_tag1 = np.zeros(len(dis_list), dtype=bool)
+        mask_tag1[filter_idxs['initial_correct']] = True
+        mask_tag2 = np.zeros(len(dis_list), dtype=bool)
+        mask_tag2[filter_idxs['success']] = True
+        dlist5  = dis_list[mask_tag1 & mask_tag2]
+        tags_dlists_pairs.append((tag5, dlist5))
+        
+        for tag, dlist in tags_dlists_pairs:
+            wandb.log(logdist_metrics(dlist, tag, rd, n_labeled))
 
 
 def dis_eval_and_report(strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
     print("___dis_eval_and_report___")
-    dis_list, nb_iter_list, correct_idxs = strategy.eval_test_dis()
+    dis_list, nb_iter_list, filter_idxs = strategy.eval_test_dis()
 
-    def dis_report_wrap(correct_idxs=None):
-        dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, correct_idxs)
-        dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, correct_idxs)
-        dis_report(nb_iter_list, 'nb iters', rd, n_labeled, correct_idxs)
+    def dis_report_wrap(filter_idxs=None):
+        dis_report(dis_list['d_inf'], 'norm inf', rd, n_labeled, filter_idxs)
+        dis_report(dis_list['d_2'], 'norm 2', rd, n_labeled, filter_idxs)
+        dis_report(nb_iter_list, 'nb iters', rd, n_labeled, filter_idxs)
         dis_report(dis_list['cumul_inf'], 'cumul norm inf',
-                   rd, n_labeled, correct_idxs)
+                   rd, n_labeled, filter_idxs)
         dis_report(dis_list['cumul_2'], 'cumul norm 2',
-                   rd, n_labeled, correct_idxs)
-    dis_report_wrap()
-    dis_report_wrap(correct_idxs)
+                   rd, n_labeled, filter_idxs)
+    # dis_report_wrap()
+    dis_report_wrap(filter_idxs)
 
 def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
