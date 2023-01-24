@@ -4,8 +4,6 @@ from attacks import test_pgd_attack, pgd_attack, deepfool_attack
 from attacks import test_deepfool_attack, bim_attack, test_bim_attack  # , test_auto_attack
 # from pgd_adaptive import projected_gradient_descent as pgd_attack
 
-DMAX_INF = 1
-DMAX_2 = 28
 
 def compute_norm(x, norm):
     with torch.no_grad():
