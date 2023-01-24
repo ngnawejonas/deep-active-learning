@@ -70,12 +70,8 @@ class Strategy:
         attack_fn = get_attack_fn(attack_name, for_dis_cal=True)
         x_adv, nb_iter, cumul_dis = attack_fn(self.net.clf, x.to(self.net.device), self.max_iter, **attack_params)
         # breakpoint()
-        if nb_iter < self.max_iter:
-            dis_inf = compute_norm( x - x_adv.cpu(), np.inf)
-            dis_2 = compute_norm( x - x_adv.cpu(), 2)
-        else:
-            dis_inf = DMAX_INF
-            dis_2 = DMAX_2
+        dis_inf = compute_norm( x - x_adv.cpu(), np.inf)
+        dis_2 = compute_norm( x - x_adv.cpu(), 2)
         dis = {'2': dis_2, 'inf': dis_inf}
        
         return nb_iter, dis, cumul_dis

@@ -48,9 +48,9 @@ class AdversarialStrategy(Strategy):
                 self.net.device), self.max_iter, **self.attack_params)
 
             if self.cumul: # to be debugged
-                distances[i] = cumul_dis[str(self.norm)]
+                distances[i] = cumul_dis[str(self.norm)] if nb_iter < self.max_iter else np.inf
             else:
-                distances[i] = compute_norm(x - x_adv.cpu(), self.norm)
+                distances[i] = compute_norm(x - x_adv.cpu(), self.norm) if nb_iter < self.max_iter else np.inf
 
             # log_to_file(self.adv_dist_file_name, f'{self.id_exp}, {i}, {dis:.3f}, {nb_iter}')
             adv_images.append(x_adv.squeeze(0).detach().cpu() if x.shape[0] == 1 else x_adv)

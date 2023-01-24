@@ -6,3 +6,4 @@ Total time(AdversarialPGD_7_mnist_lenet5_7_r0.txt): 0.08 mins.
 Total time(AdversarialPGD_7_mnist_lenet5_7_r0.txt): 0.09 mins.
 Total time(Random_7_mnist_lenet5_7_r0.txt): 0.14 mins.
 Total time(AdversarialPGD_7_mnist_lenet5_7_r0.txt): 0.09 mins.
+Total time(AdversarialDeepFool_5_mnist_lenet5_5_r0.txt): 0.09 mins.

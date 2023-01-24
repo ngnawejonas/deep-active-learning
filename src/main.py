@@ -14,7 +14,7 @@ import wandb
 import seaborn as sns
 
 from main_utils import get_dataset, get_net, get_strategy
-from utils import log_to_file, DMAX_INF, DMAX_2
+from utils import log_to_file
 
 from query_strategies import AdversarialDeepFool, RandomSampling
 
@@ -79,16 +79,6 @@ def parse_args(args: list) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
-def get_max_norm_val(name):
-    if 'norm inf' in name:
-        return DMAX_INF
-    elif 'norm 2' in name:
-        return DMAX_2
-    else:
-        msg = '{} list is empty after removing np.inf'.format(name)
-        raise ValueError(msg)
-
-
 def set_seeds(seed):
     np.random.seed(seed)
     random.seed(seed)
@@ -104,16 +94,11 @@ def tune_report(no_ray, **args):
         tune.report(**args)
 
 def logdist_metrics(dis_list, name, rd, n_labeled):
-    valid_dis_list = np.array([x for x in dis_list if x!=np.inf])
-
-    if len(valid_dis_list) == 0:
-        DMAX = get_max_norm_val(name)
-        valid_dis_list=np.array([DMAX])
-
-    logdict = {'avg '+name: np.mean(valid_dis_list),
-               'min '+name: np.min(valid_dis_list),
-               'max '+name: np.max(valid_dis_list),
-               'median '+name: np.median(valid_dis_list),
+    
+    logdict = {'avg '+name: np.mean(dis_list),
+               'min '+name: np.min(dis_list),
+               'max '+name: np.max(dis_list),
+               'median '+name: np.median(dis_list),
                'round ': rd,
                'n_labeled': n_labeled}
     return logdict
