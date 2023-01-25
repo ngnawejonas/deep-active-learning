@@ -7,20 +7,20 @@ strategies:
   - BALD
   - AdversarialDeepFool
   - Margin
-  - LeastConfidence
+  # - LeastConfidence
   - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeans
-  - CoreSet
-  - AdversarialPGD
+  # - CoreSet
+  # - AdversarialPGD
   - AdversarialBIM
 
 #
 n_init_labeled: 100
 n_query: 100
-n_final_labeled: 10000
+n_final_labeled: 5000
 #get dataset
 dataset_name: mnist
 pool_size: 55000

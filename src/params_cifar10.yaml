@@ -7,14 +7,14 @@ strategies:
   - BALD
   - AdversarialDeepFool
   - Margin
-  - LeastConfidence
+  # - LeastConfidence
   - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeans
-  - CoreSet
-  - AdversarialPGD
+  # - CoreSet
+  # - AdversarialPGD
   - AdversarialBIM
 
 #

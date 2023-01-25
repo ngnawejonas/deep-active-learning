@@ -93,12 +93,14 @@ def tune_report(no_ray, **args):
     if not no_ray and tune.is_session_enabled():
         tune.report(**args)
 
-def logdist_metrics(dis_list, name, rd, n_labeled):
+def _avoid_zero_len(metric, dis_list):
+    return metric(dis_list) if len(dis_list)>0 else 0.
 
-    logdict = {'avg '+name: np.mean(dis_list),
-               'min '+name: np.min(dis_list),
-               'max '+name: np.max(dis_list),
-               'median '+name: np.median(dis_list),
+def logdist_metrics(dis_list, name, rd, n_labeled):
+    logdict = {'avg '+name: _avoid_zero_len(np.mean, dis_list),
+               'min '+name: _avoid_zero_len(np.min, dis_list),
+               'max '+name: _avoid_zero_len(np.max, dis_list),
+               'median '+name: _avoid_zero_len(np.median, dis_list),
                'round ': rd,
                'n_labeled': n_labeled}
     return logdict
