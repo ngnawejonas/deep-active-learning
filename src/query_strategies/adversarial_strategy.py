@@ -48,7 +48,12 @@ class AdversarialStrategy(Strategy):
                 self.net.device), self.max_iter, **self.attack_params)
 
             if self.cumul: # to be debugged
-                distances[i] = cumul_dis[str(self.norm)] if nb_iter < self.max_iter else np.inf
+                # distances[i] = cumul_dis[str(self.norm)] if nb_iter < self.max_iter else np.inf
+                # dist = cumul_dis[str(self.norm)] if nb_iter < self.max_iter else np.inf
+                lbda = 1
+                ratio = nb_iter/ self.max_iter #dist/100
+                # https://arxiv.org/pdf/2010.01736.pdf GAIRAT
+                distances[i] = (1 + np.tanh(lbda + 5* (1- 2 * ratio)))/2 
             else:
                 distances[i] = compute_norm(x - x_adv.cpu(), self.norm) if nb_iter < self.max_iter else np.inf
 

@@ -4,18 +4,18 @@ seeds:
   # - 1549
 strategies: 
   - Random
-  - BALD
-  - AdversarialDeepFool
+  - AdversarialBIM
   - Margin
+  - AdversarialDeepFool
+  - BALD
   # - LeastConfidence
-  - Entropy
+  # - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeans
   # - CoreSet
   # - AdversarialPGD
-  - AdversarialBIM
 
 #
 n_init_labeled: 100
@@ -56,7 +56,7 @@ AdversarialBIM:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: false
+  cumul: true
   norm: inf  # norm for the selection
   args:
     eps: 0.3
@@ -70,7 +70,7 @@ AdversarialDeepFool:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: false
+  cumul: true
   norm: inf
 # General train/test parameters
 train_loader_args:
