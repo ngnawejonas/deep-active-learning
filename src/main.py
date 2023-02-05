@@ -164,8 +164,10 @@ def dis_eval_and_report(strategy, rd):
                    rd, n_labeled, filter_idxs)
         dis_report(dis_list['cumul_2'], 'cumul norm 2',
                    rd, n_labeled, filter_idxs)
-    # dis_report_wrap()
-    dis_report_wrap(filter_idxs)
+        dis_report(dis_list['clever_dis'], 'clever dis', rd, n_labeled, filter_idxs)
+
+    dis_report_wrap()
+    # dis_report_wrap(filter_idxs)
 
 def acc_eval_and_report(strategy, rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()

@@ -11,3 +11,4 @@ from .bayesian_active_learning_disagreement_dropout import BALDDropout
 from .adversarial_bim import AdversarialBIM
 from .adversarial_pgd import AdversarialPGD
 from .adversarial_deepfool import AdversarialDeepFool
+from .clever_stragegy import CleverStrategy

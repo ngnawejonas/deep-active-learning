@@ -3,7 +3,7 @@ import torch
 from torchvision import datasets, transforms
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 
 class Data:
     def __init__(self, X_train, Y_train, X_test, Y_test, handler, n_adv_test):
@@ -27,6 +27,25 @@ class Data:
         else:
             self.adv_test_idxs = np.random.choice(
                 np.arange(self.n_test), self.n_adv_test, replace=False)
+        self.MIN_PIXEL_VALUE = None
+        self.MAX_PIXEL_VALUE = None
+
+    def get_min_max_pixel_values(self):
+        if self.MIN_PIXEL_VALUE is None or self.MAX_PIXEL_VALUE is None:
+            data = self.handler(self.X_train, self.Y_train)
+            loader = DataLoader(data, shuffle=False, batch_size=64)
+            minpx = np.inf
+            maxpx = - np.inf
+            for x, _, _ in tqdm(loader):
+                if x.min() < minpx:
+                    minpx = x.min()
+                if x.max() > maxpx:
+                    maxpx = x.max()
+            self.MIN_PIXEL_VALUE = minpx
+            self.MAX_PIXEL_VALUE = maxpx
+            return minpx, maxpx
+        else: # return previously computed value
+            return self.MIN_PIXEL_VALUE, self.MAX_PIXEL_VALUE
 
     def initialize_labels(self, num):
         # generate initial labeled pool

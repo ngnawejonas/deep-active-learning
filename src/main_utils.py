@@ -5,7 +5,7 @@ from nets import Net, BinaryLeNet5, LeNet5
 from query_strategies import RandomSampling, LeastConfidence, MarginSampling, EntropySampling, \
     LeastConfidenceDropout, MarginSamplingDropout, EntropySamplingDropout, \
     KMeansSampling, KCenterGreedy, BALDDropout, \
-    AdversarialBIM, AdversarialPGD, AdversarialDeepFool
+    AdversarialBIM, AdversarialPGD, AdversarialDeepFool, CleverStrategy
 from resnet import ResNet18
 
 
@@ -80,6 +80,8 @@ def get_strategy(name):
         strategy = AdversarialDeepFool
     elif name.lower() == "adversarialpgd":
         strategy = AdversarialPGD
+    elif name.lower() == "cleverstrategy":
+        strategy = CleverStrategy
     else:
         raise NotImplementedError
     return strategy

@@ -3,11 +3,12 @@ seeds:
   # - 1637
   # - 1549
 strategies: 
-  - Random
-  - AdversarialBIM
-  - Margin
-  - AdversarialDeepFool
-  - BALD
+  # - Random
+  # - AdversarialBIM
+  - CleverStrategy
+  # - Margin
+  # - AdversarialDeepFool
+  # - BALD
   # - LeastConfidence
   # - Entropy
   # - LeastConfidenceDropout
@@ -72,6 +73,10 @@ AdversarialDeepFool:
   diversity: false
   cumul: true
   norm: inf
+
+CleverStrategy:
+  n_subset_ul: 1000
+
 # General train/test parameters
 train_loader_args:
   batch_size: 128
