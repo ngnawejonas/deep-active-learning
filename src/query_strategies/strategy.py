@@ -3,7 +3,7 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from utils import compute_norm, get_attack_fn  # , log_to_file
+from utils import compute_norm, get_attack_fn, clever_score  # , log_to_file
 
 
 class Strategy:
@@ -75,6 +75,18 @@ class Strategy:
         dis = {'2': dis_2, 'inf': dis_inf}
        
         return nb_iter, dis, cumul_dis
+    
+    # def cal_robust_dis(self, x, min_pixel_value=0, max_pixel_value=1.):
+    #     classifier = PyTorchClassifier(
+    #     model=self.net.clf,
+    #     clip_values=(min_pixel_value, max_pixel_value),
+    #     loss=None,
+    #     optimizer=None,
+    #     input_shape=(1, 32, 32),
+    #     nb_classes=10,
+    #     )
+    #     res1 = clever_u(classifier, x.numpy(), nb_batches=10, batch_size=1, radius=0.3, norm=np.inf, pool_factor=3)
+    #     return res1
 
     def eval_test_dis(self):
         self.net.clf.eval()
@@ -89,9 +101,13 @@ class Strategy:
         nb_iter_list = [] #np.zeros(self.dataset.n_adv_test)
         cumul_dis_inf_list = [] #np.zeros(self.dataset.n_adv_test)
         cumul_dis_2_list = [] # np.zeros(self.dataset.n_adv_test)
+        clever_dis_list = []
 
         correct_idxs = []
         success_attack_idxs = []
+        minpx, maxpx = self.dataset.get_min_max_pixel_values()
+        clever_args = {'min_pixel_value': minpx, 'max_pixel_value': maxpx}
+        # print(minpx, maxpx)
         i = 0
         for x, y, _ in tqdm(data_loader):
             initial_label = self.net.predict_example(x)
@@ -102,7 +118,11 @@ class Strategy:
 
             if nb_iter < self.max_iter:
                 success_attack_idxs.append(i)
-
+            
+            # clever score/dis
+            clever_dis = clever_score(self.net.clf, x[0], **clever_args)
+           
+            clever_dis_list.append(clever_dis)
             dis_inf_list.append(dis['inf'])
             dis_2_list.append(dis['2'])
             nb_iter_list.append(nb_iter)
@@ -114,7 +134,8 @@ class Strategy:
         dis_list = {'d_inf': dis_inf_list,
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,
-                    'cumul_2': cumul_dis_2_list}
+                    'cumul_2': cumul_dis_2_list,
+                    'clever_dis': clever_dis_list}
 
         filter_idxs = {'initial_correct': correct_idxs, 'success': success_attack_idxs}
         return dis_list, nb_iter_list, filter_idxs
