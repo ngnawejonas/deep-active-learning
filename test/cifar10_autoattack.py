@@ -27,7 +27,7 @@ from PIL import Image
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as pgd
-
+from torch.utils.data.sampler import SubsetRandomSampler
 
 import random
 def set_seeds(seed):
@@ -89,9 +89,16 @@ def get_CIFAR10(pool_size):
     return dtrain, dtest
 
 train_dataset, test_dataset = get_CIFAR10(45000)
-train_loader = torch.utils.data.DataLoader(dataset = train_dataset,
-                                           batch_size = batch_size,
-                                           shuffle = True)
+valid_size= 5000
+indices = torch.randperm(len(train_dataset))
+train_indices = indices[:len(indices) - valid_size]
+valid_indices = indices[len(indices) - valid_size:] if valid_size else None
+
+# Make dataloaders
+train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
+                                            sampler=SubsetRandomSampler(train_indices))
+valid_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
+                                            sampler=SubsetRandomSampler(valid_indices))
 
 
 test_loader = torch.utils.data.DataLoader(dataset = test_dataset,

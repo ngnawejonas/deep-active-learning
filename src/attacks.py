@@ -123,3 +123,6 @@ def deepfool_attack(model, x, max_iter, **args):
 def test_deepfool_attack(model, x, y=None, **args):
     """DeepFool attack"""
     return deepfool_attack(model, x, max_iter=args['nb_iter'])[0]
+
+
+# https://github.com/fra31/fab-attack
