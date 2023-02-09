@@ -1,6 +1,7 @@
 import numpy as np
 import tqdm
 import torch
+from torch import nn
 from cifar10_autoattack import ResNet18, get_CIFAR10, set_seeds
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as pgd
 from torch.utils.data.sampler import SubsetRandomSampler
