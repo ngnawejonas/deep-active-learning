@@ -1,18 +1,19 @@
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import torch
 from torch import nn
 from cifar10_utils import ResNet18, get_CIFAR10, set_seeds
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as pgd
 from torch.utils.data.sampler import SubsetRandomSampler
 from tempscaling import ModelWithTemperature, _ECELoss
+
 #Load
 model = ResNet18()
-model.load_state_dict(torch.load('./cifarmodel'), strict=False)
+model.load_state_dict(torch.load('./cifarmodel.pt'), strict=False)
 
 batch_size = 128
 #
-train_dataset, test_dataset = get_CIFAR10(45000)
+train_dataset, test_dataset = get_CIFAR10(50000)
 
 valid_size= 5000
 indices = torch.randperm(len(train_dataset))

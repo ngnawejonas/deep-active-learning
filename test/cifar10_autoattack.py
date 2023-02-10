@@ -46,7 +46,7 @@ optparams = {'weight_decay': 0.0005, 'momentum': 0.9}
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-train_dataset, test_dataset = get_CIFAR10(45000)
+train_dataset, test_dataset = get_CIFAR10(50000)
 valid_size= 5000
 indices = torch.randperm(len(train_dataset))
 train_indices = indices[:len(indices) - valid_size]
