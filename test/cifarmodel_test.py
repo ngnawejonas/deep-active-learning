@@ -7,10 +7,12 @@ from cleverhans.torch.attacks.projected_gradient_descent import projected_gradie
 from torch.utils.data.sampler import SubsetRandomSampler
 from tempscaling import ModelWithTemperature, _ECELoss
 
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #Load
 model = ResNet18()
 model.load_state_dict(torch.load('./cifarmodel.pt'), strict=False)
-
+model = model.to(device)
 batch_size = 128
 #
 train_dataset, test_dataset = get_CIFAR10(50000)
@@ -31,7 +33,6 @@ test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
                                            batch_size = batch_size,
                                            shuffle = True)
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # Test the model
 # In test phase, we don't need to compute gradients (for memory efficiency)
 
@@ -57,7 +58,7 @@ ece_criterion = _ECELoss().to(device)
 logits_list = []
 labels_list = []
 with torch.no_grad():
-    for input, label in test_loader:
+    for input, label, idx in tqdm(test_loader):
         input = input.to(device)
         logits = model(input)
         logits_list.append(logits)
@@ -76,7 +77,7 @@ ece_criterion = _ECELoss().to(device)
 logits_list = []
 labels_list = []
 with torch.no_grad():
-    for input, label in test_loader:
+    for input, label, idx in tqdm(test_loader):
         input = input.to(device)
         logits = scaled_model(input)
         logits_list.append(logits)
