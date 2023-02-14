@@ -48,9 +48,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 train_dataset, test_dataset = get_CIFAR10(50000)
 valid_size= 5000
-indices = torch.randperm(len(train_dataset))
-train_indices = indices[:len(indices) - valid_size]
-valid_indices = indices[len(indices) - valid_size:] if valid_size else None
+train_dataset, validation_set = torch.utils.data.random_split(train_dataset, [len(train_dataset) - valid_size, valid_size])
 
 # Make dataloaders
 train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
