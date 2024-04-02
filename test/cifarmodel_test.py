@@ -9,6 +9,7 @@ from tempscaling import ModelWithTemperature, _ECELoss
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 #Load
 model = ResNet18()
 model.load_state_dict(torch.load('./cifarmodel.pt'), strict=False)
@@ -22,15 +23,14 @@ train_dataset, validation_set = torch.utils.data.random_split(train_dataset, [le
 
 
 # Make dataloaders
-train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
-                                            sampler=SubsetRandomSampler(train_indices))
-valid_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
-                                            sampler=SubsetRandomSampler(valid_indices))
+train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size) #,
+#                                            sampler=SubsetRandomSampler(train_indices))
+valid_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size) #,
+#                                            sampler=SubsetRandomSampler(valid_indices))
 
 
 test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
-                                           batch_size = batch_size,
-                                           shuffle = True)
+                                           batch_size = batch_size)
 
 # Test the model
 # In test phase, we don't need to compute gradients (for memory efficiency)

@@ -40,7 +40,7 @@ def set_seeds(seed):
 batch_size = 128
 num_classes = 10
 learning_rate = 0.1
-num_epochs = 2
+num_epochs = 200
 optparams = {'weight_decay': 0.0005, 'momentum': 0.9}
 # Device will determine whether to run the training on GPU or CPU.
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -51,15 +51,13 @@ valid_size= 5000
 train_dataset, validation_set = torch.utils.data.random_split(train_dataset, [len(train_dataset) - valid_size, valid_size])
 
 # Make dataloaders
-train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
-                                            sampler=SubsetRandomSampler(train_indices))
-valid_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size,
-                                            sampler=SubsetRandomSampler(valid_indices))
+train_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size)
+valid_loader = torch.utils.data.DataLoader(train_dataset, pin_memory=True, batch_size=batch_size)
 
 
 test_loader = torch.utils.data.DataLoader(dataset = test_dataset,
                                            batch_size = batch_size,
-                                           shuffle = True)
+                                           shuffle = False)
 
 model = ResNet18().to(device)
 
@@ -97,7 +95,7 @@ for epoch in tqdm(range(num_epochs)):
         		           .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
     scheduler.step()
 #save model
-torch.save(model.state_dict(), './cifarmodel/')
+torch.save(model.state_dict(), './cifarmodel.pt')
 
 with torch.no_grad():
     correct = 0
