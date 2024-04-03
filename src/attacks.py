@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from cleverhans.torch.attacks.projected_gradient_descent import projected_gradient_descent as _pgd
 from pgd_adaptive import projected_gradient_descent as adaptive_pgd
-# from autoattack import AutoAttack
+from autoattack import AutoAttack
 
 def compute_norm(x, norm):
     with torch.no_grad():
@@ -24,12 +24,12 @@ def test_pgd_attack(model, x, y=None, **args):
     # pdb.set_trace()
     assert args['rand_init'] == True
     assert (args['norm'] == np.inf or args['norm'] == 2)
-    return _pgd(model, x, y=y, **args)
+    return _pgd(model, x, y=y, clip_min=0., clip_max=1., sanity_checks=False, **args)
 
 
 def pgd_attack(model, x, max_iter, **args):
     args['nb_iter'] = max_iter
-    return adaptive_pgd(model, x, **args)
+    return adaptive_pgd(model, x, clip_min=0., clip_max=1., sanity_checks=False, **args)
     
 # def pgd_attack(model, x, max_iter, **args):
 #     # pdb.set_trace()
@@ -61,13 +61,13 @@ def test_bim_attack(model, x, y, **args):
     # pdb.set_trace()
     assert args['rand_init'] == False
     assert (args['norm'] == np.inf or args['norm'] == 2)
-    return _pgd(model, x, y=y, **args)
+    return _pgd(model, x, y=y, clip_min=0., clip_max=1., sanity_checks=False, **args)
 
 
 def bim_attack(model, x, max_iter, **args):
     args['nb_iter'] = max_iter
     assert args['rand_init'] == False
-    return adaptive_pgd(model, x, **args)
+    return adaptive_pgd(model, x, clip_min=0., clip_max=1., sanity_checks=False, **args)
 
 
 def deepfool_attack(model, x, max_iter, **args):
@@ -126,3 +126,10 @@ def test_deepfool_attack(model, x, y=None, **args):
 
 
 # https://github.com/fra31/fab-attack
+
+def auto_attack(model, x, y=None, **args):
+    adversary = AutoAttack(model, 
+                           norm='Linf',
+                           eps=args['eps'],
+                           version='standard')
+    return adversary.run_standard_evaluation(x,y, return_labels=False)

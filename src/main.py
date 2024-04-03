@@ -16,7 +16,7 @@ import seaborn as sns
 from main_utils import get_dataset, get_net, get_strategy
 from utils import log_to_file
 
-from query_strategies import AdversarialDeepFool, RandomSampling
+from query_strategies.strategy import Strategy
 
 
 def parse_args(args: list) -> argparse.Namespace:
@@ -151,7 +151,7 @@ def dis_report(dis_list, name, rd, n_labeled, filter_idxs=None):
             wandb.log(logdist_metrics(dlist, tag, rd, n_labeled))
 
 
-def dis_eval_and_report(strategy, rd):
+def dis_eval_and_report(strategy: Strategy, rd):
     n_labeled = strategy.dataset.n_labeled()
     print("___dis_eval_and_report___")
     dis_list, nb_iter_list, filter_idxs = strategy.eval_test_dis()
@@ -169,7 +169,8 @@ def dis_eval_and_report(strategy, rd):
     dis_report_wrap()
     # dis_report_wrap(filter_idxs)
 
-def acc_eval_and_report(strategy, rd, logfile, id_exp):
+def acc_eval_and_report(strategy: Strategy,
+                        rd, logfile, id_exp):
     n_labeled = strategy.dataset.n_labeled()
     test_acc = strategy.eval_acc()
     wandb.log({'clean accuracy (10000)': test_acc,
@@ -177,21 +178,21 @@ def acc_eval_and_report(strategy, rd, logfile, id_exp):
     adv_acc = strategy.eval_adv_acc()
     advkey = 'adversarial accuracy({})'.format(strategy.dataset.n_adv_test)
     wandb.log({advkey: adv_acc, 'round ': rd, 'n_labeled': n_labeled})
-    if strategy.dataset.n_adv_test < strategy.dataset.n_test:
-        acc2 = strategy.eval_acc_on_adv_test_data()
-        acc2key = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
-        wandb.log({acc2key: acc2, 'round ': rd, 'n_labeled': n_labeled})
+    # if strategy.dataset.n_adv_test < strategy.dataset.n_test:
+    #     acc2 = strategy.eval_acc_on_adv_test_data()
+    #     acc2key = 'clean accuracy({})'.format(strategy.dataset.n_adv_test)
+    #     wandb.log({acc2key: acc2, 'round ': rd, 'n_labeled': n_labeled})
 
     print(f"Round {rd}: {n_labeled} clean accuracy: {test_acc} adv accuracy: {adv_acc}")
     # log_to_file(logfile, f'{id_exp}, {n_labeled}, {np.round( test_acc,  2)}, {np.round(adv_acc, 2)}')
     return test_acc
 
 
-def eval_and_report(strategy, rd, logfile, id_exp, no_ray=False):
+def eval_and_report(strategy:Strategy, rd, logfile, id_exp, no_ray=False):
     tune_report(no_ray, round=rd)
     test_acc = acc_eval_and_report(strategy, rd, logfile, id_exp)
     # if isinstance(strategy, RandomSampling) or isinstance(strategy, AdversarialDeepFool):
-    dis_eval_and_report(strategy, rd)
+    # dis_eval_and_report(strategy, rd)
     return test_acc
 
 
@@ -223,12 +224,16 @@ def run_trial(
     except FileExistsError:
         print("Results directory ", resultsDirName,  " already exists")
 
+    # pprint(config)
+    # pprint(params)
+    # pprint(args)
+    # exit(0)
     # fix random seed
     set_seeds(config['seed'])
     if args.dry_run:
         wandb.init(project=args.project_name, mode="disabled")
     else:
-        id = 0 if args.no_ray else tune.get_trial_id()
+        id = random.randint(0,10) if args.no_ray else tune.get_trial_id()
         exp_name = '{}_run_{}_{}_seed{}'.format(
             config['dataset_name'], id, config['strategy_name'], config['seed'])
         wandb.init(project=args.project_name, name=exp_name, config=config)
@@ -252,7 +257,7 @@ def run_trial(
     strategy_params['max_iter'] = params['max_iter']
     assert strategy_params['max_iter'] is not None
     strategy_params['dist_file_name'] = 'dist_'+ACC_FILENAME
-    id_exp = 0 if args.no_ray else int(tune.get_trial_id().split('_')[-1])
+    id_exp = random.randint(0,10) if args.no_ray else int(tune.get_trial_id().split('_')[-1])
     strategy_params['id_exp'] = id_exp
     pprint(strategy_params)
     # if params['test_attack'].get('args'):
@@ -325,11 +330,9 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
     :param params: The hyperparameters.
     :param args: The program arguments.
     """
-    config = {
-        "dataset_name": params['dataset_name'],
-        "strategy_name": tune.grid_search(params["strategies"]),
-        "seed": tune.grid_search(params["seeds"]),
-    }
+    use_cuda = not args.no_cuda and torch.cuda.is_available()
+    gpus_per_trial = 1 if use_cuda else 0
+
     if args.dry_run:
         config = {
             "strategy_name": args.debug_strategy,
@@ -338,12 +341,19 @@ def run_experiment(params: dict, args: argparse.Namespace) -> None:
         params['epochs'] = 5
         params['max_iter'] = 2
 
-    use_cuda = not args.no_cuda and torch.cuda.is_available()
-    gpus_per_trial = 1 if use_cuda else 0
-
     if args.no_ray:
+        config = {
+            "dataset_name": params['dataset_name'],
+            "strategy_name": params["strategies"][0],
+            "seed": params["seeds"][0],
+        }
         run_trial(config=config, params=params, args=args, num_gpus=gpus_per_trial)
     else:
+        config = {
+            "dataset_name": params['dataset_name'],
+            "strategy_name": tune.grid_search(params["strategies"]),
+            "seed": tune.grid_search(params["seeds"]),
+        }
         reporter = CLIReporter(
             parameter_columns=["seed", "strategy_name", "dataset_name"],
             metric_columns=["round"],

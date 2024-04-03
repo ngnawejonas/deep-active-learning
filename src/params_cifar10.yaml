@@ -3,28 +3,28 @@ seeds:
   # - 1637
   # - 1549
 strategies: 
-  - Random
-  - BALD
-  - AdversarialDeepFool
-  - Margin
+  # - Random
+  - AdversarialPGD
+  # - AdversarialBIM
+  # - BALD
+  # - AdversarialDeepFool
+  # - Margin
   # - LeastConfidence
-  - Entropy
+  # - Entropy
   # - LeastConfidenceDropout
   # - MarginSamplingDropout
   # - EntropySamplingDropout
   # - KMeans
   # - CoreSet
-  # - AdversarialPGD
-  - AdversarialBIM
 
 #
 n_init_labeled: 500
 n_query: 250
-n_final_labeled: 10000
+n_final_labeled: 5000
 
 dataset_name: cifar10
-pool_size: 45000
-n_adv_test: 500
+pool_size: 50000
+n_adv_test: 10000
 
 reset: true
 repeat: 0
@@ -37,7 +37,7 @@ max_iter: 100
 #strategy parameters
 AdversarialPGD: 
   n_subset_ul: 500
-  pseudo_labeling: true
+  pseudo_labeling: false
   diversity: false
   cumul: false
   norm: inf
@@ -56,7 +56,7 @@ AdversarialBIM:
   cumul: false
   norm: inf
   args:
-    eps: 0.0314 #eps = 8/255
+    eps: 0.031 #eps = 8/255
     eps_iter: 0.001 #alpha = 2*eps/10 https://arxiv.org/pdf/2007.02617.pdf
     nb_iter: 100
     norm: inf
@@ -80,7 +80,7 @@ test_loader_args:
   num_workers: 4
 
 net_arch: resnet18
-epochs: 100
+epochs: 30
 # Optimizer parameters
 optimizer:
   name: sgd
@@ -124,13 +124,12 @@ train_attack:
 test_attack:
   name: 'pgd' #choosing pgd to check adv acc (ideally autoattack)
   args:
-    eps: 0.3
-    eps_iter: 0.1
+    eps: 0.031
+    eps_iter: 0.0031
     nb_iter: 20
     norm: inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.1
 
 # test_attack:
 #   name: 'deepfool'

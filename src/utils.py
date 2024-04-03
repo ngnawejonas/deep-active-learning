@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from attacks import test_pgd_attack, pgd_attack, deepfool_attack
-from attacks import test_deepfool_attack, bim_attack, test_bim_attack  # , test_auto_attack
+from attacks import test_deepfool_attack, bim_attack, test_bim_attack, auto_attack  # , test_auto_attack
 # from pgd_adaptive import projected_gradient_descent as pgd_attack
 from art.estimators.classification.pytorch import PyTorchClassifier
 from art.metrics.metrics import empirical_robustness, clever_t, clever_u
@@ -37,6 +37,8 @@ def get_attack_fn(name=None, for_dis_cal=False):
             return test_pgd_attack
         elif name == 'deepfool':
             return test_deepfool_attack
+        elif name == 'autoattack':
+            return auto_attack
         else:
             raise NotImplementedError(
                 'Attack "{}" not implemented'.format(name))

@@ -7,3 +7,13 @@ Total time(AdversarialPGD_7_mnist_lenet5_7_r0.txt): 0.09 mins.
 Total time(Random_7_mnist_lenet5_7_r0.txt): 0.14 mins.
 Total time(AdversarialPGD_7_mnist_lenet5_7_r0.txt): 0.09 mins.
 Total time(AdversarialDeepFool_5_mnist_lenet5_5_r0.txt): 0.09 mins.
+Total time(Random_5000_mnist_lenet5_5000_r0.txt): 20.71 mins.
+Total time(Random_55000_mnist_lenet5_55000_r0.txt): 2.80 mins.
+Total time(Random_5000_mnist_lenet5_5000_r0.txt): 12.28 mins.
+Total time(Random_55000_mnist_lenet5_55000_r0.txt): 2.74 mins.
+Total time(Random_55000_mnist_lenet5_55000_r0.txt): 5.81 mins.
+Total time(Random_55000_mnist_lenet5_55000_r0.txt): 5.77 mins.
+Total time(Random_55000_mnist_lenet5_55000_r0.txt): 25.18 mins.
+Total time(AdversarialPGD_5000_mnist_lenet5_5000_r0.txt): 53.72 mins.
+Total time(AdversarialPGD_5000_cifar10_resnet18_5000_r0.txt): 132.90 mins.
+Total time(AdversarialDeepFool_5000_mnist_lenet5_5000_r0.txt): 137.23 mins.

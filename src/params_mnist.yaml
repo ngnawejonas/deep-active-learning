@@ -5,9 +5,10 @@ seeds:
 strategies: 
   # - Random
   # - AdversarialBIM
-  - CleverStrategy
+  # - AdversarialPGD
+  # - CleverStrategy
   # - Margin
-  # - AdversarialDeepFool
+  - AdversarialDeepFool
   # - BALD
   # - LeastConfidence
   # - Entropy
@@ -16,7 +17,6 @@ strategies:
   # - EntropySamplingDropout
   # - KMeans
   # - CoreSet
-  # - AdversarialPGD
 
 #
 n_init_labeled: 100
@@ -25,7 +25,7 @@ n_final_labeled: 5000
 #get dataset
 dataset_name: mnist
 pool_size: 55000
-n_adv_test: 300
+n_adv_test: 10000
 #get net
 reset: true
 repeat: 0
@@ -71,7 +71,7 @@ AdversarialDeepFool:
   n_subset_ul: 300
   pseudo_labeling: true
   diversity: false
-  cumul: true
+  cumul: false
   norm: inf
 
 CleverStrategy:
@@ -115,12 +115,12 @@ test_attack:
   name: 'pgd'
   args:
     eps: 0.3
-    eps_iter: 0.1
-    nb_iter: 20
+    eps_iter: 0.01
+    nb_iter: 40
     norm: inf
     targeted: false
     rand_init: true
-    rand_minmax: 0.1
+    # rand_minmax: 0.1
 
 # test_attack:
 #   name: 'deepfool'

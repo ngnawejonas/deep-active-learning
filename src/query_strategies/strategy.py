@@ -3,11 +3,13 @@ import torch
 import wandb
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from data import Data
+from nets import Net
 from utils import compute_norm, get_attack_fn, clever_score  # , log_to_file
 
 
 class Strategy:
-    def __init__(self, dataset, net, pseudo_labeling=False, max_iter=None, dist_file_name=None, id_exp=0):
+    def __init__(self, dataset: Data, net: Net, pseudo_labeling=False, max_iter=None, dist_file_name=None, id_exp=0):
         self.dataset = dataset
         self.net = net
         self.pseudo_labeling = pseudo_labeling
@@ -120,9 +122,9 @@ class Strategy:
                 success_attack_idxs.append(i)
             
             # clever score/dis
-            clever_dis = clever_score(self.net.clf, x[0], **clever_args)
+            # clever_dis = clever_score(self.net.clf, x[0], **clever_args)
            
-            clever_dis_list.append(clever_dis)
+            # clever_dis_list.append(clever_dis)
             dis_inf_list.append(dis['inf'])
             dis_2_list.append(dis['2'])
             nb_iter_list.append(nb_iter)
@@ -134,8 +136,8 @@ class Strategy:
         dis_list = {'d_inf': dis_inf_list,
                     'd_2': dis_2_list,
                     'cumul_inf': cumul_dis_inf_list,
-                    'cumul_2': cumul_dis_2_list,
-                    'clever_dis': clever_dis_list}
+                    'cumul_2': cumul_dis_2_list,}
+                    # 'clever_dis': clever_dis_list}
 
         filter_idxs = {'initial_correct': correct_idxs, 'success': success_attack_idxs}
         return dis_list, nb_iter_list, filter_idxs

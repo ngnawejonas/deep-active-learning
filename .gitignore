@@ -2,3 +2,6 @@
 src/data/*
 test/data/*
 *pt
+wandb*
+*debug*
+*log

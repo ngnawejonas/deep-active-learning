@@ -113,7 +113,7 @@ class Net:
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
         loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         with torch.no_grad():
-            for x, y, idxs in loader:
+            for x, y, idxs in tqdm(loader):
                 # for x, y in loader:
                 x, y = x.to(self.device), y.to(self.device)
                 out = self.clf(x)
@@ -122,7 +122,7 @@ class Net:
                 preds[idxs] = pred.cpu()
         return preds
 
-    def predict_adv(self, data):
+    def predict_adv(self, data, onebyone=False):
         attack_name = self.params['test_attack']['name']
         attack_params = self.params['test_attack']['args'] if self.params['test_attack'].get('args') else {}
         if attack_params.get('norm'):
@@ -132,13 +132,14 @@ class Net:
         self.clf.eval()
         preds = torch.zeros(len(data), dtype=data.Y.dtype)
         # if attack_name == 'deepfool':
-        loader = DataLoader(data, shuffle=False)
-        # else:
-        #     loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
+        if onebyone:
+            loader = DataLoader(data, shuffle=False)
+        else:
+            loader = DataLoader(data, shuffle=False, **self.params['test_loader_args'])
         for x, y, idxs in tqdm(loader):
             # for x, y in loader:
             x, y = x.to(self.device), y.to(self.device)
-            x = attack_fn(self.clf, x, **attack_params)
+            x = attack_fn(self.clf, x, y, **attack_params)
             out = self.clf(x)
             pred = out.max(1)[1]
             preds[idxs] = pred.cpu()
